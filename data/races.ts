@@ -1,0 +1,159 @@
+import { EventStatus } from "./events";
+import { athletes } from "./athletes";
+import { entries } from "./entries";
+import { personalBests } from "./personalBests";
+import { resultRecords } from "./results";
+import { universities } from "./universities";
+
+export type RaceStart = {
+  lane: number;
+  athlete: string;
+  athleteId: string;
+  university: string;
+  universityId: string;
+  year: string;
+  pb: string;
+  tag?: string;
+  featured?: boolean;
+};
+
+export type RaceResultEntry = {
+  rank: number | "-";
+  athlete: string;
+  athleteId: string;
+  university: string;
+  universityId: string;
+  year: string;
+  time: string;
+  note?: "PB" | "SB" | "DNS" | "DNF" | "DQ";
+};
+
+export type RaceRecord = {
+  race_id: string;
+  slug: string;
+  meet_id: string;
+  race_name: string;
+  start_time: string;
+  status: "scheduled" | "startlist_published" | "result_published" | "result_waiting";
+  distance: "1500m" | "5000m" | "10000m" | "ハーフ";
+  result_summary_id?: string;
+};
+
+export type RaceDetail = {
+  id: string;
+  eventId: string;
+  name: string;
+  eventName: string;
+  startTime: string;
+  status: EventStatus;
+  distance: string;
+  summary: string;
+  focus: string[];
+  startList: RaceStart[];
+  results: RaceResultEntry[];
+  relatedRaces: {
+    id: string;
+    name: string;
+    startTime: string;
+    status: EventStatus;
+  }[];
+  relatedUniversityIds: string[];
+};
+
+export const raceRecords: RaceRecord[] = [
+  { race_id: "mens-1500m-final", slug: "mens-1500m-final", meet_id: "kanto-1500m", race_name: "男子1500m 決勝", start_time: "開始時刻未定", status: "result_published", distance: "1500m", result_summary_id: "kanto-1500m-mens-1500m-final" },
+  { race_id: "mens-5000m-a", slug: "mens-5000m-a", meet_id: "night-5000m", race_name: "男子5000m A組", start_time: "19:10", status: "result_waiting", distance: "5000m" },
+  { race_id: "mens-5000m-b", slug: "mens-5000m-b", meet_id: "night-5000m", race_name: "男子5000m B組", start_time: "19:40", status: "result_waiting", distance: "5000m" },
+  { race_id: "mens-10000m-1", slug: "mens-10000m-1", meet_id: "kanto-10000m", race_name: "男子10000m 1組", start_time: "15:20", status: "startlist_published", distance: "10000m" },
+  { race_id: "mens-10000m-2", slug: "mens-10000m-2", meet_id: "kanto-10000m", race_name: "男子10000m 2組", start_time: "16:05", status: "startlist_published", distance: "10000m" },
+  { race_id: "mens-10000m-3", slug: "mens-10000m-3", meet_id: "kanto-10000m", race_name: "男子10000m 3組", start_time: "16:50", status: "result_published", distance: "10000m", result_summary_id: "kanto-10000m-mens-10000m-3" },
+  { race_id: "mens-10000m-4", slug: "mens-10000m-4", meet_id: "kanto-10000m", race_name: "男子10000m 4組", start_time: "17:35", status: "scheduled", distance: "10000m" },
+  { race_id: "mens-5000m-final", slug: "mens-5000m-final", meet_id: "kanto-5000m-final", race_name: "男子5000m 決勝", start_time: "18:00", status: "result_published", distance: "5000m", result_summary_id: "kanto-5000m-final-mens-5000m-final" },
+  { race_id: "half-final", slug: "half-final", meet_id: "hakone-qualifier-trial", race_name: "ハーフマラソン 決勝", start_time: "9:00", status: "result_published", distance: "ハーフ", result_summary_id: "hakone-qualifier-trial-half-final" },
+  { race_id: "spring-open-5000m-2", slug: "spring-open-5000m-2", meet_id: "spring-open", race_name: "5000m 2組", start_time: "開始時刻未定", status: "result_published", distance: "5000m" },
+  { race_id: "winter-half", slug: "winter-half", meet_id: "winter-half", race_name: "ハーフ", start_time: "開始時刻未定", status: "result_published", distance: "ハーフ" }
+];
+
+const meetNameById: Record<string, string> = {
+  "kanto-1500m": "関東学生1500m記録会",
+  "night-5000m": "学生ナイトゲームズ5000m",
+  "kanto-10000m": "関東学生10000m記録挑戦会",
+  "kanto-5000m-final": "関東学生5000m決勝",
+  "hakone-qualifier-trial": "箱根駅伝予選会プレ記録会",
+  "spring-open": "春季オープン",
+  "winter-half": "冬季ハーフ記録会"
+};
+
+const statusMap: Record<RaceRecord["status"], EventStatus> = {
+  scheduled: "scheduled",
+  startlist_published: "startlist",
+  result_published: "result",
+  result_waiting: "waiting"
+};
+
+export const races: RaceDetail[] = raceRecords.map((race) => {
+  const raceEntries = entries.filter((entry) => entry.race_id === race.race_id);
+  const raceResults = resultRecords.filter((result) => result.race_id === race.race_id);
+  const relatedRaces = raceRecords
+    .filter((item) => item.meet_id === race.meet_id && item.race_id !== race.race_id)
+    .map((item) => ({
+      id: item.race_id,
+      name: item.race_name,
+      startTime: item.start_time,
+      status: statusMap[item.status]
+    }));
+
+  return {
+    id: race.race_id,
+    eventId: race.meet_id,
+    name: race.race_name,
+    eventName: meetNameById[race.meet_id] ?? race.meet_id,
+    startTime: race.start_time,
+    status: statusMap[race.status],
+    distance: race.distance,
+    summary: "掲載データ内の出場予定、結果、大学別の出場選手を確認できます。",
+    focus: ["PB 28分台", "1年生", "大学別の出場選手"],
+    startList: raceEntries.map((entry, index) => {
+      const athlete = athletes.find((item) => item.id === entry.athlete_id);
+      const university = universities.find((item) => item.id === entry.university_id);
+      const pb = personalBests.find((record) => record.athlete_id === entry.athlete_id && record.distance === race.distance);
+
+      return {
+        lane: entry.bib_no ?? index + 1,
+        athlete: athlete?.name ?? "未登録",
+        athleteId: entry.athlete_id,
+        university: university?.name ?? "大学未登録",
+        universityId: entry.university_id,
+        year: athlete?.year ?? "学年未登録",
+        pb: pb?.time ?? "PB未登録",
+        tag: pb?.time.includes("28:") ? "PB 28分台" : athlete?.year === "1年" ? "1年生" : undefined,
+        featured: ["saeki", "hirai", "yoshioka"].includes(entry.athlete_id)
+      };
+    }),
+    results: raceResults.map((result) => {
+      const athlete = athletes.find((item) => item.id === result.athlete_id);
+      const university = universities.find((item) => item.id === result.university_id);
+
+      return {
+        rank: result.rank === "DNS" ? "-" : Number(result.rank.replace("位", "")),
+        athlete: athlete?.name ?? "未登録",
+        athleteId: result.athlete_id,
+        university: university?.name ?? "大学未登録",
+        universityId: result.university_id,
+        year: athlete?.year ?? "学年未登録",
+        time: result.time === "DNS" ? "-" : result.time,
+        note: result.note
+      };
+    }),
+    relatedRaces,
+    relatedUniversityIds: Array.from(new Set(raceEntries.map((entry) => entry.university_id)))
+  };
+});
+
+export function getRaceById(raceId: string) {
+  return raceRecords.find((race) => race.race_id === raceId);
+}
+
+export function getRacesByMeetId(meetId: string) {
+  return raceRecords.filter((race) => race.meet_id === meetId);
+}

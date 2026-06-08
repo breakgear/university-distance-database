@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarDays, ChevronRight, Database, Flag, Info, Rows3, School, Trophy, UserRound } from "lucide-react";
 import { athletes, Athlete } from "@/data/athletes";
-import { resultCategoryLabels, resultSummaries, ResultSummary } from "@/data/results";
+import { meets } from "@/data/meets";
+import { raceRecords } from "@/data/races";
+import { resultCategoryLabels, resultRecords, resultSummaries, ResultRecord, ResultSummary } from "@/data/results";
 import { universities, University } from "@/data/universities";
 import { formatDate } from "@/lib/utils";
 
@@ -62,7 +64,7 @@ const sameRaceResults: RaceResultRow[] = [
 ];
 
 export function generateStaticParams() {
-  const params = [legacyResultId, ...resultSummaries.map((result) => result.result_id)];
+  const params = [legacyResultId, ...resultSummaries.map((result) => result.result_id), ...resultRecords.map((result) => result.result_id)];
   return Array.from(new Set(params)).map((resultId) => ({ resultId }));
 }
 
@@ -84,19 +86,17 @@ export default async function ResultDetailPage({ params }: { params: Promise<{ r
   }
 
   const recentResult = athlete.recentResults.find((result) => result.time === resultDetail.time && result.distance === resultDetail.distance);
-  const displayedRaceResults =
-    resultDetail.raceId === "mens-10000m-3"
-      ? sameRaceResults
-      : [
-          {
-            resultId: resultDetail.resultId,
-            athleteId: resultDetail.athleteId,
-            universityId: resultDetail.universityId,
-            rank: resultDetail.rank,
-            time: resultDetail.time,
-            note: resultDetail.note
-          }
-        ];
+  const recordRows = resultRecords
+    .filter((result) => result.race_id === resultDetail.raceId)
+    .map((result) => ({
+      resultId: result.result_id,
+      athleteId: result.athlete_id,
+      universityId: result.university_id,
+      rank: result.rank,
+      time: result.time,
+      note: result.note ?? ("" as ResultNote)
+    }));
+  const displayedRaceResults = resultDetail.raceId === "mens-10000m-3" ? sameRaceResults : recordRows;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
@@ -239,11 +239,16 @@ function resolveResultDetail(resultId: string): ResultDetail | null {
   }
 
   const summary = resultSummaries.find((result) => result.result_id === resultId);
-  if (!summary) {
+  if (summary) {
+    return buildResultDetailFromSummary(summary);
+  }
+
+  const record = resultRecords.find((result) => result.result_id === resultId);
+  if (!record) {
     return null;
   }
 
-  return buildResultDetailFromSummary(summary);
+  return buildResultDetailFromRecord(record);
 }
 
 function buildResultDetailFromSummary(summary: ResultSummary): ResultDetail {
@@ -263,6 +268,29 @@ function buildResultDetailFromSummary(summary: ResultSummary): ResultDetail {
     rank: "1位",
     time: summary.winner_time,
     note: summary.notes.includes("PB") ? "PB" : ""
+  };
+}
+
+function buildResultDetailFromRecord(record: ResultRecord): ResultDetail {
+  const meet = meets.find((item) => item.meet_id === record.meet_id);
+  const race = raceRecords.find((item) => item.race_id === record.race_id);
+
+  return {
+    resultId: record.result_id,
+    meetId: record.meet_id,
+    meetName: meet?.meet_name ?? record.meet_id,
+    raceId: record.race_id,
+    raceName: race?.race_name ?? record.race_id,
+    date: record.date,
+    venue: meet?.venue ?? "会場未定",
+    category: meet?.category ?? "track",
+    distance: record.distance,
+    status: "結果公開",
+    athleteId: record.athlete_id,
+    universityId: record.university_id,
+    rank: record.rank,
+    time: record.time,
+    note: record.note ?? ""
   };
 }
 

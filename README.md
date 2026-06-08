@@ -17,6 +17,19 @@ npm run dev
 http://localhost:3000
 ```
 
+## 本番URL
+
+Vercelで公開中のURL：
+
+```text
+https://university-distance-database.vercel.app/
+```
+
+注意：
+
+- ローカル開発は `http://localhost:3000`
+- 本番確認は Vercel URL を使う
+
 ## 主なページ
 
 | URL                                   | ページ      |

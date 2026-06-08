@@ -1,0 +1,5 @@
+entry_id,meet_id,race_id,athlete_id,university_id,bib_no,entry_status
+entry-kanto-10000m-saeki,kanto-10000m,mens-10000m-3,saeki,aoba,1,entered
+entry-kanto-10000m-yoshioka,kanto-10000m,mens-10000m-3,yoshioka,surugadai,2,entered
+entry-kanto-1500m-saeki,kanto-1500m,mens-1500m-final,saeki,aoba,1,entered
+entry-half-morino,hakone-qualifier-trial,half-final,morino,josai,1,entered

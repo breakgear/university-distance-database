@@ -1,0 +1,14 @@
+status_key,label,use_for
+scheduled,予定,meets/races
+coming_soon,まもなく,meets
+startlist_published,スタートリスト公開,meets/races
+result_waiting,結果待ち,meets/races
+result_published,結果公開,meets/races
+entered,出場予定,entries
+listed,掲載済み,entries
+started,開始済み,entries
+unconfirmed,未確認,entries
+finished,完走,results
+dns,DNS,results
+dnf,DNF,results
+dq,DQ,results

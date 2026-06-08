@@ -1,0 +1,4 @@
+race_id,slug,meet_id,race_name,distance,start_time,status,result_summary_id
+mens-10000m-3,mens-10000m-3,kanto-10000m,男子10000m 3組,10000m,16:50,result_published,kanto-10000m-mens-10000m-3
+mens-1500m-final,mens-1500m-final,kanto-1500m,男子1500m 決勝,1500m,,result_published,kanto-1500m-mens-1500m-final
+half-final,half-final,hakone-qualifier-trial,ハーフマラソン 決勝,ハーフ,9:00,result_published,hakone-qualifier-trial-half-final

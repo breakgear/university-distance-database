@@ -1,0 +1,14 @@
+check_id,check_item,target,expected
+1,athletes.university_id が universities.id に存在する,athletes,不一致なし
+2,races.meet_id が meets.meet_id に存在する,races,不一致なし
+3,entries.race_id が races.race_id に存在する,entries,不一致なし
+4,entries.athlete_id が athletes.id に存在する,entries,不一致なし
+5,entries.university_id が universities.id に存在する,entries,不一致なし
+6,results.race_id が races.race_id に存在する,results,不一致なし
+7,results.athlete_id が athletes.id に存在する,results,不一致なし
+8,personal_bests.athlete_id が athletes.id に存在する,personal_bests,不一致なし
+9,source_result_id が results.result_id に存在する,personal_bests,source_type = manual 以外は存在する
+10,slug が重複していない,all,重複なし
+11,status が status_master に存在する,meets/races/entries/results,許可値のみ
+12,distance が event_type_master に存在する,races/results/personal_bests,許可値のみ
+13,results.is_pb = TRUE の行は personal_bests に反映済み,results/personal_bests,反映済み

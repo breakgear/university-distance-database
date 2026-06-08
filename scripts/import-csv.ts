@@ -1138,7 +1138,7 @@ function toNumber(input: CsvValue | undefined) {
 function splitList(input: string | null) {
   return input
     ? input
-        .split(",")
+        .split(/\s*(?:,|、|\/)\s*/)
         .map((item) => item.trim())
         .filter(Boolean)
     : [];

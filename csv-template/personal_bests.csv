@@ -1,0 +1,4 @@
+pb_id,athlete_id,university_id,distance,time,date,source_type,source_result_id,note
+pb-saeki-10000m,saeki,aoba,10000m,28:28.90,2026-05-24,result,kanto-10000m-mens-10000m-3-saeki,掲載データ内PB
+pb-saeki-1500m,saeki,aoba,1500m,3:48.20,2026-06-02,result,kanto-1500m-mens-1500m-final-saeki,掲載データ内PB
+pb-morino-half,morino,josai,ハーフ,1:02:48,2026-05-18,result,hakone-qualifier-trial-half-final-morino,掲載データ内PB

@@ -1,0 +1,4 @@
+id,slug,name,area,sash_color,accent,profile,listing_events,has_upcoming,has_result
+aoba,aoba,早稲田,関東,赤,#b3263a,,5000m / 10000m / ハーフ,TRUE,TRUE
+surugadai,surugadai,青山学院,関東,緑,#158b63,,5000m / 10000m,TRUE,TRUE
+josai,josai,駒澤,関東,紫,#5b3c99,,10000m / ハーフ,TRUE,TRUE

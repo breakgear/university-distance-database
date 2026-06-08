@@ -1,0 +1,4 @@
+meet_id,slug,meet_name,date,venue,category,status,note
+kanto-10000m,kanto-10000m,関東学生10000m記録挑戦会,2026-05-24,町田GIONスタジアム,track,result_published,結果公開中
+kanto-1500m,kanto-1500m,関東学生1500m記録会,2026-06-02,駒沢オリンピック公園陸上競技場,track,result_published,結果公開中
+hakone-qualifier-trial,hakone-qualifier-trial,箱根駅伝予選会プレ記録会,2026-05-18,相模原ギオンスタジアム,road,result_published,結果公開中

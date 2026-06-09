@@ -59,41 +59,33 @@ export type RaceDetail = {
 
 export const raceRecords: RaceRecord[] = [
   {
-    "race_id": "mens-10000m-3",
-    "slug": "mens-10000m-3",
-    "meet_id": "kanto-10000m",
-    "race_name": "男子10000m 3組",
-    "start_time": "16:50",
-    "status": "result_published",
-    "distance": "10000m",
-    "result_summary_id": "kanto-10000m-mens-10000m-3"
-  },
-  {
-    "race_id": "mens-1500m-final",
-    "slug": "mens-1500m-final",
-    "meet_id": "kanto-1500m",
-    "race_name": "男子1500m 決勝",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "slug": "kanto-intercollege-mens-5000m",
+    "meet_id": "kanto-intercollege",
+    "race_name": "男子5000m 決勝",
     "start_time": "開始時刻未定",
     "status": "result_published",
-    "distance": "1500m",
-    "result_summary_id": "kanto-1500m-mens-1500m-final"
-  },
-  {
-    "race_id": "half-final",
-    "slug": "half-final",
-    "meet_id": "hakone-qualifier-trial",
-    "race_name": "ハーフマラソン 決勝",
-    "start_time": "9:00",
-    "status": "result_published",
-    "distance": "ハーフ",
-    "result_summary_id": "hakone-qualifier-trial-half-final"
+    "distance": "5000m",
+    "result_summary_id": "kanto-intercollege-mens-5000m"
   }
 ];
 
 const meetNameById: Record<string, string> = {
-  "kanto-10000m": "関東学生10000m記録挑戦会",
-  "kanto-1500m": "関東学生1500m記録会",
-  "hakone-qualifier-trial": "箱根駅伝予選会プレ記録会"
+  "hakone-ekiden": "箱根駅伝",
+  "japan-student-half": "日本学生ハーフ",
+  "kanaguri-memorial": "金栗記念",
+  "japan-student-individual": "日本学生個人選手権",
+  "kanto-intercollege": "関東インカレ",
+  "golden-games-nobeoka": "ゴールデンゲームズ in のべおか",
+  "all-japan-kanto-qualifier": "全日本大学駅伝関東選考会",
+  "hokuren-dc": "ホクレンDC",
+  "japan-intercollege": "日本インカレ",
+  "izumo-ekiden": "出雲駅伝",
+  "hakone-qualifier": "箱根予選会",
+  "all-japan-univ-ekiden": "全日本大学駅伝",
+  "ageo-city-half": "上尾シティハーフ",
+  "hachioji-long-distance": "八王子ロングディスタンス",
+  "nittaidai-long-distance": "日体大長距離競技会"
 };
 
 const statusMap: Record<RaceRecord["status"], EventStatus> = {

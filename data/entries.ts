@@ -14,40 +14,319 @@ export type Entry = {
 
 export const entries: Entry[] = [
   {
-    "entry_id": "entry-kanto-10000m-saeki",
-    "meet_id": "kanto-10000m",
-    "race_id": "mens-10000m-3",
-    "athlete_id": "saeki",
-    "university_id": "aoba",
-    "bib_no": 1,
-    "status": "entered"
+    "entry_id": "entry-kanto-intercollege-mens-5000m-okada-kaisei",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "okada-kaisei",
+    "university_id": "chuo",
+    "bib_no": 523,
+    "status": "listed"
   },
   {
-    "entry_id": "entry-kanto-10000m-yoshioka",
-    "meet_id": "kanto-10000m",
-    "race_id": "mens-10000m-3",
-    "athlete_id": "yoshioka",
+    "entry_id": "entry-kanto-intercollege-mens-5000m-suzuki-rui",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "suzuki-rui",
+    "university_id": "waseda",
+    "bib_no": 411,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-stephen-lemayan",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "stephen-lemayan",
     "university_id": "surugadai",
-    "bib_no": 2,
-    "status": "entered"
+    "bib_no": 160,
+    "status": "listed"
   },
   {
-    "entry_id": "entry-kanto-1500m-saeki",
-    "meet_id": "kanto-1500m",
-    "race_id": "mens-1500m-final",
-    "athlete_id": "saeki",
-    "university_id": "aoba",
-    "bib_no": 1,
-    "status": "entered"
+    "entry_id": "entry-kanto-intercollege-mens-5000m-brian-kipiego",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "brian-kipiego",
+    "university_id": "yamanashi-gakuin",
+    "bib_no": 68,
+    "status": "listed"
   },
   {
-    "entry_id": "entry-half-morino",
-    "meet_id": "hakone-qualifier-trial",
-    "race_id": "half-final",
-    "athlete_id": "morino",
+    "entry_id": "entry-kanto-intercollege-mens-5000m-kudo-shinsaku",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "kudo-shinsaku",
+    "university_id": "waseda",
+    "bib_no": 412,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-ikema-riito",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "ikema-riito",
+    "university_id": "juntendo",
+    "bib_no": 192,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-sato-daisuke",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "sato-daisuke",
+    "university_id": "chuo",
+    "bib_no": 524,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-shibata-yu",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "shibata-yu",
     "university_id": "josai",
-    "bib_no": 1,
-    "status": "entered"
+    "bib_no": 324,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-yoshikura-nayabu-naoki",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "yoshikura-nayabu-naoki",
+    "university_id": "waseda",
+    "bib_no": 410,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-kawasaki-so",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "kawasaki-so",
+    "university_id": "tsukuba",
+    "bib_no": 628,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-yamamoto-haruka",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "yamamoto-haruka",
+    "university_id": "juntendo",
+    "bib_no": 191,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-kibuni-evans",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "kibuni-evans",
+    "university_id": "kokushikan",
+    "bib_no": 277,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-noda-akito",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "noda-akito",
+    "university_id": "hosei",
+    "bib_no": 593,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-ohama-takuma",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "ohama-takuma",
+    "university_id": "daito-bunka",
+    "bib_no": 483,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-omi-ryo",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "omi-ryo",
+    "university_id": "daito-bunka",
+    "bib_no": 484,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-kobayashi-ryuki",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "kobayashi-ryuki",
+    "university_id": "josai",
+    "bib_no": 325,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-urabe-towa",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "urabe-towa",
+    "university_id": "yamanashi-gakuin",
+    "bib_no": 66,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-oshita-tomoya",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "oshita-tomoya",
+    "university_id": "juntendo",
+    "bib_no": 193,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-matsuyama-yuta",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "matsuyama-yuta",
+    "university_id": "tokai",
+    "bib_no": 356,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-hamaguchi-yamato",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "hamaguchi-yamato",
+    "university_id": "chuo",
+    "bib_no": 525,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-wakabayashi-tsukasa",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "wakabayashi-tsukasa",
+    "university_id": "daito-bunka",
+    "bib_no": 485,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-kobayashi-haru",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "kobayashi-haru",
+    "university_id": "tsukuba",
+    "bib_no": 629,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-murao-kyosuke",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "murao-kyosuke",
+    "university_id": "josai",
+    "bib_no": 323,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-sato-yamato",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "sato-yamato",
+    "university_id": "nippon-sport-science",
+    "bib_no": 15,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-takahashi-fuga",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "takahashi-fuga",
+    "university_id": "yamanashi-gakuin",
+    "bib_no": 67,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-ishikawa-yuto",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "ishikawa-yuto",
+    "university_id": "nihon",
+    "bib_no": 105,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-narusawa-shoei",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "narusawa-shoei",
+    "university_id": "keio",
+    "bib_no": 254,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-handa-kevin",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "handa-kevin",
+    "university_id": "toyo",
+    "bib_no": 445,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-sano-rinta",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "sano-rinta",
+    "university_id": "tokai",
+    "bib_no": 355,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-kojima-mitsuki",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "kojima-mitsuki",
+    "university_id": "surugadai",
+    "bib_no": 159,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-higaki-aoi",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "higaki-aoi",
+    "university_id": "tokai",
+    "bib_no": 354,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-goto-ibuki",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "goto-ibuki",
+    "university_id": "nihon",
+    "bib_no": 104,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-shudo-kaito",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "shudo-kaito",
+    "university_id": "nihon",
+    "bib_no": 106,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-hayashi-yua",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "hayashi-yua",
+    "university_id": "toyo",
+    "bib_no": 444,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-kanto-intercollege-mens-5000m-matsui-kaito",
+    "meet_id": "kanto-intercollege",
+    "race_id": "kanto-intercollege-mens-5000m",
+    "athlete_id": "matsui-kaito",
+    "university_id": "toyo",
+    "bib_no": 443,
+    "status": "listed"
   }
 ];
 

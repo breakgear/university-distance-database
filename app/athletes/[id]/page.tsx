@@ -60,6 +60,7 @@ export default async function AthletePage({ params }: { params: Promise<{ id: st
   const latestResult = results[0];
   const listedEvents = athlete.pb.map((pb) => pb.distance).join(" / ");
   const eventRecords = buildEventRecords(results).filter((group) => group.results.length > 0);
+  const primaryEvent = latestResult?.distance ?? athlete.pb[0]?.distance ?? athlete.specialty;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
@@ -104,10 +105,10 @@ export default async function AthletePage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <FactBadge text="PBあり" />
-            <FactBadge text="出場予定あり" />
-            <FactBadge text="結果あり" />
-            <FactBadge text="10000m" />
+            {athlete.pb.length > 0 ? <FactBadge text="PBあり" /> : null}
+            {appearances.length > 0 ? <FactBadge text="出場予定あり" /> : null}
+            {results.length > 0 ? <FactBadge text="結果あり" /> : null}
+            {primaryEvent ? <FactBadge text={primaryEvent} /> : null}
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">

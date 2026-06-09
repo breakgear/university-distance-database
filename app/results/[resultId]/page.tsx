@@ -252,6 +252,13 @@ function resolveResultDetail(resultId: string): ResultDetail | null {
 }
 
 function buildResultDetailFromSummary(summary: ResultSummary): ResultDetail {
+  const winnerResult = resultRecords.find(
+    (result) =>
+      result.race_id === summary.race_id &&
+      result.athlete_id === summary.winner_athlete_id &&
+      result.time === summary.winner_time
+  );
+
   return {
     resultId: summary.result_id,
     meetId: summary.meet_id,
@@ -267,7 +274,7 @@ function buildResultDetailFromSummary(summary: ResultSummary): ResultDetail {
     universityId: summary.winner_university_id,
     rank: "1位",
     time: summary.winner_time,
-    note: summary.notes.includes("PB") ? "PB" : ""
+    note: winnerResult?.note ?? ""
   };
 }
 

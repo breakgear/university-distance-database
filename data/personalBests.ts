@@ -15,34 +15,34 @@ export type PersonalBest = {
 
 export const personalBests: PersonalBest[] = [
   {
-    "pb_id": "pb-saeki-10000m",
-    "athlete_id": "saeki",
-    "university_id": "aoba",
-    "distance": "10000m",
-    "time": "28:28.90",
+    "pb_id": "pb-kudo-shinsaku-5000m",
+    "athlete_id": "kudo-shinsaku",
+    "university_id": "waseda",
+    "distance": "5000m",
+    "time": "13:38.67",
     "date": "2026-05-24",
     "source_type": "result",
-    "source_result_id": "kanto-10000m-mens-10000m-3-saeki"
+    "source_result_id": "kanto-intercollege-mens-5000m-kudo-shinsaku"
   },
   {
-    "pb_id": "pb-saeki-1500m",
-    "athlete_id": "saeki",
-    "university_id": "aoba",
-    "distance": "1500m",
-    "time": "3:48.20",
-    "date": "2026-06-02",
+    "pb_id": "pb-omi-ryo-5000m",
+    "athlete_id": "omi-ryo",
+    "university_id": "daito-bunka",
+    "distance": "5000m",
+    "time": "13:54.99",
+    "date": "2026-05-24",
     "source_type": "result",
-    "source_result_id": "kanto-1500m-mens-1500m-final-saeki"
+    "source_result_id": "kanto-intercollege-mens-5000m-omi-ryo"
   },
   {
-    "pb_id": "pb-morino-half",
-    "athlete_id": "morino",
-    "university_id": "josai",
-    "distance": "ハーフ",
-    "time": "1:02:48",
-    "date": "2026-05-18",
+    "pb_id": "pb-kobayashi-haru-5000m",
+    "athlete_id": "kobayashi-haru",
+    "university_id": "tsukuba",
+    "distance": "5000m",
+    "time": "14:06.50",
+    "date": "2026-05-24",
     "source_type": "result",
-    "source_result_id": "hakone-qualifier-trial-half-final-morino"
+    "source_result_id": "kanto-intercollege-mens-5000m-kobayashi-haru"
   }
 ];
 

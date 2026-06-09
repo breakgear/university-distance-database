@@ -43,6 +43,416 @@ export const personalBests: PersonalBest[] = [
     "date": "2026-05-24",
     "source_type": "result",
     "source_result_id": "kanto-intercollege-mens-5000m-kobayashi-haru"
+  },
+  {
+    "pb_id": "pb-nakano-jumpei-10000m",
+    "athlete_id": "nakano-jumpei",
+    "university_id": "tokai",
+    "distance": "10000m",
+    "time": "28:19.39",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-10000m-nakano-jumpei"
+  },
+  {
+    "pb_id": "pb-minamisaka-yuta-10000m",
+    "athlete_id": "minamisaka-yuta",
+    "university_id": "tokai",
+    "distance": "10000m",
+    "time": "28:21.62",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-10000m-minamisaka-yuta"
+  },
+  {
+    "pb_id": "pb-matsuo-kazuma-10000m",
+    "athlete_id": "matsuo-kazuma",
+    "university_id": "juntendo",
+    "distance": "10000m",
+    "time": "28:23.90",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-10000m-matsuo-kazuma"
+  },
+  {
+    "pb_id": "pb-matsuura-kirato-10000m",
+    "athlete_id": "matsuura-kirato",
+    "university_id": "daito-bunka",
+    "distance": "10000m",
+    "time": "28:32.83",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-10000m-matsuura-kirato"
+  },
+  {
+    "pb_id": "pb-urabe-towa-10000m",
+    "athlete_id": "urabe-towa",
+    "university_id": "yamanashi-gakuin",
+    "distance": "10000m",
+    "time": "28:34.91",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-10000m-urabe-towa"
+  },
+  {
+    "pb_id": "pb-hamanaka-mikoto-10000m",
+    "athlete_id": "hamanaka-mikoto",
+    "university_id": "toyo",
+    "distance": "10000m",
+    "time": "28:56.97",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-10000m-hamanaka-mikoto"
+  },
+  {
+    "pb_id": "pb-hoshino-taichi-10000m",
+    "athlete_id": "hoshino-taichi",
+    "university_id": "hosei",
+    "distance": "10000m",
+    "time": "29:00.99",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-10000m-hoshino-taichi"
+  },
+  {
+    "pb_id": "pb-koike-riki-10000m",
+    "athlete_id": "koike-riki",
+    "university_id": "soka",
+    "distance": "10000m",
+    "time": "27:52.43",
+    "date": "2026-05-21",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-10000m-koike-riki"
+  },
+  {
+    "pb_id": "pb-nicholas-kipchumba-10000m",
+    "athlete_id": "nicholas-kipchumba",
+    "university_id": "jobu",
+    "distance": "10000m",
+    "time": "27:55.87",
+    "date": "2026-05-21",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-10000m-nicholas-kipchumba"
+  },
+  {
+    "pb_id": "pb-takaishi-itsuki-10000m",
+    "athlete_id": "takaishi-itsuki",
+    "university_id": "kokugakuin",
+    "distance": "10000m",
+    "time": "28:01.47",
+    "date": "2026-05-21",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-10000m-takaishi-itsuki"
+  },
+  {
+    "pb_id": "pb-kuwata-shunsuke-10000m",
+    "athlete_id": "kuwata-shunsuke",
+    "university_id": "komazawa",
+    "distance": "10000m",
+    "time": "28:07.63",
+    "date": "2026-05-21",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-10000m-kuwata-shunsuke"
+  },
+  {
+    "pb_id": "pb-tsujihara-hikaru-10000m",
+    "athlete_id": "tsujihara-hikaru",
+    "university_id": "kokugakuin",
+    "distance": "10000m",
+    "time": "28:24.68",
+    "date": "2026-05-21",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-10000m-tsujihara-hikaru"
+  },
+  {
+    "pb_id": "pb-okada-kaisei-5000m",
+    "athlete_id": "okada-kaisei",
+    "university_id": "chuo",
+    "distance": "5000m",
+    "time": "13:19.44",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-okada-kaisei"
+  },
+  {
+    "pb_id": "pb-mashiko-yota-5000m",
+    "athlete_id": "mashiko-yota",
+    "university_id": "waseda",
+    "distance": "5000m",
+    "time": "13:20.35",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-mashiko-yota"
+  },
+  {
+    "pb_id": "pb-kurimura-ryo-5000m",
+    "athlete_id": "kurimura-ryo",
+    "university_id": "chuo",
+    "distance": "5000m",
+    "time": "13:21.99",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-kurimura-ryo"
+  },
+  {
+    "pb_id": "pb-nonaka-hiromichi-5000m",
+    "athlete_id": "nonaka-hiromichi",
+    "university_id": "kokugakuin",
+    "distance": "5000m",
+    "time": "13:28.47",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-nonaka-hiromichi"
+  },
+  {
+    "pb_id": "pb-miyake-yuto-5000m",
+    "athlete_id": "miyake-yuto",
+    "university_id": "chuo",
+    "distance": "5000m",
+    "time": "13:28.66",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-miyake-yuto"
+  },
+  {
+    "pb_id": "pb-yamaguchi-shunpei-5000m",
+    "athlete_id": "yamaguchi-shunpei",
+    "university_id": "waseda",
+    "distance": "5000m",
+    "time": "13:29.72",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-yamaguchi-shunpei"
+  },
+  {
+    "pb_id": "pb-nanatsue-nao-5000m",
+    "athlete_id": "nanatsue-nao",
+    "university_id": "chuo",
+    "distance": "5000m",
+    "time": "13:30.35",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-nanatsue-nao"
+  },
+  {
+    "pb_id": "pb-ikema-riito-5000m",
+    "athlete_id": "ikema-riito",
+    "university_id": "juntendo",
+    "distance": "5000m",
+    "time": "13:34.44",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-ikema-riito"
+  },
+  {
+    "pb_id": "pb-oda-yuku-5000m",
+    "athlete_id": "oda-yuku",
+    "university_id": "shigakukan",
+    "distance": "5000m",
+    "time": "14:06.12",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-oda-yuku"
+  },
+  {
+    "pb_id": "pb-hino-takumu-5000m",
+    "athlete_id": "hino-takumu",
+    "university_id": "shigakukan",
+    "distance": "5000m",
+    "time": "14:06.47",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-hino-takumu"
+  },
+  {
+    "pb_id": "pb-tokuyama-hiroki-5000m",
+    "athlete_id": "tokuyama-hiroki",
+    "university_id": "chuo",
+    "distance": "5000m",
+    "time": "14:19.54",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-tokuyama-hiroki"
+  },
+  {
+    "pb_id": "pb-hikomi-nayuta-5000m",
+    "athlete_id": "hikomi-nayuta",
+    "university_id": "kogakkan",
+    "distance": "5000m",
+    "time": "14:35.66",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "golden-games-nobeoka-mens-5000m-overall-hikomi-nayuta"
+  },
+  {
+    "pb_id": "pb-shibata-yu-10000m",
+    "athlete_id": "shibata-yu",
+    "university_id": "josai",
+    "distance": "10000m",
+    "time": "28:05.07",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-shibata-yu"
+  },
+  {
+    "pb_id": "pb-samyueru-gayu-10000m",
+    "athlete_id": "samyueru-gayu",
+    "university_id": "senshu",
+    "distance": "10000m",
+    "time": "28:27.88",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-samyueru-gayu"
+  },
+  {
+    "pb_id": "pb-kibuni-evans-10000m",
+    "athlete_id": "kibuni-evans",
+    "university_id": "kokushikan",
+    "distance": "10000m",
+    "time": "28:34.21",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-kibuni-evans"
+  },
+  {
+    "pb_id": "pb-minamisaka-yuuta-10000m",
+    "athlete_id": "minamisaka-yuuta",
+    "university_id": "tokai",
+    "distance": "10000m",
+    "time": "28:42.31",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-minamisaka-yuuta"
+  },
+  {
+    "pb_id": "pb-goto-ibuki-10000m",
+    "athlete_id": "goto-ibuki",
+    "university_id": "nihon",
+    "distance": "10000m",
+    "time": "28:45.16",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-goto-ibuki"
+  },
+  {
+    "pb_id": "pb-miyazaki-yuu-10000m",
+    "athlete_id": "miyazaki-yuu",
+    "university_id": "toyo",
+    "distance": "10000m",
+    "time": "28:53.82",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-miyazaki-yuu"
+  },
+  {
+    "pb_id": "pb-abe-yuuto-10000m",
+    "athlete_id": "abe-yuuto",
+    "university_id": "meiji",
+    "distance": "10000m",
+    "time": "29:03.13",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-abe-yuuto"
+  },
+  {
+    "pb_id": "pb-ueda-shoudai-10000m",
+    "athlete_id": "ueda-shoudai",
+    "university_id": "daito-bunka",
+    "distance": "10000m",
+    "time": "29:50.55",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-ueda-shoudai"
+  },
+  {
+    "pb_id": "pb-ozeki-shuuta-10000m",
+    "athlete_id": "ozeki-shuuta",
+    "university_id": "rikkyo",
+    "distance": "10000m",
+    "time": "30:06.49",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-ozeki-shuuta"
+  },
+  {
+    "pb_id": "pb-tanaka-kei-10000m",
+    "athlete_id": "tanaka-kei",
+    "university_id": "shibaura-tech",
+    "distance": "10000m",
+    "time": "30:29.83",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-tanaka-kei"
+  },
+  {
+    "pb_id": "pb-kimura-shunta-10000m",
+    "athlete_id": "kimura-shunta",
+    "university_id": "ryutsu-keizai",
+    "distance": "10000m",
+    "time": "32:10.20",
+    "date": "2026-05-04",
+    "source_type": "result",
+    "source_result_id": "all-japan-kanto-qualifier-mens-10000m-overall-kimura-shunta"
+  },
+  {
+    "pb_id": "pb-ogawara-hikaru-5000m",
+    "athlete_id": "ogawara-hikaru",
+    "university_id": "aoyamagakuin",
+    "distance": "5000m",
+    "time": "13:31.99",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-5000m-ogawara-hikaru"
+  },
+  {
+    "pb_id": "pb-koshiba-yujiro-5000m",
+    "athlete_id": "koshiba-yujiro",
+    "university_id": "tokyo-international",
+    "distance": "5000m",
+    "time": "13:46.25",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-5000m-koshiba-yujiro"
+  },
+  {
+    "pb_id": "pb-murakami-junsei-5000m",
+    "athlete_id": "murakami-junsei",
+    "university_id": "soka",
+    "distance": "5000m",
+    "time": "13:46.35",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-5000m-murakami-junsei"
+  },
+  {
+    "pb_id": "pb-hananoki-yuto-5000m",
+    "athlete_id": "hananoki-yuto",
+    "university_id": "kokugakuin",
+    "distance": "5000m",
+    "time": "13:46.50",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-5000m-hananoki-yuto"
+  },
+  {
+    "pb_id": "pb-igarashi-shinta-5000m",
+    "athlete_id": "igarashi-shinta",
+    "university_id": "kokugakuin",
+    "distance": "5000m",
+    "time": "13:46.57",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-5000m-igarashi-shinta"
+  },
+  {
+    "pb_id": "pb-arikawa-hiroki-5000m",
+    "athlete_id": "arikawa-hiroki",
+    "university_id": "hitotsubashi",
+    "distance": "5000m",
+    "time": "14:05.54",
+    "date": "2026-05-24",
+    "source_type": "result",
+    "source_result_id": "kanto-intercollege-mens-division2-5000m-arikawa-hiroki"
   }
 ];
 

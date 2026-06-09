@@ -40,7 +40,19 @@ export const universities: University[] = [
     "style": "1500m / 5000m / 10000m / ハーフ",
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
-    "athletes": [],
+    "athletes": [
+      "sasaki-daiki",
+      "kamimura-ryosuke",
+      "ogawara-hikaru",
+      "orita-sota",
+      "furukawa-haruki",
+      "torii-kenta",
+      "fukutomi-sho",
+      "sugiyama-ibuki",
+      "hiramatsu-kyosuke",
+      "sato-aito",
+      "anjima-riku"
+    ],
     "listing": {
       "region": "関東",
       "events": [
@@ -49,11 +61,11 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
       "latestResult": {
-        "athlete": "未登録",
-        "event": "1500m",
-        "time": "未登録"
+        "athlete": "小河原 陽琉",
+        "event": "5000m",
+        "time": "13:31.99"
       },
       "hasUpcoming": true,
       "hasResult": true
@@ -70,7 +82,17 @@ export const universities: University[] = [
     "style": "1500m / 5000m / 10000m / ハーフ",
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
-    "athletes": [],
+    "athletes": [
+      "nonaka-hiromichi",
+      "hananoki-yuto",
+      "igarashi-shinta",
+      "yoshida-kuranosuke",
+      "noda-kenshin",
+      "okamura-kyoichi",
+      "tsujihara-hikaru",
+      "takaishi-itsuki",
+      "iiguni-arata"
+    ],
     "listing": {
       "region": "関東",
       "events": [
@@ -79,11 +101,11 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "関東インカレ",
       "latestResult": {
-        "athlete": "未登録",
-        "event": "1500m",
-        "time": "未登録"
+        "athlete": "野中 恒亨",
+        "event": "5000m",
+        "time": "13:30.10"
       },
       "hasUpcoming": true,
       "hasResult": true
@@ -103,7 +125,12 @@ export const universities: University[] = [
     "athletes": [
       "ikema-riito",
       "yamamoto-haruka",
-      "oshita-tomoya"
+      "oshita-tomoya",
+      "matsuo-kazuma",
+      "tamame-riku",
+      "kobayashi-yuto",
+      "yoshioka-hiroto",
+      "furukawa-tatsuya"
     ],
     "listing": {
       "region": "関東",
@@ -137,7 +164,14 @@ export const universities: University[] = [
     "athletes": [
       "suzuki-rui",
       "kudo-shinsaku",
-      "yoshikura-nayabu-naoki"
+      "yoshikura-nayabu-naoki",
+      "yamaguchi-shunpei",
+      "kodaira-atsuyuki",
+      "sema-gensuke",
+      "horino-shota",
+      "mashiko-yota",
+      "honda-ojiro",
+      "niizuma-haruki"
     ],
     "listing": {
       "region": "関東",
@@ -171,7 +205,20 @@ export const universities: University[] = [
     "athletes": [
       "okada-kaisei",
       "sato-daisuke",
-      "hamaguchi-yamato"
+      "hamaguchi-yamato",
+      "miyake-yuto",
+      "nanatsue-nao",
+      "namikawa-sota",
+      "tsuji-homare",
+      "tanaka-reo",
+      "harada-nozomu",
+      "kurimura-ryo",
+      "sato-ren",
+      "chien-tzu-chieh",
+      "monma-sodai",
+      "tokuyama-hiroki",
+      "matsuo-tsubasa",
+      "fujita-daichi"
     ],
     "listing": {
       "region": "関東",
@@ -202,7 +249,17 @@ export const universities: University[] = [
     "style": "1500m / 5000m / 10000m / ハーフ",
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
-    "athletes": [],
+    "athletes": [
+      "uesaka-reiji",
+      "koyama-shoya",
+      "suzuki-hiroto",
+      "yasuhara-kaisei",
+      "niitani-kosei",
+      "muta-sota",
+      "komatsu-hijiri",
+      "kuwata-shunsuke",
+      "muta-rinta"
+    ],
     "listing": {
       "region": "関東",
       "events": [
@@ -211,11 +268,11 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
       "latestResult": {
-        "athlete": "未登録",
-        "event": "1500m",
-        "time": "未登録"
+        "athlete": "小山 翔也",
+        "event": "5000m",
+        "time": "13:55.95"
       },
       "hasUpcoming": true,
       "hasResult": true
@@ -234,7 +291,14 @@ export const universities: University[] = [
     "bestEkiden": "未登録",
     "athletes": [
       "stephen-lemayan",
-      "kojima-mitsuki"
+      "kojima-mitsuki",
+      "sato-gakuto",
+      "satou-gakuto",
+      "furuhashi-kio",
+      "kinoshita-akihito",
+      "inaba-ryuuya",
+      "hamakawa-shuuji",
+      "oohashi-masahiro"
     ],
     "listing": {
       "region": "関東",
@@ -265,7 +329,13 @@ export const universities: University[] = [
     "athletes": [
       "brian-kipiego",
       "urabe-towa",
-      "takahashi-fuga"
+      "takahashi-fuga",
+      "miyaji-daiya",
+      "hirai-tsubasa",
+      "morita-kiyoshi",
+      "wada-akito",
+      "matsuoka-issei",
+      "abe-hiroya"
     ],
     "listing": {
       "region": "関東",
@@ -296,7 +366,15 @@ export const universities: University[] = [
     "athletes": [
       "shibata-yu",
       "kobayashi-ryuki",
-      "murao-kyosuke"
+      "murao-kyosuke",
+      "oda-iori",
+      "miyake-shun",
+      "kumai-shitaka",
+      "nakashima-masato",
+      "muraki-fuma",
+      "hashimoto-kenichi",
+      "masaoka-yuuto",
+      "muraki-fuuma"
     ],
     "listing": {
       "region": "関東",
@@ -326,7 +404,9 @@ export const universities: University[] = [
     "bestEkiden": "未登録",
     "athletes": [
       "kawasaki-so",
-      "kobayashi-haru"
+      "kobayashi-haru",
+      "suzuki-masaya",
+      "yomura-yutaro"
     ],
     "listing": {
       "region": "関東",
@@ -355,7 +435,16 @@ export const universities: University[] = [
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
-      "kibuni-evans"
+      "kibuni-evans",
+      "saita-yuki",
+      "nakamura-kanta",
+      "nakajima-haru",
+      "sengoku-akira",
+      "takasu-ren",
+      "imahori-tadamichi",
+      "sakaue-yuu",
+      "saita-yuuki",
+      "fujisawa-haruki"
     ],
     "listing": {
       "region": "関東",
@@ -384,7 +473,18 @@ export const universities: University[] = [
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
-      "noda-akito"
+      "noda-akito",
+      "hoshino-taichi",
+      "aoteki-yota",
+      "kato-yuya",
+      "kaniwa-shota",
+      "fukata-kento",
+      "fukuda-taichi",
+      "tainaka-yuusei",
+      "shigeyama-hironori",
+      "yamagiwa-koutarou",
+      "yuda-hinata",
+      "kaniwa-shouta"
     ],
     "listing": {
       "region": "関東",
@@ -415,7 +515,16 @@ export const universities: University[] = [
     "athletes": [
       "ohama-takuma",
       "omi-ryo",
-      "wakabayashi-tsukasa"
+      "wakabayashi-tsukasa",
+      "matsuura-kirato",
+      "munakata-kazura",
+      "nakazawa-mahiro",
+      "nishimura-yusei",
+      "hidaka-ryunosuke",
+      "shimizu-yuto",
+      "sugasaki-yamato",
+      "suzuki-kaname",
+      "ueda-shoudai"
     ],
     "listing": {
       "region": "関東",
@@ -446,7 +555,16 @@ export const universities: University[] = [
     "athletes": [
       "matsuyama-yuta",
       "sano-rinta",
-      "higaki-aoi"
+      "higaki-aoi",
+      "nakano-jumpei",
+      "minamisaka-yuta",
+      "kani-yuki",
+      "fujita-yu",
+      "minamisaka-yuuta",
+      "nagamoto-shuu",
+      "nakano-junpei",
+      "hirai-riku",
+      "yaguchi-youta"
     ],
     "listing": {
       "region": "関東",
@@ -475,7 +593,18 @@ export const universities: University[] = [
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
-      "sato-yamato"
+      "sato-yamato",
+      "natsumi-nijiro",
+      "ogino-keisuke",
+      "oshita-tsubasa",
+      "nagami-shinnosuke",
+      "matsumoto-yuma",
+      "natsumi-nijirou",
+      "himura-ginga",
+      "yamakami-yuuki",
+      "suizu-hayato",
+      "amase-kaito",
+      "katou-daichi"
     ],
     "listing": {
       "region": "関東",
@@ -506,7 +635,15 @@ export const universities: University[] = [
     "athletes": [
       "ishikawa-yuto",
       "goto-ibuki",
-      "shudo-kaito"
+      "shudo-kaito",
+      "shadrack-kipkemoi",
+      "nagasawa-tatsuro",
+      "hashimoto-kaichi",
+      "shadorakku-kippukemei",
+      "yamaguchi-souta",
+      "nagasawa-tatsurou",
+      "amano-keita",
+      "takata-manato"
     ],
     "listing": {
       "region": "関東",
@@ -535,7 +672,9 @@ export const universities: University[] = [
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
-      "narusawa-shoei"
+      "narusawa-shoei",
+      "taguchi-ryota",
+      "sugimori-hoshihiko"
     ],
     "listing": {
       "region": "関東",
@@ -566,7 +705,15 @@ export const universities: University[] = [
     "athletes": [
       "handa-kevin",
       "hayashi-yua",
-      "matsui-kaito"
+      "matsui-kaito",
+      "mukae-haruto",
+      "hamanaka-mikoto",
+      "kimura-takaharu",
+      "baba-hiroto",
+      "ono-masato",
+      "miyazaki-yuu",
+      "uchibori-yuu",
+      "jinnai-shion"
     ],
     "listing": {
       "region": "関東",
@@ -578,6 +725,1281 @@ export const universities: University[] = [
         "athlete": "飯田ケビン",
         "event": "5000m",
         "time": "14:19.48"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "meiji",
+    "slug": "meiji",
+    "name": "明治大学",
+    "area": "関東",
+    "sashColor": "紫紺",
+    "accent": "#5B3A70",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "nariai-takeru",
+      "yamamoto-takuto",
+      "tsuchida-shunji",
+      "ishido-soma",
+      "abe-yuuto",
+      "ishidou-souma",
+      "iwasa-taiyou",
+      "ooe-shuuya",
+      "kawata-juna",
+      "oketa-yuusei"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "阿部 宥人",
+        "event": "10000m",
+        "time": "29:03.13"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "soka",
+    "slug": "soka",
+    "name": "創価大学",
+    "area": "関東",
+    "sashColor": "青・赤",
+    "accent": "#234E9A",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "koike-riki",
+      "stephen-muchini",
+      "murakami-junsei",
+      "kinugawa-yuta",
+      "enoki-rintaro",
+      "tamura-kota",
+      "hoashi-mahiro",
+      "uchida-ryota",
+      "yamaguchi-shoki"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
+      "latestResult": {
+        "athlete": "ｽﾃｨｰﾌﾞﾝ ﾑﾁｰﾆ",
+        "event": "5000m",
+        "time": "13:28.45"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "sapporo-gakuin",
+    "slug": "sapporo-gakuin",
+    "name": "札幌学院大学",
+    "area": "北海道",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "kurita-shingo"
+    ],
+    "listing": {
+      "region": "北海道",
+      "events": [
+        "10000m"
+      ],
+      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
+      "latestResult": {
+        "athlete": "未登録",
+        "event": "10000m",
+        "time": "未登録"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "tokyo-international",
+    "slug": "tokyo-international",
+    "name": "東京国際大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#5B2C83",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "richard-etiri",
+      "amos-bett",
+      "koshiba-yujiro",
+      "fujita-atsushi",
+      "hiraga-daiki",
+      "richaado-etiiri",
+      "koshiba-yuujirou",
+      "kubo-mahiro",
+      "masa-jinto",
+      "iwamoto-shien",
+      "tomatsu-yamato",
+      "nomura-taiga",
+      "kubo-haruto"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "ﾘﾁｬｰﾄﾞ ｴﾃｨｰﾘ",
+        "event": "5000m",
+        "time": "13:24.76"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "takushoku",
+    "slug": "takushoku",
+    "name": "拓殖大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#D97706",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "rafael-longisa",
+      "kakiuchi-shion",
+      "wakabayashi-hayato",
+      "naiki-kanki",
+      "rafaeru-rongisa",
+      "nakano-yuushin",
+      "oouchi-asaki",
+      "komatsu-shunta",
+      "gotou-kazuki",
+      "maekawa-natsuki",
+      "suda-satoru",
+      "hosokawa-towa"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "ﾗﾌｧｴﾙ ﾛﾝｷﾞｻ",
+        "event": "5000m",
+        "time": "13:33.38"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "nihon-pharmaceutical",
+    "slug": "nihon-pharmaceutical",
+    "name": "日本薬科大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#2563EB",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "denis-kipruto",
+      "kubota-sho",
+      "mitsuoka-kazuya",
+      "kawahara-yamato",
+      "kondo-sota"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "ﾃﾞﾆｽ ｷﾌﾟﾙﾄ",
+        "event": "5000m",
+        "time": "13:34.66"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "heisei-international",
+    "slug": "heisei-international",
+    "name": "平成国際大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#7C3AED",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "joseph-muigai",
+      "nagasaki-hiroya",
+      "murashige-tomoya",
+      "soeda-ryoma"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "ｼﾞｮｾﾌ ﾑｲｶﾞｲ",
+        "event": "5000m",
+        "time": "13:50.47"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "teikyo",
+    "slug": "teikyo",
+    "name": "帝京大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#C1121F",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "kusuoka-yoshihiro",
+      "matsuo-koki",
+      "taniguchi-sota",
+      "asakawa-yuta",
+      "saito-shoma",
+      "matsui-hajime"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "楠岡 由浩",
+        "event": "5000m",
+        "time": "13:50.47"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "rissho",
+    "slug": "rissho",
+    "name": "立正大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#B3263A",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "jeremiah-kamau",
+      "hashimoto-shota"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "ｼﾞｪﾚﾐｱ ｶﾏｳ",
+        "event": "5000m",
+        "time": "13:50.72"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "kanagawa",
+    "slug": "kanagawa",
+    "name": "神奈川大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#1D4ED8",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "niizuma-reo",
+      "niizuma-koki",
+      "mihara-ryoga",
+      "mori-ryoma",
+      "endo-mahiro",
+      "hanai-sou",
+      "kitamura-nachi",
+      "hirakawa-ryuusei",
+      "takimoto-akifumi",
+      "niizuma-kouki",
+      "ooiwa-ren",
+      "abe-tomohisa",
+      "ueda-kazuhiro",
+      "hirakawa-ryusei"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "新妻 玲旺",
+        "event": "5000m",
+        "time": "13:58.18"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "ryutsu-keizai",
+    "slug": "ryutsu-keizai",
+    "name": "流通経済大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#DC2626",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "boniface-mutechi",
+      "adachi-yuga",
+      "bugua-peter-muturi",
+      "kimura-kaito",
+      "nawa-atsuki",
+      "takeichi-sota",
+      "bugua-piitaa-mutouri",
+      "nishikawa-yuuto",
+      "takeichi-souta",
+      "kimura-shunta",
+      "tomita-ren",
+      "yoshihara-ikuma",
+      "yoshiguchi-keito"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "ﾎﾞﾆﾌｪｽ ﾑﾃﾁ",
+        "event": "5000m",
+        "time": "13:58.30"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "hitotsubashi",
+    "slug": "hitotsubashi",
+    "name": "一橋大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#7C2D12",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "arikawa-hiroki"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "有川 紘樹",
+        "event": "5000m",
+        "time": "14:05.54"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "rikkyo",
+    "slug": "rikkyo",
+    "name": "立教大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#1E3A8A",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "ito-takumi",
+      "yamashita-shogo",
+      "ozeki-shuta",
+      "nishizawa-masaya",
+      "kijima-riku",
+      "yamashita-shougo",
+      "harada-souta",
+      "ozeki-shuuta",
+      "itou-takumi",
+      "honguu-keishou",
+      "soeta-yukito"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "伊藤 匠海",
+        "event": "5000m",
+        "time": "14:11.57"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "chuo-gakuin",
+    "slug": "chuo-gakuin",
+    "name": "中央学院大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#F97316",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "osabe-kotaro",
+      "maehara-hayato",
+      "yoshida-kakeru",
+      "tokuzen-ryu",
+      "hosaka-kohei",
+      "hikazutani-hayato",
+      "osabe-kotarou",
+      "yamanaka-kouta",
+      "inami-shun",
+      "yamamoto-yuuki",
+      "nagatomo-eigo",
+      "ichinose-shinta",
+      "hayashi-aito"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "長部 虎太郎",
+        "event": "5000m",
+        "time": "14:12.35"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "jobu",
+    "slug": "jobu",
+    "name": "上武大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#0F766E",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "ojima-itsuki",
+      "yoshinaga-ayumu",
+      "nicholas-kipchumba"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "尾島 樹",
+        "event": "5000m",
+        "time": "14:18.67"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "senshu",
+    "slug": "senshu",
+    "name": "専修大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#15803D",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "suizu-tomoya",
+      "samuel-gayu",
+      "nakajima-yuta",
+      "matsumoto-takaya",
+      "yatani-masato",
+      "samyueru-gayu",
+      "ueyama-shiki",
+      "hiramatsu-ryuusei",
+      "anzai-riku",
+      "tan-shuutarou",
+      "mukada-taisei",
+      "nishi-hiroto",
+      "maina-duncan",
+      "tan-shutaro"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "水津 智哉",
+        "event": "5000m",
+        "time": "14:25.45"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "musashino-gakuin",
+    "slug": "musashino-gakuin",
+    "name": "武蔵野学院大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#9333EA",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "sano-hayato",
+      "muchiri-eliud-kahiga",
+      "oshima-nozomu",
+      "kawamura-tsubasa",
+      "nakao-seiko"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "佐野 颯人",
+        "event": "5000m",
+        "time": "14:25.96"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "tokyo-agriculture",
+    "slug": "tokyo-agriculture",
+    "name": "東京農業大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#166534",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "shitomori-minori",
+      "uetsuki-shunta",
+      "kojima-takayuki",
+      "sato-taishin"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "下森 実直",
+        "event": "5000m",
+        "time": "14:27.20"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "shibaura-tech",
+    "slug": "shibaura-tech",
+    "name": "芝浦工業大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#1D4ED8",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "iwase-shunsuke",
+      "tanno-akito",
+      "ueta-kouki",
+      "tanaka-kei",
+      "gotou-shuuha",
+      "kobayashi-keigo",
+      "oozeki-hoshito",
+      "morijiri-haruto"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "秩父宮賜杯第58回全日本大学駅伝対校選手権大会 関東選考会",
+      "latestResult": {
+        "athlete": "岩瀬 駿介",
+        "event": "5000m",
+        "time": "14:37.53"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "obirin",
+    "slug": "obirin",
+    "name": "桜美林大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#7E22CE",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "mandela-nelson",
+      "marubashi-sena",
+      "murakami-jungo",
+      "otsuka-rikuto",
+      "sankai-nagisa"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "ﾏﾝﾃﾞﾗ ﾈﾙｿﾝ",
+        "event": "10000m",
+        "time": "28:56.26"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "shonan-tech",
+    "slug": "shonan-tech",
+    "name": "湘南工科大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#2563EB",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "ハーフ",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "tatsumi-yuki"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "ハーフ"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "巽 勇樹",
+        "event": "ハーフ",
+        "time": "1:05:35"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "asia",
+    "slug": "asia",
+    "name": "亜細亜大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#1E3A8A",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "ハーフ",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "matsunaga-haruto",
+      "kaji-shinnosuke"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "ハーフ"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "松永 遥斗",
+        "event": "ハーフ",
+        "time": "1:06:28"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "meiji-gakuin",
+    "slug": "meiji-gakuin",
+    "name": "明治学院大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#F59E0B",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "ハーフ",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "takahashi-ayumu",
+      "koide-haruto"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "ハーフ"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "髙橋 歩夢",
+        "event": "ハーフ",
+        "time": "1:06:51"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "tokyo-keizai",
+    "slug": "tokyo-keizai",
+    "name": "東京経済大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#DC2626",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "ハーフ",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "suzuki-kaito",
+      "sasaki-riku"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "ハーフ"
+      ],
+      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "latestResult": {
+        "athlete": "鈴木 海渡",
+        "event": "ハーフ",
+        "time": "1:11:36"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "shigakukan",
+    "slug": "shigakukan",
+    "name": "志學館大学",
+    "area": "九州",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "oda-yuku",
+      "hino-takumu",
+      "nakamura-akito"
+    ],
+    "listing": {
+      "region": "九州",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "小田 夕琥",
+        "event": "5000m",
+        "time": "14:06.12"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "daiichi-kogyo",
+    "slug": "daiichi-kogyo",
+    "name": "第一工科大学",
+    "area": "九州",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "felix-muthiani"
+    ],
+    "listing": {
+      "region": "九州",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "Felix Muthiani",
+        "event": "5000m",
+        "time": "14:15.69"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "kagoshima",
+    "slug": "kagoshima",
+    "name": "鹿児島大学",
+    "area": "九州",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "tsuruda-hiromu",
+      "fujimoto-yutaro",
+      "yamawaki-keishin",
+      "maehama-kai"
+    ],
+    "listing": {
+      "region": "九州",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "鶴田 寛武",
+        "event": "5000m",
+        "time": "14:28.83"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "kogakkan",
+    "slug": "kogakkan",
+    "name": "皇學館大学",
+    "area": "東海",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "matsuba-kotaro",
+      "shimizu-daito",
+      "hikomi-nayuta"
+    ],
+    "listing": {
+      "region": "東海",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "松葉 琥太郎",
+        "event": "5000m",
+        "time": "14:30.49"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "yamaguchi",
+    "slug": "yamaguchi",
+    "name": "山口大学",
+    "area": "中国",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "kunimori-ikumi"
+    ],
+    "listing": {
+      "region": "中国",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "國森 郁光",
+        "event": "5000m",
+        "time": "14:37.94"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "kanoya-sports",
+    "slug": "kanoya-sports",
+    "name": "鹿屋体育大学",
+    "area": "九州",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "hyodo-sota",
+      "yamazaki-ryota",
+      "endo-ichigo"
+    ],
+    "listing": {
+      "region": "九州",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "兵藤 颯太",
+        "event": "5000m",
+        "time": "14:40.94"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "ritsumeikan",
+    "slug": "ritsumeikan",
+    "name": "立命館大学",
+    "area": "関西",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "mizuno-soya",
+      "kashiwagi-yuki",
+      "yabuta-kojiro"
+    ],
+    "listing": {
+      "region": "関西",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "水野 颯也",
+        "event": "5000m",
+        "time": "14:41.19"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "hiroshima-keizai",
+    "slug": "hiroshima-keizai",
+    "name": "広島経済大学",
+    "area": "中国",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "ogawa-haruya"
+    ],
+    "listing": {
+      "region": "中国",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "小川 晴也",
+        "event": "5000m",
+        "time": "14:49.02"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "fukuoka",
+    "slug": "fukuoka",
+    "name": "福岡大学",
+    "area": "九州",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "okuma-shoma"
+    ],
+    "listing": {
+      "region": "九州",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "latestResult": {
+        "athlete": "大隈 匠真",
+        "event": "5000m",
+        "time": "15:23.36"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "kanto-gakuin",
+    "slug": "kanto-gakuin",
+    "name": "関東学院大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#16A34A",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m / 10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "haruyama-yusuke",
+      "hamaguchi-seita",
+      "kobayashi-keita",
+      "matsumoto-sota",
+      "wakugawa-tatsuya",
+      "ondiso-ezra"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "5000m",
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "ｵﾝﾃﾞｨｿ ｴｽﾞﾗ",
+        "event": "10000m",
+        "time": "29:56.85"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "tokyo-nodai",
+    "slug": "tokyo-nodai",
+    "name": "東京農業大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "maeda-kazuma",
+      "uchida-atsuki",
+      "kurimoto-kouki",
+      "kanno-yua",
+      "yamauchi-yura",
+      "watanabe-kirato",
+      "shitamori-minori",
+      "hattori-tsukasa"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "10000m"
+      ],
+      "nextAppearance": "秩父宮賜杯第58回全日本大学駅伝対校選手権大会 関東選考会",
+      "latestResult": {
+        "athlete": "前田 和摩",
+        "event": "10000m",
+        "time": "28:25.97"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "osaka-keizai",
+    "slug": "osaka-keizai",
+    "name": "大阪経済大学",
+    "area": "関西",
+    "sashColor": "未登録",
+    "accent": "#6B7280",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "5000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "iwasaka-renta"
+    ],
+    "listing": {
+      "region": "関西",
+      "events": [
+        "5000m"
+      ],
+      "nextAppearance": "第34回 金栗記念選抜陸上中長距離熊本大会",
+      "latestResult": {
+        "athlete": "岩坂 蓮太",
+        "event": "5000m",
+        "time": "14:17.10"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "reitaku",
+    "slug": "reitaku",
+    "name": "麗澤大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#1D4ED8",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "arahara-shun",
+      "kimura-so",
+      "brian-kiptubushua-kittu"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "ﾌﾞﾗｲｱﾝ ｷﾌﾟﾄｩｰﾌﾞｼｭｰｱｷｯﾄｩ",
+        "event": "10000m",
+        "time": "27:45.35"
+      },
+      "hasUpcoming": false,
+      "hasResult": true
+    }
+  },
+  {
+    "id": "ikuei",
+    "slug": "ikuei",
+    "name": "育英大学",
+    "area": "関東",
+    "sashColor": "未登録",
+    "accent": "#DC2626",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "10000m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "kasahara-masataka",
+      "ishido-rui"
+    ],
+    "listing": {
+      "region": "関東",
+      "events": [
+        "10000m"
+      ],
+      "nextAppearance": "関東インカレ",
+      "latestResult": {
+        "athlete": "石堂 留偉",
+        "event": "10000m",
+        "time": "30:08.54"
       },
       "hasUpcoming": false,
       "hasResult": true

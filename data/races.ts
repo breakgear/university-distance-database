@@ -62,30 +62,131 @@ export const raceRecords: RaceRecord[] = [
     "race_id": "kanto-intercollege-mens-5000m",
     "slug": "kanto-intercollege-mens-5000m",
     "meet_id": "kanto-intercollege",
-    "race_name": "男子5000m 決勝",
+    "race_name": "男子1部 5000m 決勝",
     "start_time": "開始時刻未定",
     "status": "result_published",
     "distance": "5000m",
     "result_summary_id": "kanto-intercollege-mens-5000m"
+  },
+  {
+    "race_id": "japan-student-individual-mens-10000m",
+    "slug": "japan-student-individual-mens-10000m",
+    "meet_id": "japan-student-individual",
+    "race_name": "男子 日本インカレ10000m 決勝",
+    "start_time": "18:00",
+    "status": "result_published",
+    "distance": "10000m",
+    "result_summary_id": "japan-student-individual-mens-10000m"
+  },
+  {
+    "race_id": "japan-student-individual-mens-5000m",
+    "slug": "japan-student-individual-mens-5000m",
+    "meet_id": "japan-student-individual",
+    "race_name": "男子 日本インカレ5000m 決勝",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "5000m",
+    "result_summary_id": "japan-student-individual-mens-5000m"
+  },
+  {
+    "race_id": "kanto-intercollege-half-mens-division1",
+    "slug": "kanto-intercollege-half-mens-division1",
+    "meet_id": "kanto-intercollege-half",
+    "race_name": "男子1部 ハーフマラソン 決勝",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "ハーフ",
+    "result_summary_id": "kanto-intercollege-half-mens-division1"
+  },
+  {
+    "race_id": "kanto-intercollege-mens-division2-5000m",
+    "slug": "kanto-intercollege-mens-division2-5000m",
+    "meet_id": "kanto-intercollege",
+    "race_name": "男子2部 5000m 決勝",
+    "start_time": "9:55",
+    "status": "result_published",
+    "distance": "5000m",
+    "result_summary_id": "kanto-intercollege-mens-division2-5000m"
+  },
+  {
+    "race_id": "kanto-intercollege-half-mens-division2",
+    "slug": "kanto-intercollege-half-mens-division2",
+    "meet_id": "kanto-intercollege-half",
+    "race_name": "男子2部 ハーフマラソン 決勝",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "ハーフ",
+    "result_summary_id": "kanto-intercollege-half-mens-division2"
+  },
+  {
+    "race_id": "kanaguri-memorial-mens-gp-10000m",
+    "slug": "kanaguri-memorial-mens-gp-10000m",
+    "meet_id": "kanaguri-memorial",
+    "race_name": "男子グランプリ 10000m 決勝",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "10000m",
+    "result_summary_id": "kanaguri-memorial-mens-gp-10000m"
+  },
+  {
+    "race_id": "all-japan-kanto-qualifier-mens-10000m-overall",
+    "slug": "all-japan-kanto-qualifier-mens-10000m-overall",
+    "meet_id": "all-japan-kanto-qualifier",
+    "race_name": "男子10000m タイムレース総合",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "10000m",
+    "result_summary_id": "all-japan-kanto-qualifier-mens-10000m-overall"
+  },
+  {
+    "race_id": "kanto-intercollege-mens-10000m",
+    "slug": "kanto-intercollege-mens-10000m",
+    "meet_id": "kanto-intercollege",
+    "race_name": "男子1部 10000m 決勝",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "10000m",
+    "result_summary_id": "kanto-intercollege-mens-10000m"
+  },
+  {
+    "race_id": "kanto-intercollege-mens-division2-10000m",
+    "slug": "kanto-intercollege-mens-division2-10000m",
+    "meet_id": "kanto-intercollege",
+    "race_name": "男子2部 10000m 決勝",
+    "start_time": "18:50",
+    "status": "result_published",
+    "distance": "10000m",
+    "result_summary_id": "kanto-intercollege-mens-division2-10000m"
+  },
+  {
+    "race_id": "kanaguri-memorial-mens-gp-5000m",
+    "slug": "kanaguri-memorial-mens-gp-5000m",
+    "meet_id": "kanaguri-memorial",
+    "race_name": "男子グランプリ 5000m タイムレース総合",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "5000m",
+    "result_summary_id": "kanaguri-memorial-mens-gp-5000m"
+  },
+  {
+    "race_id": "golden-games-nobeoka-mens-5000m-overall",
+    "slug": "golden-games-nobeoka-mens-5000m-overall",
+    "meet_id": "golden-games-nobeoka",
+    "race_name": "男子5000m タイムレース総合",
+    "start_time": "開始時刻未定",
+    "status": "result_published",
+    "distance": "5000m",
+    "result_summary_id": "golden-games-nobeoka-mens-5000m-overall"
   }
 ];
 
 const meetNameById: Record<string, string> = {
-  "hakone-ekiden": "箱根駅伝",
-  "japan-student-half": "日本学生ハーフ",
-  "kanaguri-memorial": "金栗記念",
-  "japan-student-individual": "日本学生個人選手権",
   "kanto-intercollege": "関東インカレ",
-  "golden-games-nobeoka": "ゴールデンゲームズ in のべおか",
-  "all-japan-kanto-qualifier": "全日本大学駅伝関東選考会",
-  "hokuren-dc": "ホクレンDC",
-  "japan-intercollege": "日本インカレ",
-  "izumo-ekiden": "出雲駅伝",
-  "hakone-qualifier": "箱根予選会",
-  "all-japan-univ-ekiden": "全日本大学駅伝",
-  "ageo-city-half": "上尾シティハーフ",
-  "hachioji-long-distance": "八王子ロングディスタンス",
-  "nittaidai-long-distance": "日体大長距離競技会"
+  "japan-student-individual": "2026日本学生陸上競技個人選手権大会",
+  "kanto-intercollege-half": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+  "all-japan-kanto-qualifier": "秩父宮賜杯第58回全日本大学駅伝対校選手権大会 関東選考会",
+  "golden-games-nobeoka": "第37回ゴールデンゲームズ in のべおか",
+  "kanaguri-memorial": "第34回 金栗記念選抜陸上中長距離熊本大会"
 };
 
 const statusMap: Record<RaceRecord["status"], EventStatus> = {

@@ -3,6 +3,7 @@ import { BookOpen, CalendarDays, ChevronRight, Database, Flag, ListFilter, Rows3
 import { EmptyState } from "@/components/EmptyState";
 import { Athlete, athletes } from "@/data/athletes";
 import { universities, University } from "@/data/universities";
+import { getUpcomingEntriesByAthleteId } from "@/lib/upcoming";
 import { cn } from "@/lib/utils";
 
 type AthleteFilter = "all" | "1年" | "2年" | "3年" | "4年" | "5000m" | "10000m" | "half" | "upcoming" | "result";
@@ -156,12 +157,13 @@ function matchesAthleteFilter(athlete: Athlete, filter: AthleteFilter) {
   if (filter === "1年" || filter === "2年" || filter === "3年" || filter === "4年") return athlete.year === filter;
   if (filter === "5000m" || filter === "10000m") return athlete.pb.some((record) => record.distance === filter);
   if (filter === "half") return athlete.pb.some((record) => record.distance === "ハーフ");
-  if (filter === "upcoming") return Boolean(athlete.nextRace);
+  if (filter === "upcoming") return getUpcomingEntriesByAthleteId(athlete.id).length > 0;
   return athlete.recentResults.length > 0;
 }
 
 function AthleteListCard({ athlete, university }: { athlete: Athlete; university?: University }) {
   const latestResult = athlete.recentResults[0];
+  const nextAppearance = getUpcomingEntriesByAthleteId(athlete.id)[0];
 
   return (
     <Link href={`/athletes/${athlete.id}`} className="group rounded-lg border border-line bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft">
@@ -179,13 +181,13 @@ function AthleteListCard({ athlete, university }: { athlete: Athlete; university
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <FactBadge text="出場予定あり" />
+        {nextAppearance ? <FactBadge text="出場予定あり" /> : null}
         <FactBadge text="結果あり" />
       </div>
 
       <div className="mt-4 grid gap-2 text-sm font-bold text-slate-700">
         <InfoLine icon={<Trophy size={16} />} label="掲載PB" value={formatPbList(athlete)} />
-        <InfoLine icon={<CalendarDays size={16} />} label="次回出場予定" value={athlete.nextRace || "未登録"} />
+        <InfoLine icon={<CalendarDays size={16} />} label="次回出場予定" value={nextAppearance?.race.race_name ?? "未登録"} />
         <InfoLine icon={<Flag size={16} />} label="直近結果" value={latestResult ? formatLatestResult(latestResult) : "未登録"} multiline />
       </div>
     </Link>

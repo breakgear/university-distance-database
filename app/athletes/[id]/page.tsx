@@ -4,12 +4,12 @@ import { CalendarDays, ChevronRight, Database, Flag, Info, Rows3, School, Trophy
 import { EmptyState } from "@/components/EmptyState";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Athlete, athletes } from "@/data/athletes";
-import { getEntriesByAthleteId } from "@/data/entries";
 import { EventStatus } from "@/data/events";
 import { meets } from "@/data/meets";
 import { raceRecords } from "@/data/races";
 import { getResultsByAthleteId } from "@/data/results";
 import { universities, University } from "@/data/universities";
+import { getUpcomingEntriesByAthleteId } from "@/lib/upcoming";
 import { formatDate } from "@/lib/utils";
 
 type ResultNote = "PB" | "SB" | "DNS" | "DNF" | "DQ" | "";
@@ -453,21 +453,6 @@ function formatResultSummary(result: AthleteResult | undefined) {
   return `${result.distance} / ${result.rank} / ${result.time}`;
 }
 
-function buildFallbackAppearances(athlete: Athlete): AthleteAppearance[] {
-  return athlete.nextRace
-    ? [
-        {
-          raceName: athlete.nextRace,
-          meetName: "掲載中の大会",
-          date: athlete.recentResults[0]?.date ?? "2026-05-24",
-          venue: "会場未定",
-          status: "scheduled",
-          href: `/athletes/${athlete.id}`
-        }
-      ]
-    : [];
-}
-
 function buildFallbackResults(athlete: Athlete): AthleteResult[] {
   return athlete.recentResults.map((result) => ({
     date: result.date,
@@ -482,25 +467,14 @@ function buildFallbackResults(athlete: Athlete): AthleteResult[] {
 }
 
 function buildAppearancesFromData(athlete: Athlete): AthleteAppearance[] {
-  const appearances = getEntriesByAthleteId(athlete.id).flatMap((entry): AthleteAppearance[] => {
-      const race = raceRecords.find((item) => item.race_id === entry.race_id);
-      const meet = meets.find((item) => item.meet_id === entry.meet_id);
-
-      if (!race || !meet) return [];
-
-      return [
-        {
-          raceName: race.race_name,
-          meetName: meet.meet_name,
-          date: meet.date,
-          venue: meet.venue,
-          status: race.status === "result_published" ? "result" : race.status === "result_waiting" ? "waiting" : race.status === "startlist_published" ? "startlist" : "scheduled",
-          href: race.status === "result_published" || race.status === "startlist_published" ? `/races/${race.race_id}` : `/meets/${meet.meet_id}`
-        }
-      ];
-    });
-
-  return appearances.length > 0 ? appearances : buildFallbackAppearances(athlete);
+  return getUpcomingEntriesByAthleteId(athlete.id).map(({ race, meet }) => ({
+    raceName: race.race_name,
+    meetName: meet.meet_name,
+    date: meet.date,
+    venue: meet.venue,
+    status: race.status === "startlist_published" ? "startlist" : "scheduled",
+    href: race.status === "startlist_published" ? `/races/${race.race_id}` : `/meets/${meet.meet_id}`
+  }));
 }
 
 function buildResultsFromData(athlete: Athlete): AthleteResult[] {

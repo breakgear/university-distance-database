@@ -3,11 +3,11 @@ import { notFound } from "next/navigation";
 import { CalendarDays, ChevronRight, Database, Flag, Info, Rows3, Trophy, UserRound } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { athletes, Athlete } from "@/data/athletes";
-import { getEntriesByUniversityId } from "@/data/entries";
 import { meets } from "@/data/meets";
 import { raceRecords } from "@/data/races";
 import { getResultsByUniversityId } from "@/data/results";
 import { universities, University } from "@/data/universities";
+import { getUpcomingEntriesByUniversityId } from "@/lib/upcoming";
 import { formatDate } from "@/lib/utils";
 
 type ResultNote = "PB" | "SB" | "DNS" | "DNF" | "DQ" | "";
@@ -504,22 +504,21 @@ function buildUniversityResults(university: University, listedAthletes: Athlete[
 
 function buildUniversityAppearances(university: University): UniversityAppearance[] {
   const seen = new Set<string>();
+  const upcomingEntries = getUpcomingEntriesByUniversityId(university.id);
 
-  return getEntriesByUniversityId(university.id).flatMap((entry): UniversityAppearance[] => {
+  return upcomingEntries.flatMap(({ entry, race, meet }): UniversityAppearance[] => {
     if (seen.has(entry.race_id)) return [];
     seen.add(entry.race_id);
 
-    const race = raceRecords.find((item) => item.race_id === entry.race_id);
-    const meet = meets.find((item) => item.meet_id === entry.meet_id);
-    const raceEntries = getEntriesByUniversityId(university.id).filter((item) => item.race_id === entry.race_id);
+    const raceEntries = upcomingEntries.filter((item) => item.entry.race_id === entry.race_id);
 
     return [
       {
-        raceName: race?.race_name ?? "レース未登録",
-        meetName: meet?.meet_name ?? "大会未登録",
-        date: meet?.date ?? "",
-        athletes: raceEntries.map((item) => athletes.find((athlete) => athlete.id === item.athlete_id)?.name ?? "未登録"),
-        href: race?.status === "result_published" || race?.status === "startlist_published" ? `/races/${entry.race_id}` : `/meets/${entry.meet_id}`
+        raceName: race.race_name,
+        meetName: meet.meet_name,
+        date: meet.date,
+        athletes: raceEntries.map((item) => athletes.find((athlete) => athlete.id === item.entry.athlete_id)?.name ?? "未登録"),
+        href: race.status === "startlist_published" ? `/races/${entry.race_id}` : `/meets/${entry.meet_id}`
       }
     ];
   });

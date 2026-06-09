@@ -399,6 +399,7 @@ function generateUniversities(data: ReturnType<typeof normalizeAll>) {
     const listingEvents = splitList(university.listing_events);
     const latestResult = latestResultByUniversity.get(university.id);
     const latestAthlete = latestResult ? data.athletes.find((athlete) => athlete.id === latestResult.athlete_id) : null;
+    const nextAppearance = findNextAppearance(university.id, data);
 
     return {
       id: university.id,
@@ -415,13 +416,13 @@ function generateUniversities(data: ReturnType<typeof normalizeAll>) {
       listing: {
         region: university.area,
         events: listingEvents,
-        nextAppearance: findNextAppearance(university.id, data) ?? "未登録",
+        nextAppearance: nextAppearance ?? "未登録",
         latestResult: {
           athlete: latestAthlete?.name ?? "未登録",
           event: latestResult?.distance ?? (listingEvents[0] ?? "5000m"),
           time: latestResult?.time ?? "未登録"
         },
-        hasUpcoming: university.has_upcoming,
+        hasUpcoming: Boolean(nextAppearance),
         hasResult: university.has_result
       }
     };
@@ -1045,10 +1046,16 @@ function buildUniversityResultGroups(data: ReturnType<typeof normalizeAll>) {
 }
 
 function findNextAppearance(universityId: string, data: ReturnType<typeof normalizeAll>) {
-  const entry = data.entries.find((item) => item.university_id === universityId);
-  if (!entry) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const upcomingStatuses = new Set(["scheduled", "coming_soon", "startlist_published", "live"]);
 
-  const meet = data.meets.find((item) => item.meet_id === entry.meet_id);
+  const meet = data.entries
+    .filter((entry) => entry.university_id === universityId)
+    .map((entry) => data.meets.find((item) => item.meet_id === entry.meet_id))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .filter((item) => item.date >= today && upcomingStatuses.has(item.status))
+    .sort((a, b) => a.date.localeCompare(b.date))[0];
+
   return meet?.meet_name ?? null;
 }
 

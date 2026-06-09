@@ -3,6 +3,7 @@ import { BookOpen, CalendarDays, ChevronRight, Database, Flag, ListFilter, Palet
 import { EmptyState } from "@/components/EmptyState";
 import { athletes } from "@/data/athletes";
 import { buildUniversityPbRankings, universities, University } from "@/data/universities";
+import { getUpcomingEntriesByUniversityId } from "@/lib/upcoming";
 import { cn } from "@/lib/utils";
 
 type UniversityFilter = "all" | "kanto" | "5000m" | "10000m" | "half" | "upcoming" | "result";
@@ -152,11 +153,13 @@ function matchesUniversityFilter(university: University, filter: UniversityFilte
   if (filter === "kanto") return university.listing.region === "関東";
   if (filter === "5000m" || filter === "10000m") return university.listing.events.includes(filter);
   if (filter === "half") return university.listing.events.includes("ハーフ");
-  if (filter === "upcoming") return university.listing.hasUpcoming;
+  if (filter === "upcoming") return getUpcomingEntriesByUniversityId(university.id).length > 0;
   return university.listing.hasResult;
 }
 
 function UniversityListCard({ university }: { university: University }) {
+  const nextAppearance = getUpcomingEntriesByUniversityId(university.id)[0];
+
   return (
     <Link href={`/universities/${university.id}`} className="group rounded-lg border border-line bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft">
       <div className="flex items-start justify-between gap-3">
@@ -172,7 +175,7 @@ function UniversityListCard({ university }: { university: University }) {
 
       <div className="mt-4 grid gap-2 text-sm font-bold text-slate-700">
         <InfoLine icon={<Rows3 size={16} />} label="掲載種目" value={university.listing.events.join(" / ")} />
-        <InfoLine icon={<CalendarDays size={16} />} label="次回出場予定" value={university.listing.nextAppearance} />
+        <InfoLine icon={<CalendarDays size={16} />} label="次回出場予定" value={nextAppearance?.meet.meet_name ?? "未登録"} />
         <InfoLine
           icon={<Flag size={16} />}
           label="直近結果"

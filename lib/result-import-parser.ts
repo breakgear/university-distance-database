@@ -381,26 +381,95 @@ function buildFileDiffs(
   rows: ImportParsedRow[],
   records: ReturnType<typeof loadReferenceRecords>
 ) {
-  const newUniversities = new Set(rows.filter((row) => !records.universities.some((item) => item.id === row.universityId)).map((row) => row.universityId));
-  const newAthletes = rows.filter((row) => !records.athletes.some((item) => item.id === row.athleteId)).length;
-  const newMeet = records.meets.some((item) => item.meet_id === metadata.meetId) ? 0 : 1;
-  const newRace = records.races.some((item) => item.race_id === metadata.raceId) ? 0 : 1;
-  const newEntries = rows.filter(
-    (row) => !records.entries.some((item) => item.race_id === metadata.raceId && item.athlete_id === row.athleteId)
-  ).length;
-  const newResults = rows.filter(
-    (row) => !records.results.some((item) => item.race_id === metadata.raceId && item.athlete_id === row.athleteId)
-  ).length;
-  const newPbs = rows.filter((row) => row.note === "PB" && !records.personalBests.some((item) => item.athlete_id === row.athleteId && item.distance === metadata.distance && item.time === row.time)).length;
+  const changedUniversities = new Set(
+    rows
+      .filter((row) => {
+        const current = records.universities.find((item) => item.id === row.universityId);
+        return (
+          !current ||
+          current.has_result !== "TRUE" ||
+          !current.listing_events
+            .split("/")
+            .map((item) => item.trim())
+            .includes(metadata.distance)
+        );
+      })
+      .map((row) => row.universityId)
+  );
+  const changedAthletes = rows.filter((row) => {
+    const current = records.athletes.find((item) => item.id === row.athleteId);
+    return (
+      !current ||
+      !current.specialty ||
+      ((!current.year || current.year === "学年未登録") && Boolean(row.year))
+    );
+  }).length;
+  const currentMeet = records.meets.find((item) => item.meet_id === metadata.meetId);
+  const changedMeet =
+    !currentMeet ||
+    currentMeet.status !== "result_published" ||
+    (Boolean(metadata.date) && currentMeet.date !== metadata.date) ||
+    (Boolean(metadata.venue) && currentMeet.venue !== metadata.venue)
+      ? 1
+      : 0;
+  const currentRace = records.races.find((item) => item.race_id === metadata.raceId);
+  const changedRace =
+    !currentRace ||
+    currentRace.meet_id !== metadata.meetId ||
+    currentRace.status !== "result_published" ||
+    !currentRace.result_summary_id ||
+    (Boolean(metadata.startTime) && currentRace.start_time !== metadata.startTime)
+      ? 1
+      : 0;
+  const changedEntries = rows.filter((row) => {
+    const current = records.entries.find(
+      (item) => item.race_id === metadata.raceId && item.athlete_id === row.athleteId
+    );
+    return (
+      !current ||
+      current.meet_id !== metadata.meetId ||
+      current.university_id !== row.universityId ||
+      current.bib_no !== row.bib ||
+      current.entry_status !== (row.resultStatus === "dns" ? "dns" : "started")
+    );
+  }).length;
+  const changedResults = rows.filter((row) => {
+    const current = records.results.find(
+      (item) => item.race_id === metadata.raceId && item.athlete_id === row.athleteId
+    );
+    const expectedRank =
+      row.resultStatus === "finished" && /^\d+$/.test(row.rank)
+        ? `${row.rank}位`
+        : row.rank.toUpperCase();
+    return (
+      !current ||
+      current.meet_id !== metadata.meetId ||
+      current.university_id !== row.universityId ||
+      current.distance !== metadata.distance ||
+      current.date !== metadata.date ||
+      current.rank !== expectedRank ||
+      current.time !== row.time ||
+      current.result_status !== row.resultStatus ||
+      current.note !== row.note ||
+      current.is_pb !== (row.note === "PB" ? "TRUE" : "FALSE")
+    );
+  }).length;
+  const changedPbs = rows.filter((row) => {
+    if (row.note !== "PB" || row.resultStatus !== "finished") return false;
+    const current = records.personalBests.find(
+      (item) => item.athlete_id === row.athleteId && item.distance === metadata.distance
+    );
+    return !current || toSeconds(current.time) > toSeconds(row.time);
+  }).length;
 
   return [
-    { name: "universities.csv", count: newUniversities.size, text: newUniversities.size ? "未登録大学を追加" : "既存大学を参照" },
-    { name: "athletes.csv", count: newAthletes, text: newAthletes ? "未登録選手を追加" : "既存選手を参照" },
-    { name: "meets.csv", count: newMeet, text: newMeet ? "大会を追加" : "大会情報を更新" },
-    { name: "races.csv", count: newRace, text: newRace ? "レースを追加" : "レース情報を更新" },
-    { name: "entries.csv", count: newEntries, text: "掲載選手を追加" },
-    { name: "results.csv", count: newResults, text: "結果を追加" },
-    { name: "personal_bests.csv", count: newPbs, text: "PBを追加・更新" }
+    { name: "universities.csv", count: changedUniversities.size, text: changedUniversities.size ? "大学情報を追加・更新" : "変更なし" },
+    { name: "athletes.csv", count: changedAthletes, text: changedAthletes ? "選手情報を追加・更新" : "変更なし" },
+    { name: "meets.csv", count: changedMeet, text: changedMeet ? "大会情報を追加・更新" : "変更なし" },
+    { name: "races.csv", count: changedRace, text: changedRace ? "レース情報を追加・更新" : "変更なし" },
+    { name: "entries.csv", count: changedEntries, text: changedEntries ? "掲載状態を追加・更新" : "変更なし" },
+    { name: "results.csv", count: changedResults, text: changedResults ? "結果を追加・更新" : "変更なし" },
+    { name: "personal_bests.csv", count: changedPbs, text: changedPbs ? "PBを追加・更新" : "変更なし" }
   ];
 }
 
@@ -504,6 +573,13 @@ function normalizeTime(value: string) {
   return value.normalize("NFKC").replace(/[′']/g, ":").replace(/[″"]/g, "").trim();
 }
 
+function toSeconds(value: string) {
+  const numbers = value.split(":").map(Number);
+  if (numbers.some(Number.isNaN)) return Number.POSITIVE_INFINITY;
+  if (numbers.length === 3) return numbers[0] * 3600 + numbers[1] * 60 + numbers[2];
+  return numbers[0] * 60 + numbers[1];
+}
+
 function normalizeNote(value: string) {
   const note = value.normalize("NFKC").toUpperCase();
   return ["PB", "SB", "DNS", "DNF", "DQ"].find((item) => note.includes(item)) ?? "";
@@ -580,4 +656,3 @@ function pad(value: string) {
 function sourceLabel(source: ImportSource) {
   return source === "url" ? "URL" : source === "pdf" ? "PDF" : "コピペ";
 }
-

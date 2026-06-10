@@ -42,10 +42,8 @@ export function commitImport(payload: ImportCommitPayload) {
     personal_bests: 0
   };
 
-  upsertMeet(data.meets.rows, payload);
-  counts.meets = data.meets.rows.some((row) => row.meet_id === payload.metadata.meetId) ? 1 : 0;
-  upsertRace(data.races.rows, payload);
-  counts.races = 1;
+  counts.meets = upsertMeet(data.meets.rows, payload);
+  counts.races = upsertRace(data.races.rows, payload);
 
   for (const row of payload.rows) {
     counts.universities += ensureUniversity(data.universities.rows, row, payload.metadata.distance);
@@ -56,6 +54,10 @@ export function commitImport(payload: ImportCommitPayload) {
     if (row.note === "PB" && row.resultStatus === "finished") {
       counts.personal_bests += upsertPersonalBest(data.personal_bests.rows, row, payload, resultId);
     }
+  }
+
+  if (Object.values(counts).every((count) => count === 0)) {
+    return { counts, backupDir: "", changed: false };
   }
 
   const tempRoot = mkdtempSync(path.join(tmpdir(), "distance-import-"));
@@ -88,7 +90,7 @@ export function commitImport(payload: ImportCommitPayload) {
       { cwd: rootDir, encoding: "utf8", stdio: "pipe" }
     );
 
-    return { counts, backupDir: path.relative(rootDir, backupDir) };
+    return { counts, backupDir: path.relative(rootDir, backupDir), changed: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : "CSV更新に失敗しました。";
     throw new Error(`CSV更新前の検証に失敗しました: ${message}`);
@@ -101,40 +103,54 @@ function upsertMeet(rows: CsvRecord[], payload: ImportCommitPayload) {
   const current = rows.find((row) => row.meet_id === payload.metadata.meetId);
   const next = {
     meet_id: payload.metadata.meetId,
-    slug: payload.metadata.meetId,
-    meet_name: payload.metadata.meetName,
-    date: payload.metadata.date,
-    venue: payload.metadata.venue,
-    category: payload.metadata.category,
+    slug: current?.slug || payload.metadata.meetId,
+    meet_name: current?.meet_name || payload.metadata.meetName,
+    date: payload.metadata.date || current?.date || "",
+    venue: payload.metadata.venue || current?.venue || "",
+    category: current?.category || payload.metadata.category,
     status: "result_published",
-    note: "管理画面から結果を取り込み"
+    note: current?.note || "管理画面から結果を取り込み"
   };
-  if (current) Object.assign(current, next);
-  else rows.push(next);
+  if (current) {
+    if (recordsEqual(current, next)) return 0;
+    Object.assign(current, next);
+    return 1;
+  }
+  rows.push(next);
+  return 1;
 }
 
 function upsertRace(rows: CsvRecord[], payload: ImportCommitPayload) {
   const current = rows.find((row) => row.race_id === payload.metadata.raceId);
   const next = {
     race_id: payload.metadata.raceId,
-    slug: payload.metadata.raceId,
+    slug: current?.slug || payload.metadata.raceId,
     meet_id: payload.metadata.meetId,
-    race_name: payload.metadata.raceName,
-    distance: payload.metadata.distance,
-    start_time: payload.metadata.startTime,
+    race_name: current?.race_name || payload.metadata.raceName,
+    distance: current?.distance || payload.metadata.distance,
+    start_time: payload.metadata.startTime || current?.start_time || "",
     status: "result_published",
-    result_summary_id: payload.metadata.raceId
+    result_summary_id: current?.result_summary_id || payload.metadata.raceId
   };
-  if (current) Object.assign(current, next);
-  else rows.push(next);
+  if (current) {
+    if (recordsEqual(current, next)) return 0;
+    Object.assign(current, next);
+    return 1;
+  }
+  rows.push(next);
+  return 1;
 }
 
 function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, distance: ImportDistance) {
   const current = rows.find((item) => item.id === row.universityId);
   if (current) {
-    current.has_result = "TRUE";
-    current.listing_events = addListValue(current.listing_events, distance);
-    return 0;
+    const next = {
+      has_result: "TRUE",
+      listing_events: addListValue(current.listing_events, distance)
+    };
+    if (recordsEqual(current, next)) return 0;
+    Object.assign(current, next);
+    return 1;
   }
   rows.push({
     id: row.universityId,
@@ -154,9 +170,12 @@ function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, distance: Imp
 function ensureAthlete(rows: CsvRecord[], row: ImportParsedRow, distance: ImportDistance) {
   const current = rows.find((item) => item.id === row.athleteId);
   if (current) {
-    if (!current.specialty) current.specialty = distance;
-    if ((!current.year || current.year === "学年未登録") && row.year) current.year = row.year;
-    return 0;
+    const next: CsvRecord = {};
+    if (!current.specialty) next.specialty = distance;
+    if ((!current.year || current.year === "学年未登録") && row.year) next.year = row.year;
+    if (recordsEqual(current, next)) return 0;
+    Object.assign(current, next);
+    return 1;
   }
   rows.push({
     id: row.athleteId,
@@ -187,8 +206,9 @@ function ensureEntry(rows: CsvRecord[], row: ImportParsedRow, payload: ImportCom
     entry_status: row.resultStatus === "dns" ? "dns" : "started"
   };
   if (current) {
+    if (recordsEqual(current, next)) return 0;
     Object.assign(current, next);
-    return 0;
+    return 1;
   }
   rows.push(next);
   return 1;
@@ -218,8 +238,9 @@ function ensureResult(
     is_pb: row.note === "PB" ? "TRUE" : "FALSE"
   };
   if (current) {
+    if (recordsEqual(current, next)) return 0;
     Object.assign(current, next);
-    return 0;
+    return 1;
   }
   rows.push(next);
   return 1;
@@ -256,6 +277,10 @@ function addListValue(list: string, value: string) {
   const items = list.split("/").map((item) => item.trim()).filter(Boolean);
   if (!items.includes(value)) items.push(value);
   return items.join(" / ");
+}
+
+function recordsEqual(current: CsvRecord, next: CsvRecord) {
+  return Object.entries(next).every(([key, value]) => current[key] === value);
 }
 
 function toSeconds(value: string) {
@@ -314,4 +339,3 @@ function escapeCsv(value: string) {
   if (!/[",\n\r]/.test(value)) return value;
   return `"${value.replace(/"/g, '""')}"`;
 }
-

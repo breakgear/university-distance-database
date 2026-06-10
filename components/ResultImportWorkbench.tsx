@@ -128,11 +128,15 @@ export function ResultImportWorkbench() {
         })
       });
       const body = (await response.json()) as {
-        result?: { counts: Record<string, number>; backupDir: string };
+        result?: { counts: Record<string, number>; backupDir: string; changed: boolean };
         error?: string;
       };
       if (!response.ok || !body.result) throw new Error(body.error || "CSV更新に失敗しました。");
-      setCommitMessage(`CSVとdata/*.tsを更新しました。バックアップ: ${body.result.backupDir}`);
+      setCommitMessage(
+        body.result.changed
+          ? `CSVとdata/*.tsを更新しました。バックアップ: ${body.result.backupDir}`
+          : "既存データと同一のため、CSVとdata/*.tsは変更していません。"
+      );
       setStatus("done");
     } catch (caught) {
       setStatus("ready");
@@ -402,7 +406,14 @@ export function ResultImportWorkbench() {
       <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
         <ImportProgress status={status} />
         {status === "review" || status === "ready" || status === "committing" || status === "done" ? (
-          <ReviewSummary selectedCount={selectedCount} issueCount={issueCount} status={status} />
+          <ReviewSummary
+            selectedCount={selectedCount}
+            issueCount={issueCount}
+            pbCount={analysis?.files.find((file) => file.name === "personal_bests.csv")?.count ?? 0}
+            changedFileCount={analysis?.files.filter((file) => file.count > 0).length ?? 0}
+            status={status}
+            commitChanged={status === "done" ? !commitMessage.startsWith("既存データと同一") : null}
+          />
         ) : (
           <SafetyCard />
         )}
@@ -825,19 +836,35 @@ function ImportProgress({ status }: { status: ImportStatus }) {
   );
 }
 
-function ReviewSummary({ selectedCount, issueCount, status }: { selectedCount: number; issueCount: number; status: ImportStatus }) {
+function ReviewSummary({
+  selectedCount,
+  issueCount,
+  pbCount,
+  changedFileCount,
+  status,
+  commitChanged
+}: {
+  selectedCount: number;
+  issueCount: number;
+  pbCount: number;
+  changedFileCount: number;
+  status: ImportStatus;
+  commitChanged: boolean | null;
+}) {
   return (
     <section className="rounded-lg border border-line bg-white p-4 shadow-sm">
       <h2 className="text-base font-black text-ink">今回の取込</h2>
       <div className="mt-3 grid gap-2">
         <SummaryLine label="登録対象" value={`${selectedCount}件`} />
         <SummaryLine label="要確認" value={`${issueCount}件`} warning={issueCount > 0} />
-        <SummaryLine label="PB候補" value="1件" />
-        <SummaryLine label="更新CSV" value="6ファイル" />
+        <SummaryLine label="PB更新" value={`${pbCount}件`} />
+        <SummaryLine label="更新CSV" value={`${changedFileCount}ファイル`} />
       </div>
       <div className={cn("mt-4 rounded-md px-3 py-3 text-xs font-bold leading-5", status === "done" ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>
         {status === "done"
-          ? "CSVとdata/*.tsの更新が完了しました。画面表示を確認してください。"
+          ? commitChanged
+            ? "CSVとdata/*.tsの更新が完了しました。画面表示を確認してください。"
+            : "既存データと同一のため、ファイルは変更していません。"
           : status === "committing"
             ? "一時ディレクトリで整合性を検証してからCSVへ反映しています。"
             : status === "ready"

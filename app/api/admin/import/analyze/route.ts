@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
+import { isAdminImportAvailable } from "@/lib/admin-import-access";
 import { analyzeImportSources } from "@/lib/result-import-parser";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  if (!isAdminImportAvailable()) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   try {
     const formData = await request.formData();
     const url = String(formData.get("url") ?? "");
@@ -18,4 +23,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
-

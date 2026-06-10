@@ -1,8 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ChevronRight, Database, FileSearch, Info, LockKeyhole } from "lucide-react";
 import { ResultImportWorkbench } from "@/components/ResultImportWorkbench";
+import { isAdminImportAvailable } from "@/lib/admin-import-access";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export default function ResultImportPage() {
+  if (!isAdminImportAvailable()) {
+    notFound();
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 pb-10 pt-7 sm:px-6 sm:pt-10">
       <nav className="mb-4 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">

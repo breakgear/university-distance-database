@@ -19,7 +19,7 @@ const csvFiles = [
 ] as const;
 
 export function commitImport(payload: ImportCommitPayload) {
-  if (process.env.NODE_ENV === "production" && process.env.ALLOW_LOCAL_CSV_WRITE !== "true") {
+  if (process.env.NODE_ENV === "production") {
     throw new Error("本番環境ではCSVを永続更新できません。ローカル環境で実行してください。");
   }
 

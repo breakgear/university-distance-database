@@ -35,3 +35,4 @@ data/csv/
 screenshots/
 tmp/
 *.tmp
+.import-backups/

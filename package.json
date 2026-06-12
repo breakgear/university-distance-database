@@ -5,12 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "import:csv": "node --no-warnings --experimental-strip-types scripts/import-csv.ts",
+    "db:push": "node --env-file-if-exists=.env.local --no-warnings --experimental-strip-types scripts/push-csv-to-supabase.ts",
+    "db:pull": "node --env-file-if-exists=.env.local --no-warnings --experimental-strip-types scripts/pull-supabase-to-csv.ts",
     "test:import": "node --import tsx --test tests/result-import-parser.test.ts tests/result-import-validation.test.ts tests/season-schedule.test.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
     "lucide-react": "latest",
     "next": "16.2.6",
     "pdf-parse": "^1.1.1",

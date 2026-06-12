@@ -1,6 +1,6 @@
 # Google Sheets / CSV データ運用
 
-大学長距離データベースでは、MVP段階では Google Sheets でデータを管理し、CSVを書き出して `data/*.ts` を生成します。
+大学長距離データベースでは、Google Sheetsでデータを管理し、CSVを書き出して `data/*.ts` またはSupabaseを更新できます。
 
 この手順は、コードを直接編集せずに大会、レース、出場予定、結果、PBを更新するための運用メモです。
 
@@ -16,6 +16,8 @@
 8. 画面で追加・更新したページを確認する
 9. Git commitする
 10. Vercelへ反映する
+
+Supabaseを正本として運用する場合は、[Supabase運用](supabase.md)も参照してください。
 
 ## CSVファイル名
 
@@ -261,7 +263,7 @@ rm -rf .next && npm run build
 
 - Google Sheets APIとのリアルタイム同期
 - 管理画面
-- Supabase連携
+- 管理画面からSupabaseへの直接書き込み
 - 自動OCR取り込み
 - 公式サイトの自動スクレイピング
 - 完全自動PB判定

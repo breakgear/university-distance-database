@@ -86,6 +86,17 @@ CSVファイルは、`csv/` または `data/csv/` に配置します。
 
 詳しい手順は [docs/data-import.md](docs/data-import.md) を参照してください。
 
+## Supabase運用
+
+Supabaseをデータの正本として使い、取得したデータから `data/*.ts` を生成する段階移行に対応しています。
+
+```bash
+npm run db:push
+npm run db:pull
+```
+
+セットアップと安全な運用手順は [docs/supabase.md](docs/supabase.md) を参照してください。
+
 ## 検証コマンド
 
 型チェック：
@@ -102,11 +113,11 @@ npm run build
 
 ## 現在の前提
 
-* Supabase連携は未実装
+* SupabaseへのCSV同期とSupabaseからの静的データ生成に対応
 * Google Sheets APIとのリアルタイム同期は未実装
 * 管理画面は未実装
 * 公式サイトの自動スクレイピングは未実装
-* MVPではGoogle SheetsからCSVを書き出し、`data/*.ts` を生成する運用を想定
+* MVPではGoogle Sheets / CSVまたはSupabaseから`data/*.ts`を生成する運用を想定
 * 掲載データは非公式に整理したもの
 * 正式な大会情報・記録は各大会公式サイトを確認する前提
 * このプロジェクトは公開前のMVPであり、掲載データ・URL構成・運用方法は今後変更される可能性があります。

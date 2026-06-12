@@ -61,13 +61,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "小河原 陽琉",
         "event": "5000m",
         "time": "13:31.99"
       },
-      "hasUpcoming": true,
+      "hasUpcoming": false,
       "hasResult": true
     }
   },
@@ -101,13 +101,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "野中 恒亨",
         "event": "5000m",
         "time": "13:30.10"
       },
-      "hasUpcoming": true,
+      "hasUpcoming": false,
       "hasResult": true
     }
   },
@@ -140,13 +140,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "池間 凛斗",
         "event": "5000m",
         "time": "13:40.47"
       },
-      "hasUpcoming": true,
+      "hasUpcoming": false,
       "hasResult": true
     }
   },
@@ -181,13 +181,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "鈴木 琉胤",
         "event": "5000m",
         "time": "13:33.73"
       },
-      "hasUpcoming": true,
+      "hasUpcoming": false,
       "hasResult": true
     }
   },
@@ -228,13 +228,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "岡田 開成",
         "event": "5000m",
         "time": "13:31.43"
       },
-      "hasUpcoming": true,
+      "hasUpcoming": false,
       "hasResult": true
     }
   },
@@ -268,13 +268,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "小山 翔也",
         "event": "5000m",
         "time": "13:55.95"
       },
-      "hasUpcoming": true,
+      "hasUpcoming": false,
       "hasResult": true
     }
   },
@@ -305,7 +305,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ｽﾃｨｰﾌﾞﾝ ﾚﾏｲﾔﾝ",
         "event": "5000m",
@@ -342,7 +342,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ﾌﾞﾗｲｱﾝ ｷﾋﾟｴｺﾞ",
         "event": "5000m",
@@ -381,7 +381,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "柴田 侑",
         "event": "5000m",
@@ -413,7 +413,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "川﨑 颯",
         "event": "5000m",
@@ -451,7 +451,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ｷﾌﾞﾆ ｴｳﾞｧﾝｽ",
         "event": "5000m",
@@ -491,7 +491,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "野田 晶斗",
         "event": "5000m",
@@ -531,7 +531,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "大濱 逞真",
         "event": "5000m",
@@ -571,7 +571,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "松山 優太",
         "event": "5000m",
@@ -611,7 +611,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "佐藤 大和",
         "event": "5000m",
@@ -650,7 +650,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "石川 悠斗",
         "event": "5000m",
@@ -681,7 +681,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "成沢 翔英",
         "event": "5000m",
@@ -720,7 +720,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "飯田ケビン",
         "event": "5000m",
@@ -758,7 +758,7 @@ export const universities: University[] = [
       "events": [
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "阿部 宥人",
         "event": "10000m",
@@ -796,7 +796,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ｽﾃｨｰﾌﾞﾝ ﾑﾁｰﾆ",
         "event": "5000m",
@@ -825,7 +825,7 @@ export const universities: University[] = [
       "events": [
         "10000m"
       ],
-      "nextAppearance": "2026日本学生陸上競技個人選手権大会",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "未登録",
         "event": "10000m",
@@ -867,7 +867,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ﾘﾁｬｰﾄﾞ ｴﾃｨｰﾘ",
         "event": "5000m",
@@ -908,7 +908,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ﾗﾌｧｴﾙ ﾛﾝｷﾞｻ",
         "event": "5000m",
@@ -941,7 +941,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ﾃﾞﾆｽ ｷﾌﾟﾙﾄ",
         "event": "5000m",
@@ -973,7 +973,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ｼﾞｮｾﾌ ﾑｲｶﾞｲ",
         "event": "5000m",
@@ -1008,7 +1008,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "楠岡 由浩",
         "event": "5000m",
@@ -1038,7 +1038,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ｼﾞｪﾚﾐｱ ｶﾏｳ",
         "event": "5000m",
@@ -1081,7 +1081,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "新妻 玲旺",
         "event": "5000m",
@@ -1123,7 +1123,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ﾎﾞﾆﾌｪｽ ﾑﾃﾁ",
         "event": "5000m",
@@ -1152,7 +1152,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "有川 紘樹",
         "event": "5000m",
@@ -1192,7 +1192,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "伊藤 匠海",
         "event": "5000m",
@@ -1234,7 +1234,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "長部 虎太郎",
         "event": "5000m",
@@ -1265,7 +1265,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "尾島 樹",
         "event": "5000m",
@@ -1308,7 +1308,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "水津 智哉",
         "event": "5000m",
@@ -1341,7 +1341,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "佐野 颯人",
         "event": "5000m",
@@ -1373,7 +1373,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "下森 実直",
         "event": "5000m",
@@ -1410,7 +1410,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "秩父宮賜杯第58回全日本大学駅伝対校選手権大会 関東選考会",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "岩瀬 駿介",
         "event": "5000m",
@@ -1443,7 +1443,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ﾏﾝﾃﾞﾗ ﾈﾙｿﾝ",
         "event": "10000m",
@@ -1472,7 +1472,7 @@ export const universities: University[] = [
       "events": [
         "ハーフ"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "巽 勇樹",
         "event": "ハーフ",
@@ -1502,7 +1502,7 @@ export const universities: University[] = [
       "events": [
         "ハーフ"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "松永 遥斗",
         "event": "ハーフ",
@@ -1532,7 +1532,7 @@ export const universities: University[] = [
       "events": [
         "ハーフ"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "髙橋 歩夢",
         "event": "ハーフ",
@@ -1562,7 +1562,7 @@ export const universities: University[] = [
       "events": [
         "ハーフ"
       ],
-      "nextAppearance": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "鈴木 海渡",
         "event": "ハーフ",
@@ -1593,7 +1593,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "小田 夕琥",
         "event": "5000m",
@@ -1622,7 +1622,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "Felix Muthiani",
         "event": "5000m",
@@ -1654,7 +1654,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "鶴田 寛武",
         "event": "5000m",
@@ -1685,7 +1685,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "松葉 琥太郎",
         "event": "5000m",
@@ -1714,7 +1714,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "國森 郁光",
         "event": "5000m",
@@ -1745,7 +1745,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "兵藤 颯太",
         "event": "5000m",
@@ -1776,7 +1776,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "水野 颯也",
         "event": "5000m",
@@ -1805,7 +1805,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "小川 晴也",
         "event": "5000m",
@@ -1834,7 +1834,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第37回ゴールデンゲームズ in のべおか",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "大隈 匠真",
         "event": "5000m",
@@ -1869,7 +1869,7 @@ export const universities: University[] = [
         "5000m",
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ｵﾝﾃﾞｨｿ ｴｽﾞﾗ",
         "event": "10000m",
@@ -1905,7 +1905,7 @@ export const universities: University[] = [
       "events": [
         "10000m"
       ],
-      "nextAppearance": "秩父宮賜杯第58回全日本大学駅伝対校選手権大会 関東選考会",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "前田 和摩",
         "event": "10000m",
@@ -1934,7 +1934,7 @@ export const universities: University[] = [
       "events": [
         "5000m"
       ],
-      "nextAppearance": "第34回 金栗記念選抜陸上中長距離熊本大会",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "岩坂 蓮太",
         "event": "5000m",
@@ -1965,7 +1965,7 @@ export const universities: University[] = [
       "events": [
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "ﾌﾞﾗｲｱﾝ ｷﾌﾟﾄｩｰﾌﾞｼｭｰｱｷｯﾄｩ",
         "event": "10000m",
@@ -1995,7 +1995,7 @@ export const universities: University[] = [
       "events": [
         "10000m"
       ],
-      "nextAppearance": "関東インカレ",
+      "nextAppearance": "未登録",
       "latestResult": {
         "athlete": "石堂 留偉",
         "event": "10000m",
@@ -2007,7 +2007,7 @@ export const universities: University[] = [
   }
 ];
 
-export type UniversityPbEvent = "5000m" | "10000m" | "ハーフ";
+export type UniversityPbEvent = "1500m" | "5000m" | "10000m" | "ハーフ";
 
 export type UniversityPbRanking = {
   event: UniversityPbEvent;
@@ -2019,7 +2019,7 @@ export type UniversityPbRanking = {
   }[];
 };
 
-const pbEvents: UniversityPbEvent[] = ["5000m", "10000m", "ハーフ"];
+const pbEvents: UniversityPbEvent[] = ["1500m", "5000m", "10000m", "ハーフ"];
 
 export function buildUniversityPbRankings(universityList: University[], athleteList: Athlete[]): UniversityPbRanking[] {
   const universityById = new Map(universityList.map((university) => [university.id, university]));

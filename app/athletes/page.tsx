@@ -6,8 +6,8 @@ import { universities, University } from "@/data/universities";
 import { getUpcomingEntriesByAthleteId } from "@/lib/upcoming";
 import { cn } from "@/lib/utils";
 
-type AthleteFilter = "all" | "1年" | "2年" | "3年" | "4年" | "5000m" | "10000m" | "half" | "upcoming" | "result";
-type PbEvent = "5000m" | "10000m" | "ハーフ";
+type AthleteFilter = "all" | "1年" | "2年" | "3年" | "4年" | "1500m" | "5000m" | "10000m" | "half" | "upcoming" | "result";
+type PbEvent = "1500m" | "5000m" | "10000m" | "ハーフ";
 
 const filters: Array<{ label: string; value: AthleteFilter }> = [
   { label: "すべて", value: "all" },
@@ -15,6 +15,7 @@ const filters: Array<{ label: string; value: AthleteFilter }> = [
   { label: "2年", value: "2年" },
   { label: "3年", value: "3年" },
   { label: "4年", value: "4年" },
+  { label: "1500m掲載あり", value: "1500m" },
   { label: "5000m掲載あり", value: "5000m" },
   { label: "10000m掲載あり", value: "10000m" },
   { label: "ハーフ掲載あり", value: "half" },
@@ -22,7 +23,7 @@ const filters: Array<{ label: string; value: AthleteFilter }> = [
   { label: "結果あり", value: "result" }
 ];
 
-const pbEvents: PbEvent[] = ["5000m", "10000m", "ハーフ"];
+const pbEvents: PbEvent[] = ["1500m", "5000m", "10000m", "ハーフ"];
 
 export default async function AthletesPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const { filter } = await searchParams;
@@ -106,8 +107,8 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
       </section>
 
       <section className="mt-8">
-        <SectionTitle title="種目別PB上位" description="掲載データ内で、5000m・10000m・ハーフのPB上位選手を確認できます。" />
-        <div className="grid gap-3 lg:grid-cols-3">
+        <SectionTitle title="種目別PB上位" description="掲載データ内で、1500m・5000m・10000m・ハーフのPB上位選手を確認できます。" />
+        <div className="grid gap-3 lg:grid-cols-2">
           {pbRankings.map((ranking) => (
             <article key={ranking.event} className="overflow-x-auto rounded-lg border border-line bg-white shadow-sm">
               <div className="border-b border-line bg-field px-4 py-3">
@@ -134,6 +135,9 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
                   <span className="text-sm font-black text-ink">{entry.time}</span>
                 </div>
               ))}
+              {ranking.entries.length === 0 ? (
+                <p className="min-w-[360px] px-4 py-3 text-sm font-bold text-slate-500">掲載PBはまだありません。</p>
+              ) : null}
             </article>
           ))}
         </div>
@@ -155,7 +159,7 @@ export default async function AthletesPage({ searchParams }: { searchParams: Pro
 function matchesAthleteFilter(athlete: Athlete, filter: AthleteFilter) {
   if (filter === "all") return true;
   if (filter === "1年" || filter === "2年" || filter === "3年" || filter === "4年") return athlete.year === filter;
-  if (filter === "5000m" || filter === "10000m") return athlete.pb.some((record) => record.distance === filter);
+  if (filter === "1500m" || filter === "5000m" || filter === "10000m") return athlete.pb.some((record) => record.distance === filter);
   if (filter === "half") return athlete.pb.some((record) => record.distance === "ハーフ");
   if (filter === "upcoming") return getUpcomingEntriesByAthleteId(athlete.id).length > 0;
   return athlete.recentResults.length > 0;

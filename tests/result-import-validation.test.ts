@@ -59,6 +59,17 @@ test("エントリー取込では掲載状態を必須にする", () => {
   assert.throws(() => parseImportCommitPayload(payload), /掲載状態/);
 });
 
+test("1500mのPB付き反映ペイロードを受け付ける", () => {
+  const raw = validPayload();
+  raw.metadata.distance = "1500m";
+  raw.metadata.raceName = "男子1500m 決勝";
+  raw.rows[0].time = "3:48.20";
+  const payload = parseImportCommitPayload(raw);
+  assert.equal(payload.metadata.distance, "1500m");
+  assert.equal(payload.rows[0].time, "3:48.20");
+  assert.equal(payload.rows[0].note, "PB");
+});
+
 test("不正な日付と種目を拒否する", () => {
   const badDate = validPayload();
   badDate.metadata.date = "6/12";

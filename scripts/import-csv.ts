@@ -459,7 +459,7 @@ export type University = {
 
 export const universities: University[] = ${literal(universityObjects)};
 
-export type UniversityPbEvent = "5000m" | "10000m" | "ハーフ";
+export type UniversityPbEvent = "1500m" | "5000m" | "10000m" | "ハーフ";
 
 export type UniversityPbRanking = {
   event: UniversityPbEvent;
@@ -471,7 +471,7 @@ export type UniversityPbRanking = {
   }[];
 };
 
-const pbEvents: UniversityPbEvent[] = ["5000m", "10000m", "ハーフ"];
+const pbEvents: UniversityPbEvent[] = ["1500m", "5000m", "10000m", "ハーフ"];
 
 export function buildUniversityPbRankings(universityList: University[], athleteList: Athlete[]): UniversityPbRanking[] {
   const universityById = new Map(universityList.map((university) => [university.id, university]));

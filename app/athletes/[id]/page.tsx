@@ -143,7 +143,7 @@ export default async function AthletePage({ params }: { params: Promise<{ id: st
         <SectionTitle title="掲載PB" description="掲載データ内のPBを種目別に表示しています。" />
         {athlete.pb.length > 0 ? (
           <>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {pbDistances.map((distance) => {
                 const pb = athlete.pb.find((record) => record.distance === distance);
 

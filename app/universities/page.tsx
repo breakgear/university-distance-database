@@ -6,11 +6,12 @@ import { buildUniversityPbRankings, universities, University } from "@/data/univ
 import { getUpcomingEntriesByUniversityId } from "@/lib/upcoming";
 import { cn } from "@/lib/utils";
 
-type UniversityFilter = "all" | "kanto" | "5000m" | "10000m" | "half" | "upcoming" | "result";
+type UniversityFilter = "all" | "kanto" | "1500m" | "5000m" | "10000m" | "half" | "upcoming" | "result";
 
 const filters: Array<{ label: string; value: UniversityFilter }> = [
   { label: "すべて", value: "all" },
   { label: "関東", value: "kanto" },
+  { label: "1500m掲載あり", value: "1500m" },
   { label: "5000m掲載あり", value: "5000m" },
   { label: "10000m掲載あり", value: "10000m" },
   { label: "ハーフ掲載あり", value: "half" },
@@ -102,7 +103,7 @@ export default async function UniversitiesPage({ searchParams }: { searchParams:
 
       <section className="mt-8">
         <SectionTitle title="大学別PB上位" description="掲載データ内で、各大学の最上位PBを種目別に表示しています。" />
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-2">
           {universityPbRankings.map((ranking) => (
             <article key={ranking.event} className="overflow-x-auto rounded-lg border border-line bg-white shadow-sm">
               <div className="border-b border-line bg-field px-4 py-3">
@@ -130,6 +131,9 @@ export default async function UniversitiesPage({ searchParams }: { searchParams:
                   <span className="text-sm font-black text-ink">{entry.time}</span>
                 </div>
               ))}
+              {ranking.entries.length === 0 ? (
+                <p className="min-w-[360px] px-4 py-3 text-sm font-bold text-slate-500">掲載PBはまだありません。</p>
+              ) : null}
             </article>
           ))}
         </div>
@@ -151,7 +155,7 @@ export default async function UniversitiesPage({ searchParams }: { searchParams:
 function matchesUniversityFilter(university: University, filter: UniversityFilter) {
   if (filter === "all") return true;
   if (filter === "kanto") return university.listing.region === "関東";
-  if (filter === "5000m" || filter === "10000m") return university.listing.events.includes(filter);
+  if (filter === "1500m" || filter === "5000m" || filter === "10000m") return university.listing.events.includes(filter);
   if (filter === "half") return university.listing.events.includes("ハーフ");
   if (filter === "upcoming") return getUpcomingEntriesByUniversityId(university.id).length > 0;
   return university.listing.hasResult;

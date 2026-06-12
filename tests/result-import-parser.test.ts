@@ -59,6 +59,23 @@ test("資格記録の複数表記をCSV向け形式へ正規化する", () => {
   assert.equal(extractEntryTime("選手 早稲田大 13分26秒31", "5000m"), "13:26.31");
 });
 
+test("1500mの資格記録を3形式とも正規化する", () => {
+  assert.equal(extractEntryTime("選手 早稲田大 3:48.20", "1500m"), "3:48.20");
+  assert.equal(extractEntryTime("選手 早稲田大 3'48\"20", "1500m"), "3:48.20");
+  assert.equal(extractEntryTime("選手 早稲田大 3分48秒20", "1500m"), "3:48.20");
+});
+
+test("1500mの結果行を解析しPB注記を保持する", () => {
+  const row = parseTextRecord("1 5 204 田中 太郎 (3) 早稲田大 3:48.20 PB");
+  assert.equal(row?.rank, "1");
+  assert.equal(row?.bib, "204");
+  assert.equal(row?.athlete, "田中 太郎");
+  assert.equal(row?.year, "3年");
+  assert.equal(row?.time, "3:48.20");
+  assert.equal(row?.note, "PB");
+  assert.equal(row?.resultStatus, "finished");
+});
+
 test("申込期限より開催日を優先する", () => {
   const candidates = extractEventDateCandidates(
     "申込期限：2026年4月20日\n第110回大会 開催日：2026年6月12日",

@@ -4,13 +4,14 @@ import { EmptyState } from "@/components/EmptyState";
 import { resultCategoryLabels, ResultCategory, resultSummaries, ResultSummary, universityResultGroups } from "@/data/results";
 import { cn, formatDate } from "@/lib/utils";
 
-type ResultFilter = "all" | ResultCategory | "5000m" | "10000m" | "ハーフ" | "PB" | "DNS";
+type ResultFilter = "all" | ResultCategory | "1500m" | "5000m" | "10000m" | "ハーフ" | "PB" | "DNS";
 
 const filters: Array<{ label: string; value: ResultFilter }> = [
   { label: "すべて", value: "all" },
   { label: "トラック", value: "track" },
   { label: "ロード", value: "road" },
   { label: "駅伝", value: "ekiden" },
+  { label: "1500m", value: "1500m" },
   { label: "5000m", value: "5000m" },
   { label: "10000m", value: "10000m" },
   { label: "ハーフ", value: "ハーフ" },
@@ -156,7 +157,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
 function matchesResultFilter(result: ResultSummary, filter: ResultFilter) {
   if (filter === "all") return true;
   if (filter === "track" || filter === "road" || filter === "ekiden") return result.category === filter;
-  if (filter === "5000m" || filter === "10000m" || filter === "ハーフ") return result.distance === filter;
+  if (filter === "1500m" || filter === "5000m" || filter === "10000m" || filter === "ハーフ") return result.distance === filter;
   return result.notes.includes(filter);
 }
 

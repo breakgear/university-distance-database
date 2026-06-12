@@ -31,7 +31,7 @@ type UniversityAppearance = {
   href: string;
 };
 
-const pbEvents = ["5000m", "10000m", "ハーフ"] as const;
+const pbEvents = ["1500m", "5000m", "10000m", "ハーフ"] as const;
 
 export function generateStaticParams() {
   return universities.map((university) => ({ id: university.id }));
@@ -136,7 +136,7 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
         <SectionTitle title="種目別PB" description="この大学のPBを種目別に表示しています。" />
         {hasPbRows ? (
           <>
-            <div className="grid gap-3 lg:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2">
               {pbRankings.map((ranking) => (
                 <PbTableCard key={ranking.event} title={`${ranking.event} PB`} rows={ranking.rows} />
               ))}

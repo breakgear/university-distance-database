@@ -36,3 +36,4 @@ screenshots/
 tmp/
 *.tmp
 .import-backups/
+.vercel

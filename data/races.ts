@@ -15,6 +15,7 @@ export type RaceStart = {
   universityId: string;
   year: string;
   pb: string;
+  entryStatus: "entered" | "listed" | "started" | "dns" | "unconfirmed";
   tag?: string;
   featured?: boolean;
 };
@@ -177,6 +178,15 @@ export const raceRecords: RaceRecord[] = [
     "status": "result_published",
     "distance": "5000m",
     "result_summary_id": "golden-games-nobeoka-mens-5000m-overall"
+  },
+  {
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "slug": "japan-championships-2026-mens-1500m-heats",
+    "meet_id": "japan-championships-2026",
+    "race_name": "日本選手権男子1500m 予選",
+    "start_time": "14:38",
+    "status": "startlist_published",
+    "distance": "1500m"
   }
 ];
 
@@ -186,7 +196,8 @@ const meetNameById: Record<string, string> = {
   "kanto-intercollege-half": "第105回関東学生陸上競技対校選手権大会 ハーフマラソン",
   "all-japan-kanto-qualifier": "秩父宮賜杯第58回全日本大学駅伝対校選手権大会 関東選考会",
   "golden-games-nobeoka": "第37回ゴールデンゲームズ in のべおか",
-  "kanaguri-memorial": "第34回 金栗記念選抜陸上中長距離熊本大会"
+  "kanaguri-memorial": "第34回 金栗記念選抜陸上中長距離熊本大会",
+  "japan-championships-2026": "第110回日本陸上競技選手権大会"
 };
 
 const statusMap: Record<RaceRecord["status"], EventStatus> = {
@@ -225,7 +236,8 @@ export const races: RaceDetail[] = raceRecords.map((race) => {
         university: university?.name ?? "大学未登録",
         universityId: entry.university_id,
         year: athlete?.year ?? "学年未登録",
-        pb: pb ? `${pb.distance} ${pb.time}` : "PB未登録"
+        pb: pb ? `${pb.distance} ${pb.time}` : "PB未登録",
+        entryStatus: entry.status
       };
     }),
     results: raceResults.map((result) => {

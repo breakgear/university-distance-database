@@ -45,7 +45,8 @@ const raceNameById: Record<string, string> = {
   "kanto-intercollege-mens-10000m": "関東インカレ 男子1部 10000m 決勝",
   "kanto-intercollege-mens-division2-10000m": "関東インカレ 男子2部 10000m 決勝",
   "kanaguri-memorial-mens-gp-5000m": "第34回 金栗記念選抜陸上中長距離熊本大会 男子グランプリ 5000m タイムレース総合",
-  "golden-games-nobeoka-mens-5000m-overall": "第37回ゴールデンゲームズ in のべおか 男子5000m タイムレース総合"
+  "golden-games-nobeoka-mens-5000m-overall": "第37回ゴールデンゲームズ in のべおか 男子5000m タイムレース総合",
+  "japan-championships-2026-mens-1500m-heats": "第110回日本陸上競技選手権大会 日本選手権男子1500m 予選"
 };
 
 export const athleteRecords: AthleteRecord[] = [
@@ -396,7 +397,7 @@ export const athleteRecords: AthleteRecord[] = [
     "hometown": "長野",
     "specialty": "5000m",
     "profile": "PBと最近の結果を掲載しています。",
-    "nextRace": "",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
     "progress": [],
     "ekiden": []
   },
@@ -2762,7 +2763,7 @@ export const athleteRecords: AthleteRecord[] = [
     "hometown": "鳥取",
     "specialty": "5000m",
     "profile": "PBと最近の結果を掲載しています。",
-    "nextRace": "",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
     "progress": [],
     "ekiden": []
   },
@@ -2853,7 +2854,7 @@ export const athleteRecords: AthleteRecord[] = [
     "hometown": "鹿児島",
     "specialty": "5000m",
     "profile": "PBと最近の結果を掲載しています。",
-    "nextRace": "",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
     "progress": [],
     "ekiden": []
   },
@@ -4973,6 +4974,97 @@ export const athleteRecords: AthleteRecord[] = [
     "specialty": "10000m",
     "profile": "PBと最近の結果を掲載しています。",
     "nextRace": "",
+    "progress": [],
+    "ekiden": []
+  },
+  {
+    "id": "ono-kiyoto",
+    "slug": "ono-kiyoto",
+    "name": "大野 聖登",
+    "year": "学年未登録",
+    "universityId": "juntendo",
+    "hometown": "",
+    "specialty": "1500m",
+    "profile": "PBと最近の結果を掲載しています。",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
+    "progress": [],
+    "ekiden": []
+  },
+  {
+    "id": "oba-takayoshi",
+    "slug": "oba-takayoshi",
+    "name": "大場 崇義",
+    "year": "学年未登録",
+    "universityId": "josai",
+    "hometown": "",
+    "specialty": "1500m",
+    "profile": "PBと最近の結果を掲載しています。",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
+    "progress": [],
+    "ekiden": []
+  },
+  {
+    "id": "aoki-ryoto",
+    "slug": "aoki-ryoto",
+    "name": "青木 龍翔",
+    "year": "学年未登録",
+    "universityId": "rikkyo",
+    "hometown": "",
+    "specialty": "1500m",
+    "profile": "PBと最近の結果を掲載しています。",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
+    "progress": [],
+    "ekiden": []
+  },
+  {
+    "id": "ushiroda-kizuku",
+    "slug": "ushiroda-kizuku",
+    "name": "後田 築",
+    "year": "学年未登録",
+    "universityId": "juntendo",
+    "hometown": "",
+    "specialty": "1500m",
+    "profile": "PBと最近の結果を掲載しています。",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
+    "progress": [],
+    "ekiden": []
+  },
+  {
+    "id": "nakagawa-takumi",
+    "slug": "nakagawa-takumi",
+    "name": "中川 拓海",
+    "year": "学年未登録",
+    "universityId": "juntendo",
+    "hometown": "",
+    "specialty": "1500m",
+    "profile": "PBと最近の結果を掲載しています。",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
+    "progress": [],
+    "ekiden": []
+  },
+  {
+    "id": "terada-koki",
+    "slug": "terada-koki",
+    "name": "寺田 向希",
+    "year": "学年未登録",
+    "universityId": "chuo",
+    "hometown": "",
+    "specialty": "1500m",
+    "profile": "PBと最近の結果を掲載しています。",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
+    "progress": [],
+    "ekiden": []
+  },
+  {
+    "id": "kuyama-daisuke",
+    "slug": "kuyama-daisuke",
+    "name": "久山 大祐",
+    "year": "学年未登録",
+    "universityId": "kwansei-gakuin",
+    "hometown": "",
+    "specialty": "1500m",
+    "profile": "PBと最近の結果を掲載しています。",
+    "nextRace": "japan-championships-2026-mens-1500m-heats",
     "progress": [],
     "ekiden": []
   }

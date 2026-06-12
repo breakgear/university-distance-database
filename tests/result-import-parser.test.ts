@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  createId,
   extractEntryTime,
   extractEventDateCandidates,
+  findUniversityInEntryLine,
+  parseNishiEntryJson,
   parseTextRecord,
   selectMenEntrySection,
   selectParallelEntrySegments,
@@ -74,6 +77,58 @@ test("1500mの結果行を解析しPB注記を保持する", () => {
   assert.equal(row?.time, "3:48.20");
   assert.equal(row?.note, "PB");
   assert.equal(row?.resultStatus, "finished");
+});
+
+test("NISHI形式JSONの1500mエントリーを解析する", () => {
+  const parsed = parseNishiEntryJson(
+    JSON.stringify({
+      Title: "結果一覧（2026/06/12）",
+      SubTitle: "日本選手権男子1500m　予　選　6+0",
+      ResultInfo: {
+        "1": [
+          {
+            Status: "1組",
+            ResultList: [
+              {
+                Lane: "3",
+                No: "135",
+                KyogishaMei: "ﾅﾙｻﾜ ｼｮｳｴｲ<br/>成沢　翔英（04）",
+                ShozokuMei: "慶應義塾大<br/>長　野",
+                PreKiroku: "3:42.17"
+              }
+            ]
+          }
+        ]
+      }
+    }),
+    "url",
+    "1500m"
+  );
+
+  assert.equal(parsed?.metadata.date, "2026-06-12");
+  assert.equal(parsed?.metadata.distance, "1500m");
+  assert.equal(parsed?.rows[0].bib, "135");
+  assert.equal(parsed?.rows[0].athlete, "成沢 翔英");
+  assert.equal(parsed?.rows[0].university, "慶應義塾大");
+  assert.equal(parsed?.rows[0].time, "3:42.17");
+});
+
+test("大学マスター未登録の大学名も新規候補として検出する", () => {
+  const match = findUniversityInEntryLine(
+    "6 98 久山 大祐(05) 関西学院大 兵庫 3:42.64",
+    []
+  );
+  assert.equal(match?.candidate, "関西学院大");
+  assert.equal(match?.value, "関西学院");
+});
+
+test("日本語の新規選手IDが大学IDだけに潰れない", () => {
+  const first = createId("athlete", "大野 聖登-juntendo");
+  const second = createId("athlete", "後田 築-juntendo");
+  assert.match(first, /^athlete-[a-f0-9]{10}$/);
+  assert.match(second, /^athlete-[a-f0-9]{10}$/);
+  assert.notEqual(first, second);
+  assert.notEqual(first, "juntendo");
 });
 
 test("申込期限より開催日を優先する", () => {

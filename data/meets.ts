@@ -96,6 +96,19 @@ export const meets: Meet[] = [
     "published_startlist_count": 2,
     "published_result_count": 2,
     "note": "男子グランプリ5000mの大学所属選手を掲載"
+  },
+  {
+    "meet_id": "japan-championships-2026",
+    "slug": "japan-championships-2026",
+    "meet_name": "第110回日本陸上競技選手権大会",
+    "date": "2026-06-12",
+    "venue": "パロマ瑞穂スタジアム",
+    "category": "track",
+    "status": "startlist_published",
+    "race_count": 1,
+    "published_startlist_count": 1,
+    "published_result_count": 0,
+    "note": "管理画面からエントリーを取り込み"
   }
 ];
 

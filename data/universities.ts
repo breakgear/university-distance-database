@@ -130,7 +130,10 @@ export const universities: University[] = [
       "tamame-riku",
       "kobayashi-yuto",
       "yoshioka-hiroto",
-      "furukawa-tatsuya"
+      "furukawa-tatsuya",
+      "ono-kiyoto",
+      "ushiroda-kizuku",
+      "nakagawa-takumi"
     ],
     "listing": {
       "region": "関東",
@@ -140,13 +143,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "第110回日本陸上競技選手権大会",
       "latestResult": {
         "athlete": "池間 凛斗",
         "event": "5000m",
         "time": "13:40.47"
       },
-      "hasUpcoming": false,
+      "hasUpcoming": true,
       "hasResult": true
     }
   },
@@ -181,13 +184,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "第110回日本陸上競技選手権大会",
       "latestResult": {
         "athlete": "鈴木 琉胤",
         "event": "5000m",
         "time": "13:33.73"
       },
-      "hasUpcoming": false,
+      "hasUpcoming": true,
       "hasResult": true
     }
   },
@@ -218,7 +221,8 @@ export const universities: University[] = [
       "monma-sodai",
       "tokuyama-hiroki",
       "matsuo-tsubasa",
-      "fujita-daichi"
+      "fujita-daichi",
+      "terada-koki"
     ],
     "listing": {
       "region": "関東",
@@ -228,13 +232,13 @@ export const universities: University[] = [
         "10000m",
         "ハーフ"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "第110回日本陸上競技選手権大会",
       "latestResult": {
         "athlete": "岡田 開成",
         "event": "5000m",
         "time": "13:31.43"
       },
-      "hasUpcoming": false,
+      "hasUpcoming": true,
       "hasResult": true
     }
   },
@@ -360,7 +364,7 @@ export const universities: University[] = [
     "sashColor": "未登録",
     "accent": "#6B7280",
     "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
-    "style": "5000m",
+    "style": "5000m / 1500m",
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
@@ -374,20 +378,22 @@ export const universities: University[] = [
       "muraki-fuma",
       "hashimoto-kenichi",
       "masaoka-yuuto",
-      "muraki-fuuma"
+      "muraki-fuuma",
+      "oba-takayoshi"
     ],
     "listing": {
       "region": "関東",
       "events": [
-        "5000m"
+        "5000m",
+        "1500m"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "第110回日本陸上競技選手権大会",
       "latestResult": {
         "athlete": "柴田 侑",
         "event": "5000m",
         "time": "13:41.77"
       },
-      "hasUpcoming": false,
+      "hasUpcoming": true,
       "hasResult": true
     }
   },
@@ -668,7 +674,7 @@ export const universities: University[] = [
     "sashColor": "未登録",
     "accent": "#6B7280",
     "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
-    "style": "5000m",
+    "style": "5000m / 1500m",
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
@@ -679,15 +685,16 @@ export const universities: University[] = [
     "listing": {
       "region": "関東",
       "events": [
-        "5000m"
+        "5000m",
+        "1500m"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "第110回日本陸上競技選手権大会",
       "latestResult": {
         "athlete": "成沢 翔英",
         "event": "5000m",
         "time": "14:19.17"
       },
-      "hasUpcoming": false,
+      "hasUpcoming": true,
       "hasResult": true
     }
   },
@@ -1170,7 +1177,7 @@ export const universities: University[] = [
     "sashColor": "未登録",
     "accent": "#1E3A8A",
     "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
-    "style": "5000m / 10000m",
+    "style": "5000m / 10000m / 1500m",
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
@@ -1184,21 +1191,23 @@ export const universities: University[] = [
       "ozeki-shuuta",
       "itou-takumi",
       "honguu-keishou",
-      "soeta-yukito"
+      "soeta-yukito",
+      "aoki-ryoto"
     ],
     "listing": {
       "region": "関東",
       "events": [
         "5000m",
-        "10000m"
+        "10000m",
+        "1500m"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "第110回日本陸上競技選手権大会",
       "latestResult": {
         "athlete": "伊藤 匠海",
         "event": "5000m",
         "time": "14:11.57"
       },
-      "hasUpcoming": false,
+      "hasUpcoming": true,
       "hasResult": true
     }
   },
@@ -1580,7 +1589,7 @@ export const universities: University[] = [
     "sashColor": "未登録",
     "accent": "#6B7280",
     "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
-    "style": "5000m",
+    "style": "5000m / 1500m",
     "coachNote": "出場予定と結果を掲載",
     "bestEkiden": "未登録",
     "athletes": [
@@ -1591,15 +1600,16 @@ export const universities: University[] = [
     "listing": {
       "region": "九州",
       "events": [
-        "5000m"
+        "5000m",
+        "1500m"
       ],
-      "nextAppearance": "未登録",
+      "nextAppearance": "第110回日本陸上競技選手権大会",
       "latestResult": {
         "athlete": "小田 夕琥",
         "event": "5000m",
         "time": "14:06.12"
       },
-      "hasUpcoming": false,
+      "hasUpcoming": true,
       "hasResult": true
     }
   },
@@ -2003,6 +2013,35 @@ export const universities: University[] = [
       },
       "hasUpcoming": false,
       "hasResult": true
+    }
+  },
+  {
+    "id": "kwansei-gakuin",
+    "slug": "kwansei-gakuin",
+    "name": "関西学院",
+    "area": "未登録",
+    "sashColor": "未登録",
+    "accent": "#64748B",
+    "profile": "男子長距離・駅伝の出場予定、最近の結果、種目別PB上位を確認できます。",
+    "style": "1500m",
+    "coachNote": "出場予定と結果を掲載",
+    "bestEkiden": "未登録",
+    "athletes": [
+      "kuyama-daisuke"
+    ],
+    "listing": {
+      "region": "未登録",
+      "events": [
+        "1500m"
+      ],
+      "nextAppearance": "第110回日本陸上競技選手権大会",
+      "latestResult": {
+        "athlete": "未登録",
+        "event": "1500m",
+        "time": "未登録"
+      },
+      "hasUpcoming": true,
+      "hasResult": false
     }
   }
 ];

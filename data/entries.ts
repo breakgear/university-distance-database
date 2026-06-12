@@ -4404,6 +4404,96 @@ export const entries: Entry[] = [
     "university_id": "obirin",
     "bib_no": 39,
     "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-narusawa-shoei",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "narusawa-shoei",
+    "university_id": "keio",
+    "bib_no": 135,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-ono-kiyoto",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "ono-kiyoto",
+    "university_id": "juntendo",
+    "bib_no": 206,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-oba-takayoshi",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "oba-takayoshi",
+    "university_id": "josai",
+    "bib_no": 224,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-aoki-ryoto",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "aoki-ryoto",
+    "university_id": "rikkyo",
+    "bib_no": 550,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-ushiroda-kizuku",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "ushiroda-kizuku",
+    "university_id": "juntendo",
+    "bib_no": 207,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-nakamura-akito",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "nakamura-akito",
+    "university_id": "shigakukan",
+    "bib_no": 187,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-nakagawa-takumi",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "nakagawa-takumi",
+    "university_id": "juntendo",
+    "bib_no": 205,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-terada-koki",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "terada-koki",
+    "university_id": "chuo",
+    "bib_no": 303,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-kuyama-daisuke",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "kuyama-daisuke",
+    "university_id": "kwansei-gakuin",
+    "bib_no": 98,
+    "status": "listed"
+  },
+  {
+    "entry_id": "entry-japan-championships-2026-mens-1500m-heats-honda-ojiro",
+    "meet_id": "japan-championships-2026",
+    "race_id": "japan-championships-2026-mens-1500m-heats",
+    "athlete_id": "honda-ojiro",
+    "university_id": "waseda",
+    "bib_no": 567,
+    "status": "listed"
   }
 ];
 

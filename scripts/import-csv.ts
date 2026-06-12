@@ -686,6 +686,7 @@ export type RaceStart = {
   universityId: string;
   year: string;
   pb: string;
+  entryStatus: "entered" | "listed" | "started" | "dns" | "unconfirmed";
   tag?: string;
   featured?: boolean;
 };
@@ -768,7 +769,8 @@ export const races: RaceDetail[] = raceRecords.map((race) => {
         university: university?.name ?? "大学未登録",
         universityId: entry.university_id,
         year: athlete?.year ?? "学年未登録",
-        pb: pb ? \`\${pb.distance} \${pb.time}\` : "PB未登録"
+        pb: pb ? \`\${pb.distance} \${pb.time}\` : "PB未登録",
+        entryStatus: entry.status
       };
     }),
     results: raceResults.map((result) => {

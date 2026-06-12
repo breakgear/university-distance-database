@@ -68,7 +68,12 @@ const universityAliases: Record<string, string> = {
   中央学院大: "中央学院",
   東国大: "東京国際",
   慶大: "慶應義塾",
-  慶應義塾大: "慶應義塾"
+  慶應義塾大: "慶應義塾",
+  関西学院大: "関西学院"
+};
+
+const universityIdOverrides: Record<string, string> = {
+  関西学院: "kwansei-gakuin"
 };
 
 export async function analyzeImportSources(input: {
@@ -197,11 +202,119 @@ async function parseUrlSource(
     html = new TextDecoder("utf-8").decode(bytes);
   }
 
+  if (importKind === "entry") {
+    const nishiEntry = await parseNishiUrlEntrySource(url, html, targetDistance);
+    if (nishiEntry) return nishiEntry;
+  }
+
   const parsed =
     importKind === "entry"
       ? parseEntrySource(htmlToText(html), "url", targetDistance, targetGroup, records)
       : { ...parseHtmlResult(html), source: "url" as const };
   return parsed;
+}
+
+async function parseNishiUrlEntrySource(
+  url: string,
+  body: string,
+  targetDistance: ImportDistance
+): Promise<ParsedSource | null> {
+  const direct = parseNishiEntryJson(body, "url", targetDistance);
+  if (direct) return direct;
+  if (!/ResultTrackACtrl|ResultTrackA\.js/.test(body)) return null;
+
+  const jsonUrl = new URL(url);
+  if (!/\.html?$/i.test(jsonUrl.pathname)) return null;
+  jsonUrl.pathname = jsonUrl.pathname.replace(/\.html?$/i, ".json");
+
+  const response = await fetch(jsonUrl, {
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; UniversityDistanceDatabase/1.0)" },
+    cache: "no-store"
+  });
+  if (!response.ok) return null;
+  return parseNishiEntryJson(await response.text(), "url", targetDistance);
+}
+
+export function parseNishiEntryJson(
+  text: string,
+  source: ImportSource,
+  targetDistance: ImportDistance
+): ParsedSource | null {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (!data || typeof data !== "object") return null;
+
+  const document = data as {
+    Title?: unknown;
+    SubTitle?: unknown;
+    ResultInfo?: Record<string, unknown>;
+  };
+  const groups = document.ResultInfo?.["1"];
+  if (!Array.isArray(groups)) return null;
+
+  const rows: RawRow[] = [];
+  const previewLines = [
+    String(document.Title ?? ""),
+    String(document.SubTitle ?? "")
+  ];
+
+  for (const groupValue of groups) {
+    if (!groupValue || typeof groupValue !== "object") continue;
+    const group = groupValue as { Status?: unknown; ResultList?: unknown };
+    previewLines.push(String(group.Status ?? ""));
+    if (!Array.isArray(group.ResultList)) continue;
+
+    for (const rowValue of group.ResultList) {
+      if (!rowValue || typeof rowValue !== "object") continue;
+      const row = rowValue as Record<string, unknown>;
+      const athleteLines = htmlToText(String(row.KyogishaMei ?? ""))
+        .split("\n")
+        .map((value) => normalizeSpaces(value))
+        .filter(Boolean);
+      const universityLines = htmlToText(String(row.ShozokuMei ?? ""))
+        .split("\n")
+        .map((value) => normalizeSpaces(value))
+        .filter(Boolean);
+      const athleteValue = (athleteLines.at(-1) ?? "").normalize("NFKC");
+      const university = universityLines[0] ?? "";
+      const time = normalizeTime(String(row.PreKiroku ?? ""));
+      const bib = normalizeSpaces(String(row.No ?? ""));
+      if (!athleteValue || !university || !time || !bib) continue;
+
+      const { name: athlete, year } = splitAthleteYear(athleteValue);
+      rows.push({
+        rank: normalizeSpaces(String(row.Lane ?? "")),
+        bib,
+        athlete,
+        year,
+        university,
+        time,
+        note: "",
+        resultStatus: "finished",
+        entryStatus: "listed"
+      });
+      previewLines.push(`${bib} ${athleteValue} ${university} ${time}`);
+    }
+  }
+
+  const title = normalizeSpaces(String(document.Title ?? ""));
+  const raceName = normalizeSpaces(String(document.SubTitle ?? ""));
+  return {
+    source,
+    metadata: {
+      meetName: "",
+      raceName,
+      date: extractEventDate(title, [raceName]),
+      venue: "",
+      distance: targetDistance
+    },
+    rows: dedupeEntryRows(rows),
+    preview: previewLines.filter(Boolean).join("\n")
+  };
 }
 
 async function parsePdfSource(
@@ -707,7 +820,7 @@ function entryTimePattern(distance: ImportDistance, global = false) {
   return new RegExp(patterns[distance], flags);
 }
 
-function findUniversityInEntryLine(line: string, universities: CsvRecord[]) {
+export function findUniversityInEntryLine(line: string, universities: CsvRecord[]) {
   const candidates = new Map<string, string>();
   for (const university of universities) {
     const name = university.name?.trim();
@@ -721,7 +834,7 @@ function findUniversityInEntryLine(line: string, universities: CsvRecord[]) {
   }
   for (const [alias, name] of Object.entries(universityAliases)) candidates.set(alias, name);
 
-  return Array.from(candidates.entries())
+  const registered = Array.from(candidates.entries())
     .sort(([left], [right]) => right.length - left.length)
     .map(([candidate, value]) => ({ candidate, index: line.indexOf(candidate), value }))
     .filter((match) => match.index > 0)
@@ -733,6 +846,18 @@ function findUniversityInEntryLine(line: string, universities: CsvRecord[]) {
       return true;
     })
     .sort((left, right) => left.index - right.index)[0];
+  if (registered) return registered;
+
+  const inferred = Array.from(line.matchAll(/([^\s]+(?:大学|大))(?=\s|$)/g))
+    .map((match) => ({
+      candidate: match[1],
+      index: match.index ?? -1,
+      value: match[1]
+    }))
+    .filter((match) => match.index > 0)
+    .filter((match) => !/^(?:大学|大)$/.test(match.candidate))
+    .at(-1);
+  return inferred;
 }
 
 function dedupeEntryRows(rows: RawRow[]) {
@@ -871,7 +996,10 @@ function matchRow(
   const sourceMatches = sources.filter((source) =>
     source.rows.some((candidate) => rowsAgree(candidate, row, importKind))
   ).length;
-  const universityId = university?.id ?? createId("university", normalizedUniversity);
+  const universityId =
+    university?.id ??
+    universityIdOverrides[normalizedUniversity] ??
+    createId("university", normalizedUniversity);
   const athleteId = athlete?.id ?? createId("athlete", `${row.athlete}-${universityId}`);
 
   return {
@@ -1076,13 +1204,14 @@ function normalizeSpaces(value: string) {
   return value.normalize("NFKC").replace(/[　\t]+/g, " ").replace(/ {2,}/g, " ").trim();
 }
 
-function createId(prefix: string, value: string) {
+export function createId(prefix: string, value: string) {
   const ascii = value
     .normalize("NFKC")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  if (ascii.length >= 4) return ascii.slice(0, 72);
+  const containsJapanese = /[\u3040-\u30ff\u3400-\u9fff]/.test(value);
+  if (ascii.length >= 4 && !containsJapanese) return ascii.slice(0, 72);
   return `${prefix}-${createHash("sha1").update(value).digest("hex").slice(0, 10)}`;
 }
 

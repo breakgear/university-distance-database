@@ -8,7 +8,7 @@ import { races as raceDetails } from "@/data/races";
 import { universities, University } from "@/data/universities";
 import { cn, formatDate } from "@/lib/utils";
 
-type EntryStatus = "出場" | "DNS" | "未確認";
+type EntryStatus = "出場" | "出場予定" | "DNS" | "要確認";
 type ResultNote = "PB" | "SB" | "DNS" | "DNF" | "DQ" | "";
 
 type RaceEntry = {
@@ -71,7 +71,14 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ rac
       athleteId: entry.athleteId,
       universityId: entry.universityId,
       pb: `${race.distance} ${entry.pb}`,
-      status: result?.note === "DNS" ? "DNS" : result ? "出場" : "未確認"
+      status:
+        result?.note === "DNS" || entry.entryStatus === "dns"
+          ? "DNS"
+          : result
+            ? "出場"
+            : entry.entryStatus === "unconfirmed"
+              ? "要確認"
+              : "出場予定"
     };
   });
   const raceResults: RaceResult[] = race.results.map((result) => ({
@@ -360,7 +367,11 @@ function RelatedLink({ href, title, text, icon }: { href: string; title: string;
 
 function EntryStatusBadge({ status }: { status: EntryStatus }) {
   const className =
-    status === "出場" ? "bg-emerald-50 text-emerald-700" : status === "DNS" ? "bg-slate-100 text-slate-600" : "bg-yellow-50 text-yellow-800";
+    status === "出場" || status === "出場予定"
+      ? "bg-emerald-50 text-emerald-700"
+      : status === "DNS"
+        ? "bg-slate-100 text-slate-600"
+        : "bg-yellow-50 text-yellow-800";
 
   return <span className={cn("inline-flex rounded-full px-2.5 py-1 text-xs font-black", className)}>{status}</span>;
 }

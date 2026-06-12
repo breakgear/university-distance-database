@@ -143,19 +143,26 @@ export function ResultImportWorkbench() {
         })
       });
       const body = (await response.json()) as {
-        result?: { counts: Record<string, number>; backupDir: string; changed: boolean };
+        result?: {
+          counts: Record<string, number>;
+          backupDir: string;
+          changed: boolean;
+          deploymentTriggered?: boolean;
+        };
         error?: string;
       };
-      if (!response.ok || !body.result) throw new Error(body.error || "CSV更新に失敗しました。");
+      if (!response.ok || !body.result) throw new Error(body.error || "データ更新に失敗しました。");
       setCommitMessage(
         body.result.changed
-          ? `CSVとdata/*.tsを更新しました。バックアップ: ${body.result.backupDir}`
-          : "既存データと同一のため、CSVとdata/*.tsは変更していません。"
+          ? body.result.deploymentTriggered
+            ? "Supabaseを更新し、Vercelの再デプロイを開始しました。"
+            : "Supabaseを更新しました。Vercel Deploy Hookは未設定です。"
+          : "既存データと同一のため、データは変更していません。"
       );
       setStatus("done");
     } catch (caught) {
       setStatus("ready");
-      setError(caught instanceof Error ? caught.message : "CSV更新に失敗しました。");
+      setError(caught instanceof Error ? caught.message : "データ更新に失敗しました。");
     }
   }
 
@@ -497,9 +504,9 @@ export function ResultImportWorkbench() {
             <section className="rounded-lg border border-line bg-white p-4 shadow-sm sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-ink">CSV更新候補</h2>
+                  <h2 className="text-lg font-black text-ink">データ更新候補</h2>
                   <p className="mt-1 text-sm font-bold leading-6 text-slate-600">
-                    選択した{selectedCount}件から、既存CSVへ追加する行を生成します。
+                    選択した{selectedCount}件から、Supabaseへ反映する行を生成します。
                   </p>
                 </div>
                 <button
@@ -509,7 +516,7 @@ export function ResultImportWorkbench() {
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-sash-red px-4 text-sm font-black text-white transition hover:bg-[#962033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sash-red/35"
                 >
                   {previewing ? <LoaderCircle size={18} className="animate-spin" /> : <FileOutput size={18} />}
-                  {previewing ? "更新案を作成中" : "CSV更新案を作成"}
+                  {previewing ? "更新案を作成中" : "更新案を作成"}
                 </button>
               </div>
 
@@ -557,7 +564,7 @@ export function ResultImportWorkbench() {
                           onChange={(event) => setConfirmed(event.target.checked)}
                           className="mt-1 h-4 w-4 accent-[#b3263a]"
                         />
-                        原本・大会情報・選択した{analysis.importKind === "entry" ? "エントリー" : "結果"}を確認しました。CSV更新とdata/*.ts再生成を実行します。
+                        原本・大会情報・選択した{analysis.importKind === "entry" ? "エントリー" : "結果"}を確認しました。Supabase更新とVercel再デプロイを実行します。
                       </label>
                       <button
                         type="button"
@@ -566,7 +573,7 @@ export function ResultImportWorkbench() {
                         className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-sash-red px-4 text-sm font-black text-white transition hover:bg-[#962033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sash-red/35 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                       >
                         {status === "committing" ? <LoaderCircle size={18} className="animate-spin" /> : <Database size={18} />}
-                        {status === "committing" ? "検証・更新中" : "CSVへ反映する"}
+                        {status === "committing" ? "検証・更新中" : "Supabaseへ反映する"}
                       </button>
                     </div>
                   ) : null}
@@ -1063,7 +1070,7 @@ function ImportProgress({ status }: { status: ImportStatus }) {
     status === "analyzing" ? 2 :
     status === "review" ? 3 :
     status === "ready" ? 4 : 5;
-  const items = ["入力を準備", "内容を解析", "内容を確認", "CSV更新案", "CSVへ反映"];
+  const items = ["入力を準備", "内容を解析", "内容を確認", "更新案", "Supabaseへ反映"];
 
   return (
     <section className="rounded-lg border border-line bg-white p-4 shadow-sm">
@@ -1120,7 +1127,7 @@ function ReviewSummary({
             ? "CSVとdata/*.tsの更新が完了しました。画面表示を確認してください。"
             : "既存データと同一のため、ファイルは変更していません。"
           : status === "committing"
-            ? "一時ディレクトリで整合性を検証してからCSVへ反映しています。"
+            ? "確認した更新案をSupabaseへ反映しています。"
             : status === "ready"
               ? "差分を確認し、確認チェックを入れるまでCSVは変更されません。"
               : "要確認項目を確認してからCSV更新案を作成してください。"}

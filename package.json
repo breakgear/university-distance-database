@@ -8,11 +8,12 @@
     "db:push": "node --env-file-if-exists=.env.local --no-warnings --experimental-strip-types scripts/push-csv-to-supabase.ts",
     "db:pull": "node --env-file-if-exists=.env.local --no-warnings --experimental-strip-types scripts/pull-supabase-to-csv.ts",
     "test:import": "node --import tsx --test tests/result-import-parser.test.ts tests/result-import-validation.test.ts tests/season-schedule.test.ts",
-    "build": "next build",
+    "build": "node --env-file-if-exists=.env.local --no-warnings --experimental-strip-types scripts/build-site.ts",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.1",
     "lucide-react": "latest",
     "next": "16.2.6",

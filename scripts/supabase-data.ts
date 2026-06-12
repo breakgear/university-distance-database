@@ -14,6 +14,34 @@ export const tableNames = [
 export type TableName = (typeof tableNames)[number];
 export type CsvRecord = Record<string, string>;
 
+export const tableHeaders: Record<TableName, string[]> = {
+  universities: [
+    "id", "slug", "name", "area", "sash_color", "accent", "profile",
+    "listing_events", "has_upcoming", "has_result"
+  ],
+  athletes: [
+    "id", "slug", "name", "university_id", "year", "hometown",
+    "specialty", "profile", "next_race"
+  ],
+  meets: ["meet_id", "slug", "meet_name", "date", "venue", "category", "status", "note"],
+  races: [
+    "race_id", "slug", "meet_id", "race_name", "distance",
+    "start_time", "status", "result_summary_id"
+  ],
+  entries: [
+    "entry_id", "meet_id", "race_id", "athlete_id",
+    "university_id", "bib_no", "entry_status"
+  ],
+  results: [
+    "result_id", "meet_id", "race_id", "athlete_id", "university_id",
+    "distance", "date", "rank", "time", "result_status", "note", "is_pb"
+  ],
+  personal_bests: [
+    "pb_id", "athlete_id", "university_id", "distance", "time",
+    "date", "source_type", "source_result_id", "note"
+  ]
+};
+
 export const primaryKeys: Record<TableName, string> = {
   universities: "id",
   athletes: "id",
@@ -115,7 +143,7 @@ export function stripDatabaseMetadata(rows: Record<string, unknown>[]) {
   return rows.map(({ created_at: _createdAt, updated_at: _updatedAt, ...row }) => row);
 }
 
-function toCsvValue(value: unknown) {
+export function toCsvValue(value: unknown) {
   if (value === null || value === undefined) return "";
   if (typeof value === "boolean") return value ? "TRUE" : "FALSE";
   if (Array.isArray(value)) return value.join(" / ");

@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
+import { lookup } from "node:dns/promises";
 import { readFileSync } from "node:fs";
+import { isIP } from "node:net";
 import path from "node:path";
 import { previewImport } from "./result-import-commit";
 import type {
@@ -36,6 +38,15 @@ type ParsedSource = {
 };
 
 type CsvRecord = Record<string, string>;
+type ReferenceRecords = {
+  universities: CsvRecord[];
+  athletes: CsvRecord[];
+  meets: CsvRecord[];
+  races: CsvRecord[];
+  entries: CsvRecord[];
+  results: CsvRecord[];
+  personalBests: CsvRecord[];
+};
 
 const universityAliases: Record<string, string> = {
   早大: "早稲田",
@@ -89,7 +100,7 @@ export async function analyzeImportSources(input: {
   const importKind = input.importKind ?? "result";
   const targetDistance = input.targetDistance ?? "5000m";
   const targetGroup = input.targetGroup ?? "";
-  const records = loadReferenceRecords();
+  const records = await loadReferenceRecords();
 
   if (input.url?.trim()) {
     parsedSources.push(await parseUrlSource(input.url.trim(), importKind, targetDistance, targetGroup, records));
@@ -151,7 +162,7 @@ export async function analyzeImportSources(input: {
       warnings,
       details: parsedSources.map((source) => `${sourceLabel(source.source)}: ${source.rows.length}件`)
     },
-    files: previewImport({ importKind, metadata, rows }).files,
+    files: (await previewImport({ importKind, metadata, rows })).files,
     warnings: [
       ...parsedSources.flatMap((source) => (source.warning ? [source.warning] : [])),
       ...(dateCandidates.length > 1 && dateCandidates[0].date !== dateCandidates[1].date
@@ -167,7 +178,7 @@ async function parseUrlSource(
   importKind: ImportKind,
   targetDistance: ImportDistance,
   targetGroup: ImportGroup,
-  records: ReturnType<typeof loadReferenceRecords>
+  records: ReferenceRecords
 ): Promise<ParsedSource> {
   let parsedUrl: URL;
   try {
@@ -179,13 +190,10 @@ async function parseUrlSource(
     throw new Error("URLは http または https で指定してください。");
   }
 
-  const response = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; UniversityDistanceDatabase/1.0)" },
-    cache: "no-store"
-  });
+  const response = await safeRemoteFetch(parsedUrl);
   if (!response.ok) throw new Error(`URLの取得に失敗しました: HTTP ${response.status}`);
 
-  const bytes = Buffer.from(await response.arrayBuffer());
+  const bytes = await readLimitedResponse(response, 20 * 1024 * 1024);
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/pdf") || bytes.subarray(0, 4).toString("ascii") === "%PDF") {
     return parsePdfBuffer(bytes, "url", importKind, targetDistance, targetGroup, records);
@@ -227,12 +235,79 @@ async function parseNishiUrlEntrySource(
   if (!/\.html?$/i.test(jsonUrl.pathname)) return null;
   jsonUrl.pathname = jsonUrl.pathname.replace(/\.html?$/i, ".json");
 
-  const response = await fetch(jsonUrl, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; UniversityDistanceDatabase/1.0)" },
-    cache: "no-store"
-  });
+  const response = await safeRemoteFetch(jsonUrl);
   if (!response.ok) return null;
-  return parseNishiEntryJson(await response.text(), "url", targetDistance);
+  const bodyBytes = await readLimitedResponse(response, 5 * 1024 * 1024);
+  return parseNishiEntryJson(bodyBytes.toString("utf8"), "url", targetDistance);
+}
+
+async function safeRemoteFetch(initialUrl: URL) {
+  let current = initialUrl;
+  for (let redirectCount = 0; redirectCount <= 3; redirectCount += 1) {
+    await assertPublicRemoteUrl(current);
+    const response = await fetch(current, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; UniversityDistanceDatabase/1.0)" },
+      cache: "no-store",
+      redirect: "manual",
+      signal: AbortSignal.timeout(15_000)
+    });
+    if (![301, 302, 303, 307, 308].includes(response.status)) return response;
+    const location = response.headers.get("location");
+    if (!location) return response;
+    current = new URL(location, current);
+  }
+  throw new Error("URLのリダイレクト回数が多すぎます。");
+}
+
+async function assertPublicRemoteUrl(url: URL) {
+  if (!["http:", "https:"].includes(url.protocol)) {
+    throw new Error("URLは http または https で指定してください。");
+  }
+  const hostname = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (hostname === "localhost" || hostname.endsWith(".local")) {
+    throw new Error("ローカルネットワークのURLは取得できません。");
+  }
+  const addresses = isIP(hostname)
+    ? [{ address: hostname }]
+    : await lookup(hostname, { all: true, verbatim: true });
+  if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
+    throw new Error("ローカルまたはプライベートネットワークのURLは取得できません。");
+  }
+}
+
+function isPrivateAddress(address: string) {
+  const normalized = address.toLowerCase();
+  if (
+    normalized === "::1" ||
+    normalized === "0:0:0:0:0:0:0:1" ||
+    normalized.startsWith("fc") ||
+    normalized.startsWith("fd") ||
+    normalized.startsWith("fe8") ||
+    normalized.startsWith("fe9") ||
+    normalized.startsWith("fea") ||
+    normalized.startsWith("feb")
+  ) {
+    return true;
+  }
+  const ipv4 = normalized.startsWith("::ffff:") ? normalized.slice(7) : normalized;
+  const parts = ipv4.split(".").map(Number);
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part))) return false;
+  return (
+    parts[0] === 0 ||
+    parts[0] === 10 ||
+    parts[0] === 127 ||
+    (parts[0] === 169 && parts[1] === 254) ||
+    (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+    (parts[0] === 192 && parts[1] === 168)
+  );
+}
+
+async function readLimitedResponse(response: Response, limit: number) {
+  const contentLength = Number(response.headers.get("content-length") || "0");
+  if (contentLength > limit) throw new Error(`取得先のファイルは${Math.floor(limit / 1024 / 1024)}MB以下にしてください。`);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (bytes.length > limit) throw new Error(`取得先のファイルは${Math.floor(limit / 1024 / 1024)}MB以下にしてください。`);
+  return bytes;
 }
 
 export function parseNishiEntryJson(
@@ -322,7 +397,7 @@ async function parsePdfSource(
   importKind: ImportKind,
   targetDistance: ImportDistance,
   targetGroup: ImportGroup,
-  records: ReturnType<typeof loadReferenceRecords>
+  records: ReferenceRecords
 ): Promise<ParsedSource> {
   return parsePdfBuffer(Buffer.from(await file.arrayBuffer()), "pdf", importKind, targetDistance, targetGroup, records);
 }
@@ -333,7 +408,7 @@ async function parsePdfBuffer(
   importKind: ImportKind,
   targetDistance: ImportDistance,
   targetGroup: ImportGroup,
-  records: ReturnType<typeof loadReferenceRecords>
+  records: ReferenceRecords
 ): Promise<ParsedSource> {
   const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
   const result = await pdfParse(buffer);
@@ -572,7 +647,7 @@ function parseEntrySource(
   source: ImportSource,
   targetDistance: ImportDistance,
   targetGroup: ImportGroup,
-  records: ReturnType<typeof loadReferenceRecords>
+  records: ReferenceRecords
 ): ParsedSource {
   const normalized = htmlToText(text).normalize("NFKC").replace(/\r\n?/g, "\n");
   const allLines = normalized.split("\n").map((line) => normalizeSpaces(line)).filter(Boolean);
@@ -941,7 +1016,7 @@ export function parseTextRecord(record: string): RawRow | null {
 
 function resolveMetadata(
   sources: ParsedSource[],
-  records: ReturnType<typeof loadReferenceRecords>
+  records: ReferenceRecords
 ): ImportMetadata {
   const pick = <K extends keyof ImportMetadata>(key: K) =>
     sources.map((source) => source.metadata[key]).find((value) => Boolean(value)) as ImportMetadata[K] | undefined;
@@ -980,7 +1055,7 @@ function resolveMetadata(
 function matchRow(
   row: RawRow,
   sources: ParsedSource[],
-  records: ReturnType<typeof loadReferenceRecords>,
+  records: ReferenceRecords,
   importKind: ImportKind
 ): ImportParsedRow {
   const normalizedUniversity = normalizeUniversity(row.university);
@@ -1038,7 +1113,12 @@ function normalizeRank(value: string) {
   return value.normalize("NFKC").replace(/\s/g, "").replace(/位$/, "").toUpperCase();
 }
 
-function loadReferenceRecords() {
+async function loadReferenceRecords(): Promise<ReferenceRecords> {
+  if (process.env.NODE_ENV === "production" || process.env.ADMIN_IMPORT_STORAGE === "supabase") {
+    const { loadSupabaseReferenceRecords } = await import("./supabase/import-storage");
+    return loadSupabaseReferenceRecords();
+  }
+
   const csvDir = path.join(process.cwd(), "csv");
   return {
     universities: parseCsvFile(path.join(csvDir, "universities.csv")),

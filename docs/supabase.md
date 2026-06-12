@@ -79,44 +79,54 @@ personal_bests
 
 既存の主キーがある行は更新され、新しい行は追加されます。自動削除は行いません。
 
-## 4. 通常運用
+## 4. Vercel管理画面の設定
 
-Supabaseでデータを更新した後、ローカルへ取得します。
+本番の `/admin/import` はSupabase Authによるログインを必須にします。
+
+Supabase Dashboardの `Authentication > Users` で管理者ユーザーを作成し、Vercelに次の環境変数を設定します。
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+SUPABASE_URL
+SUPABASE_SECRET_KEY
+ADMIN_EMAILS
+ADMIN_IMPORT_STORAGE=supabase
+SUPABASE_BUILD_SYNC=true
+VERCEL_DEPLOY_HOOK_URL
+```
+
+`ADMIN_EMAILS` はログインを許可するメールアドレスです。複数の場合はカンマ区切りにします。
+
+VercelのDeploy Hookは `Project Settings > Git > Deploy Hooks` でmainブランチ向けに作成します。URLはブラウザへ公開されない `VERCEL_DEPLOY_HOOK_URL` に設定してください。
+
+## 5. 自動運用
+
+本番管理画面では次の処理を自動で行います。
+
+1. URL・コピペ・PDFのうち2種類以上を解析
+2. 管理者が差分を確認
+3. Supabaseの7テーブルへ更新
+4. Vercel Deploy Hookを呼び出す
+5. VercelビルドがSupabaseから最新データを取得
+6. `data/*.ts` を生成して公開ページを再ビルド
+
+通常のデータ投入では、ローカルCSVの編集、`db:push`、Git commitは不要です。
+
+## 6. ローカルでの取得・検証
+
+Supabaseの内容をローカルへ取得する場合は次を実行します。
 
 ```bash
 npm run db:pull
-```
-
-このコマンドは次を実行します。
-
-1. Supabaseから7テーブルを取得
-2. `csv/*.csv` を更新
-3. `npm run import:csv` と同じ処理で `data/*.ts` を再生成
-
-その後に必ず検証します。
-
-```bash
 npm run test:import
 npx tsc --noEmit --ignoreDeprecations 6.0
 npm run build
 ```
 
-画面確認後に生成された `data/*.ts` とコード変更をGitへコミットし、Vercelへ反映します。
+ローカル管理画面をSupabase保存モードで試す場合だけ、`.env.local` に `ADMIN_IMPORT_STORAGE=supabase` を設定します。確認なしで実データ反映ボタンを押さないでください。
 
-## 5. 管理画面との関係
-
-現在の `/admin/import` はローカル専用で、CSVへ安全に反映する仕組みを維持しています。
-
-当面は次の運用にします。
-
-1. `/admin/import` で公式結果を解析・照合
-2. CSVへ反映
-3. `npm run db:push` でSupabaseへ同期
-4. 型チェック・ビルド・画面確認
-
-管理画面からSupabaseへ直接保存する機能は、管理者認証を導入してから追加します。Secret keyをブラウザへ渡してはいけません。
-
-## 6. 注意
+## 7. 注意
 
 - Supabase Dashboardで主キーや外部キーを手入力変更しない
 - `athletes.university_id` などの参照先を先に登録する
@@ -124,4 +134,6 @@ npm run build
 - DNS / DNF / DQ は `results.result_status` に保存する
 - 日付は `YYYY-MM-DD` で保存する
 - Secret keyはVercelのクライアント環境変数に設定しない
+- Deploy Hook URLもブラウザへ公開しない
+- `ADMIN_EMAILS` に含まれないユーザーは管理画面を利用できない
 - 公開スキーマのテーブルはRLSを無効化しない

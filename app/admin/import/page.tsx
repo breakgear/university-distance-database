@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ChevronRight, Database, FileSearch, Info, LockKeyhole } from "lucide-react";
 import { ResultImportWorkbench } from "@/components/ResultImportWorkbench";
 import { AdminScheduleReference } from "@/components/AdminScheduleReference";
-import { isAdminImportAvailable } from "@/lib/admin-import-access";
+import { AdminLogoutButton } from "@/components/AdminLogoutButton";
+import { requireAdminPage } from "@/lib/admin-auth";
 
 export const metadata: Metadata = {
   robots: {
@@ -13,10 +13,8 @@ export const metadata: Metadata = {
   }
 };
 
-export default function ResultImportPage() {
-  if (!isAdminImportAvailable()) {
-    notFound();
-  }
+export default async function ResultImportPage() {
+  await requireAdminPage();
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-10 pt-7 sm:px-6 sm:pt-10">
@@ -26,6 +24,9 @@ export default function ResultImportPage() {
         </Link>
         <ChevronRight size={14} />
         <span className="text-ink">データ取込</span>
+        <span className="ml-auto">
+          <AdminLogoutButton />
+        </span>
       </nav>
 
       <section className="relative overflow-hidden rounded-lg border border-line bg-white p-4 shadow-sm sm:p-6">
@@ -36,21 +37,21 @@ export default function ResultImportPage() {
         </div>
         <div className="relative">
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-sash-red">管理用モック</span>
-            <span className="rounded-full bg-field px-2.5 py-1 text-xs font-bold text-slate-600">CSV運用</span>
+            <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-sash-red">管理者専用</span>
+            <span className="rounded-full bg-field px-2.5 py-1 text-xs font-bold text-slate-600">Supabase運用</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-field px-2.5 py-1 text-xs font-bold text-slate-600">
               <LockKeyhole size={13} />
-              非公開画面想定
+              認証済み
             </span>
           </div>
           <h1 className="text-3xl font-black leading-tight text-ink sm:text-4xl">公式データを取り込む</h1>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-7 text-slate-700 sm:text-base">
-            URL、コピーした一覧、PDFから結果・エントリー情報を解析し、原本とCSV追加候補を確認します。
+            URL、コピーした一覧、PDFから結果・エントリー情報を解析し、確認後にSupabaseへ反映します。
           </p>
 
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             <InfoCard icon={<FileSearch size={18} />} label="入力" value="URL / テキスト / PDF" />
-            <InfoCard icon={<Database size={18} />} label="出力" value="7種類のCSV更新案" />
+            <InfoCard icon={<Database size={18} />} label="出力" value="Supabase 7テーブル" />
             <InfoCard icon={<Info size={18} />} label="確認" value="原本と解析結果を比較" />
           </div>
         </div>

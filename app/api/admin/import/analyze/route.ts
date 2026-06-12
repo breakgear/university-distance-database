@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
-import { isAdminImportAvailable } from "@/lib/admin-import-access";
+import { getAdminIdentity } from "@/lib/admin-auth";
 import { analyzeImportSources } from "@/lib/result-import-parser";
 import { parseAnalyzeFormData } from "@/lib/result-import-validation";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  if (!isAdminImportAvailable()) {
-    return new NextResponse(null, { status: 404 });
-  }
+  if (!(await getAdminIdentity())) return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
 
   try {
     const input = parseAnalyzeFormData(await request.formData());

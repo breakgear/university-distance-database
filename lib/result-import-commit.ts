@@ -9,9 +9,10 @@ import type {
   ImportParsedRow
 } from "./result-import-types";
 
-type CsvRecord = Record<string, string>;
+export type CsvRecord = Record<string, string>;
+export type ImportCsvTable = { headers: string[]; rows: CsvRecord[] };
 
-const csvFiles = [
+export const csvFiles = [
   "universities",
   "athletes",
   "meets",
@@ -22,6 +23,8 @@ const csvFiles = [
   "status_master",
   "event_type_master"
 ] as const;
+
+export type ImportCsvData = Record<(typeof csvFiles)[number], ImportCsvTable>;
 
 const previewFiles = [
   ["universities", "大学情報を追加・更新", "id"],
@@ -43,11 +46,20 @@ const generatedDataFiles = [
   "personalBests.ts"
 ] as const;
 
-export function commitImport(payload: ImportCommitPayload) {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("本番環境ではCSVを永続更新できません。ローカル環境で実行してください。");
+function useSupabaseImportStorage() {
+  return process.env.NODE_ENV === "production" || process.env.ADMIN_IMPORT_STORAGE === "supabase";
+}
+
+export async function commitImport(payload: ImportCommitPayload) {
+  if (useSupabaseImportStorage()) {
+    const { commitSupabaseImport } = await import("./supabase/import-storage");
+    return commitSupabaseImport(payload);
   }
 
+  return commitLocalImport(payload);
+}
+
+function commitLocalImport(payload: ImportCommitPayload) {
   const rootDir = process.cwd();
   const csvDir = path.join(rootDir, "csv");
   const prepared = buildImportPlan(payload, csvDir);
@@ -151,7 +163,12 @@ function restoreImportFiles(rootDir: string, csvDir: string, backupDir: string) 
   }
 }
 
-export function previewImport(payload: ImportCommitPayload) {
+export async function previewImport(payload: ImportCommitPayload) {
+  if (useSupabaseImportStorage()) {
+    const { previewSupabaseImport } = await import("./supabase/import-storage");
+    return previewSupabaseImport(payload);
+  }
+
   const csvDir = path.join(process.cwd(), "csv");
   const { counts, files } = buildImportPlan(payload, csvDir);
   return { counts, files };
@@ -164,11 +181,25 @@ function buildImportPlan(payload: ImportCommitPayload, csvDir: string) {
 
   const data = Object.fromEntries(
     csvFiles.map((name) => [name, readCsv(path.join(csvDir, `${name}.csv`))])
-  ) as Record<(typeof csvFiles)[number], { headers: string[]; rows: CsvRecord[] }>;
+  ) as ImportCsvData;
+  return buildImportPlanFromData(payload, data);
+}
+
+export function buildImportPlanFromData(payload: ImportCommitPayload, data: ImportCsvData) {
+  validateCommitPayload(payload);
+  const workingData = Object.fromEntries(
+    csvFiles.map((name) => [
+      name,
+      {
+        headers: [...data[name].headers],
+        rows: data[name].rows.map((row) => ({ ...row }))
+      }
+    ])
+  ) as ImportCsvData;
   const before = Object.fromEntries(
     previewFiles.map(([name]) => [
       name,
-      data[name].rows.map((row) => ({ ...row }))
+      workingData[name].rows.map((row) => ({ ...row }))
     ])
   ) as Record<(typeof previewFiles)[number][0], CsvRecord[]>;
 
@@ -182,24 +213,24 @@ function buildImportPlan(payload: ImportCommitPayload, csvDir: string) {
     personal_bests: 0
   };
 
-  counts.meets = upsertMeet(data.meets.rows, payload);
-  counts.races = upsertRace(data.races.rows, payload);
+  counts.meets = upsertMeet(workingData.meets.rows, payload);
+  counts.races = upsertRace(workingData.races.rows, payload);
 
   for (const row of payload.rows) {
-    counts.universities += ensureUniversity(data.universities.rows, row, payload);
-    counts.athletes += ensureAthlete(data.athletes.rows, row, payload);
-    counts.entries += ensureEntry(data.entries.rows, row, payload);
+    counts.universities += ensureUniversity(workingData.universities.rows, row, payload);
+    counts.athletes += ensureAthlete(workingData.athletes.rows, row, payload);
+    counts.entries += ensureEntry(workingData.entries.rows, row, payload);
     if (payload.importKind === "entry") continue;
     const resultId = `${payload.metadata.raceId}-${row.athleteId}`;
-    counts.results += ensureResult(data.results.rows, row, payload, resultId);
+    counts.results += ensureResult(workingData.results.rows, row, payload, resultId);
     if (row.note === "PB" && row.resultStatus === "finished") {
-      counts.personal_bests += upsertPersonalBest(data.personal_bests.rows, row, payload, resultId);
+      counts.personal_bests += upsertPersonalBest(workingData.personal_bests.rows, row, payload, resultId);
     }
   }
 
   const files = previewFiles.map(([name, changedText, primaryKey]): ImportFileDiff => {
     const previousById = new Map(before[name].map((row) => [row[primaryKey], row]));
-    const changedRows = data[name].rows.filter((row) => {
+    const changedRows = workingData[name].rows.filter((row) => {
       const previous = previousById.get(row[primaryKey]);
       return !previous || !recordsEqual(previous, row);
     });
@@ -207,11 +238,11 @@ function buildImportPlan(payload: ImportCommitPayload, csvDir: string) {
       name: `${name}.csv`,
       count: changedRows.length,
       text: changedRows.length ? changedText : "変更なし",
-      preview: stringifyCsv(data[name].headers, changedRows).trimEnd()
+      preview: stringifyCsv(workingData[name].headers, changedRows).trimEnd()
     };
   });
 
-  return { data, counts, files };
+  return { data: workingData, counts, files };
 }
 
 export function validateCommitPayload(payload: ImportCommitPayload) {

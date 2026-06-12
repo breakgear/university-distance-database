@@ -86,6 +86,8 @@ CSVファイルは、`csv/` または `data/csv/` に配置します。
 
 詳しい手順は [docs/data-import.md](docs/data-import.md) を参照してください。
 
+SupabaseとVercel管理画面による自動更新は [docs/supabase.md](docs/supabase.md) を参照してください。
+
 ## Supabase運用
 
 Supabaseをデータの正本として使い、取得したデータから `data/*.ts` を生成する段階移行に対応しています。
@@ -115,9 +117,9 @@ npm run build
 
 * SupabaseへのCSV同期とSupabaseからの静的データ生成に対応
 * Google Sheets APIとのリアルタイム同期は未実装
-* 管理画面は未実装
+* 管理画面はSupabase Authで認証し、Supabaseへの直接更新とVercel再デプロイに対応
 * 公式サイトの自動スクレイピングは未実装
-* MVPではGoogle Sheets / CSVまたはSupabaseから`data/*.ts`を生成する運用を想定
+* Google Sheets / CSVは初期投入・保守用、本番の通常更新は管理画面とSupabaseを使用
 * 掲載データは非公式に整理したもの
 * 正式な大会情報・記録は各大会公式サイトを確認する前提
 * このプロジェクトは公開前のMVPであり、掲載データ・URL構成・運用方法は今後変更される可能性があります。

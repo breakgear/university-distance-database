@@ -5,8 +5,8 @@ import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAdminConfig } from "../lib/supabase/config.ts";
 import {
   primaryKeys,
-  readCsvTable,
   stripDatabaseMetadata,
+  tableHeaders,
   tableNames,
   writeCsvTable
 } from "./supabase-data.ts";
@@ -24,17 +24,23 @@ async function main() {
   mkdirSync(csvDir, { recursive: true });
 
   for (const tableName of tableNames) {
-    const headers = readCsvTable(csvDir, tableName).headers;
-    const { data, error } = await supabase
-      .from(tableName)
-      .select("*")
-      .order(primaryKeys[tableName], { ascending: true });
+    const rows: Record<string, unknown>[] = [];
+    const pageSize = 1_000;
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await supabase
+        .from(tableName)
+        .select("*")
+        .order(primaryKeys[tableName], { ascending: true })
+        .range(from, from + pageSize - 1);
 
-    if (error) throw new Error(`${tableName} の取得に失敗しました: ${error.message}`);
+      if (error) throw new Error(`${tableName} の取得に失敗しました: ${error.message}`);
+      rows.push(...((data || []) as Record<string, unknown>[]));
+      if (!data || data.length < pageSize) break;
+    }
 
-    const rows = stripDatabaseMetadata((data || []) as Record<string, unknown>[]);
-    writeCsvTable(csvDir, tableName, headers, rows);
-    console.log(`Pulled ${tableName}: ${rows.length}`);
+    const cleanRows = stripDatabaseMetadata(rows);
+    writeCsvTable(csvDir, tableName, tableHeaders[tableName], cleanRows);
+    console.log(`Pulled ${tableName}: ${cleanRows.length}`);
   }
 
   if (!skipGenerate) {

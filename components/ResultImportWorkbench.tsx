@@ -39,6 +39,10 @@ type InputSource = ImportSource;
 
 type ParsedResult = ImportParsedRow;
 
+function tableLabel(name: string) {
+  return `${name.replace(/\.csv$/, "")} テーブル`;
+}
+
 export function ResultImportWorkbench() {
   const [importKind, setImportKind] = useState<ImportKind>("result");
   const [targetDistance, setTargetDistance] = useState<ImportDistance>("5000m");
@@ -187,7 +191,7 @@ export function ResultImportWorkbench() {
         error?: string;
       };
       if (!response.ok || !body.preview) {
-        throw new Error(body.error || "CSV更新案の作成に失敗しました。");
+        throw new Error(body.error || "更新案の作成に失敗しました。");
       }
       setAnalysis((current) =>
         current ? { ...current, files: body.preview?.files ?? current.files } : current
@@ -200,7 +204,7 @@ export function ResultImportWorkbench() {
       setStatus("ready");
     } catch (caught) {
       setStatus("review");
-      setError(caught instanceof Error ? caught.message : "CSV更新案の作成に失敗しました。");
+      setError(caught instanceof Error ? caught.message : "更新案の作成に失敗しました。");
     } finally {
       setPreviewing(false);
     }
@@ -537,7 +541,7 @@ export function ResultImportWorkbench() {
                         )}
                       >
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-ink">{file.name}</p>
+                          <p className="truncate text-sm font-black text-ink">{tableLabel(file.name)}</p>
                           <p className="mt-0.5 text-xs font-bold text-slate-500">{file.text}</p>
                         </div>
                         <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-xs font-black", file.count > 0 ? "bg-red-50 text-sash-red" : "bg-white text-slate-500")}>
@@ -935,7 +939,7 @@ function MeetReview({
             ))}
           </div>
           <p className="mt-2 text-xs font-bold leading-5 text-amber-800">
-            申込期限などの日付も候補に含まれる場合があります。CSV更新前に原本と照合してください。
+            申込期限などの日付も候補に含まれる場合があります。反映前に原本と照合してください。
           </p>
         </div>
       ) : null}
@@ -1058,7 +1062,7 @@ function ResultReview({
       </div>
       <p className="mt-3 text-xs font-bold leading-5 text-slate-500">
         {onlyUniversity ? "大学所属選手のみを表示しています。" : `公式${importKind === "entry" ? "エントリー" : "結果"}に含まれるすべての選手を表示しています。`}
-        未登録候補はCSV生成前に確認します。
+        未登録候補は反映前に確認します。
       </p>
     </section>
   );
@@ -1119,18 +1123,18 @@ function ReviewSummary({
         <SummaryLine label="登録対象" value={`${selectedCount}件`} />
         <SummaryLine label="要確認" value={`${issueCount}件`} warning={issueCount > 0} />
         {importKind === "result" ? <SummaryLine label="PB更新" value={`${pbCount}件`} /> : null}
-        <SummaryLine label="更新CSV" value={`${changedFileCount}ファイル`} />
+        <SummaryLine label="更新テーブル" value={`${changedFileCount}テーブル`} />
       </div>
       <div className={cn("mt-4 rounded-md px-3 py-3 text-xs font-bold leading-5", status === "done" ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>
         {status === "done"
           ? commitChanged
-            ? "CSVとdata/*.tsの更新が完了しました。画面表示を確認してください。"
-            : "既存データと同一のため、ファイルは変更していません。"
+            ? "データの更新が完了しました。画面表示を確認してください。"
+            : "既存データと同一のため、データは変更していません。"
           : status === "committing"
             ? "確認した更新案をSupabaseへ反映しています。"
             : status === "ready"
-              ? "差分を確認し、確認チェックを入れるまでCSVは変更されません。"
-              : "要確認項目を確認してからCSV更新案を作成してください。"}
+              ? "差分を確認し、確認チェックを入れるまでデータは変更されません。"
+              : "要確認項目を確認してから更新案を作成してください。"}
       </div>
     </section>
   );
@@ -1144,7 +1148,7 @@ function SafetyCard({ importKind }: { importKind: ImportKind }) {
         <h2 className="text-base font-black text-ink">安全な取込</h2>
       </div>
       <ul className="mt-3 space-y-2 text-xs font-bold leading-5 text-slate-600">
-        <li>・解析だけではCSVを変更しません</li>
+        <li>・解析だけではデータを変更しません</li>
         <li>・既存IDとの重複を確認します</li>
         <li>・未登録選手は確認対象にします</li>
         <li>
@@ -1233,9 +1237,9 @@ function CsvPreview({ name, text, count }: { name: string; text: string; count: 
     <div className="mt-4 overflow-hidden rounded-md border border-line">
       <div className="flex items-center justify-between gap-3 bg-field px-3 py-2.5">
         <div>
-          <p className="text-sm font-black text-ink">CSVプレビュー</p>
+          <p className="text-sm font-black text-ink">反映プレビュー</p>
           <p className="mt-0.5 text-xs font-bold text-slate-500">
-            {count > 0 ? `${name} に反映する${count}件の行です。` : `${name} に変更はありません。`}
+            {count > 0 ? `${tableLabel(name)}に反映する${count}件の行です。` : `${tableLabel(name)}に変更はありません。`}
           </p>
         </div>
         <button
@@ -1244,7 +1248,7 @@ function CsvPreview({ name, text, count }: { name: string; text: string; count: 
           className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-line bg-white px-3 text-xs font-black text-slate-700 transition hover:border-red-200 hover:text-sash-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sash-red/35"
         >
           {copyState === "copied" ? <Check size={15} /> : <Copy size={15} />}
-          {copyState === "copied" ? "コピー済み" : copyState === "error" ? "コピー失敗" : "CSVをコピー"}
+          {copyState === "copied" ? "コピー済み" : copyState === "error" ? "コピー失敗" : "CSV形式でコピー"}
         </button>
       </div>
       <pre className="max-h-72 overflow-auto whitespace-pre p-3 text-xs font-bold leading-5 text-slate-700">

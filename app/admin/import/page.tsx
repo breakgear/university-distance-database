@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Database, FileSearch, Info, LockKeyhole } from "lucide-react";
 import { ResultImportWorkbench } from "@/components/ResultImportWorkbench";
+import { AdminScheduleReference } from "@/components/AdminScheduleReference";
 import { isAdminImportAvailable } from "@/lib/admin-import-access";
 
 export const metadata: Metadata = {
@@ -42,9 +43,9 @@ export default function ResultImportPage() {
               非公開画面想定
             </span>
           </div>
-          <h1 className="text-3xl font-black leading-tight text-ink sm:text-4xl">公式結果を取り込む</h1>
+          <h1 className="text-3xl font-black leading-tight text-ink sm:text-4xl">公式データを取り込む</h1>
           <p className="mt-3 max-w-3xl text-sm font-bold leading-7 text-slate-700 sm:text-base">
-            URL、コピーした結果表、PDFから大会・レース・選手・記録を解析し、原本とCSV追加候補を確認します。
+            URL、コピーした一覧、PDFから結果・エントリー情報を解析し、原本とCSV追加候補を確認します。
           </p>
 
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -54,6 +55,8 @@ export default function ResultImportPage() {
           </div>
         </div>
       </section>
+
+      <AdminScheduleReference />
 
       <section className="mt-6">
         <ResultImportWorkbench />

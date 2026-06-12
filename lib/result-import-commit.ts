@@ -2,7 +2,12 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, write
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import type { ImportCommitPayload, ImportDistance, ImportParsedRow } from "./result-import-types";
+import type {
+  ImportCommitPayload,
+  ImportDistance,
+  ImportFileDiff,
+  ImportParsedRow
+} from "./result-import-types";
 
 type CsvRecord = Record<string, string>;
 
@@ -18,6 +23,26 @@ const csvFiles = [
   "event_type_master"
 ] as const;
 
+const previewFiles = [
+  ["universities", "大学情報を追加・更新", "id"],
+  ["athletes", "選手情報を追加・更新", "id"],
+  ["meets", "大会情報を追加・更新", "meet_id"],
+  ["races", "レース情報を追加・更新", "race_id"],
+  ["entries", "掲載状態を追加・更新", "entry_id"],
+  ["results", "結果を追加・更新", "result_id"],
+  ["personal_bests", "PBを追加・更新", "pb_id"]
+] as const;
+
+const generatedDataFiles = [
+  "universities.ts",
+  "athletes.ts",
+  "meets.ts",
+  "races.ts",
+  "entries.ts",
+  "results.ts",
+  "personalBests.ts"
+] as const;
+
 export function commitImport(payload: ImportCommitPayload) {
   if (process.env.NODE_ENV === "production") {
     throw new Error("本番環境ではCSVを永続更新できません。ローカル環境で実行してください。");
@@ -25,12 +50,127 @@ export function commitImport(payload: ImportCommitPayload) {
 
   const rootDir = process.cwd();
   const csvDir = path.join(rootDir, "csv");
+  const prepared = buildImportPlan(payload, csvDir);
+  const { data, counts } = prepared;
+
+  if (Object.values(counts).every((count) => count === 0)) {
+    return { counts, backupDir: "", changed: false };
+  }
+
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "distance-import-"));
+  const tempCsv = path.join(tempRoot, "csv");
+  const tempData = path.join(tempRoot, "data");
+  let backupDir = "";
+  let writesStarted = false;
+  mkdirSync(tempCsv, { recursive: true });
+
+  try {
+    for (const name of csvFiles) {
+      writeFileSync(path.join(tempCsv, `${name}.csv`), stringifyCsv(data[name].headers, data[name].rows));
+    }
+
+    execFileSync(
+      process.execPath,
+      ["--no-warnings", "--experimental-strip-types", "scripts/import-csv.ts", "--csv-dir", tempCsv, "--out-dir", tempData],
+      { cwd: rootDir, encoding: "utf8", stdio: "pipe" }
+    );
+
+    backupDir = path.join(rootDir, ".import-backups", new Date().toISOString().replace(/[:.]/g, "-"));
+    mkdirSync(backupDir, { recursive: true });
+    backupImportFiles(rootDir, csvDir, backupDir);
+
+    writesStarted = true;
+    for (const name of csvFiles) {
+      writeFileSync(path.join(csvDir, `${name}.csv`), stringifyCsv(data[name].headers, data[name].rows));
+    }
+
+    execFileSync(
+      process.execPath,
+      ["--no-warnings", "--experimental-strip-types", "scripts/import-csv.ts"],
+      { cwd: rootDir, encoding: "utf8", stdio: "pipe" }
+    );
+
+    return { counts, backupDir: path.relative(rootDir, backupDir), changed: true };
+  } catch (error) {
+    let rollbackMessage = "";
+    let rollbackSucceeded = false;
+    if (writesStarted && backupDir) {
+      try {
+        restoreImportFiles(rootDir, csvDir, backupDir);
+        rollbackSucceeded = true;
+      } catch (rollbackError) {
+        rollbackMessage = ` 自動復元にも失敗しました: ${
+          rollbackError instanceof Error ? rollbackError.message : "復元エラー"
+        }`;
+      }
+    }
+    const message = error instanceof Error ? error.message : "CSV更新に失敗しました。";
+    throw new Error(
+      writesStarted
+        ? `${
+            rollbackSucceeded
+              ? "CSV更新に失敗したため、バックアップから復元しました"
+              : "CSV更新に失敗し、バックアップから復元できませんでした"
+          }: ${message}${rollbackMessage}`
+        : `CSV更新前の検証に失敗しました: ${message}`
+    );
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
+}
+
+function backupImportFiles(rootDir: string, csvDir: string, backupDir: string) {
+  const csvBackupDir = path.join(backupDir, "csv");
+  const dataBackupDir = path.join(backupDir, "data");
+  mkdirSync(csvBackupDir, { recursive: true });
+  mkdirSync(dataBackupDir, { recursive: true });
+
+  for (const name of csvFiles) {
+    cpSync(path.join(csvDir, `${name}.csv`), path.join(csvBackupDir, `${name}.csv`));
+  }
+
+  for (const fileName of generatedDataFiles) {
+    const source = path.join(rootDir, "data", fileName);
+    if (existsSync(source)) cpSync(source, path.join(dataBackupDir, fileName));
+  }
+}
+
+function restoreImportFiles(rootDir: string, csvDir: string, backupDir: string) {
+  const csvBackupDir = path.join(backupDir, "csv");
+  const dataBackupDir = path.join(backupDir, "data");
+
+  for (const name of csvFiles) {
+    cpSync(path.join(csvBackupDir, `${name}.csv`), path.join(csvDir, `${name}.csv`));
+  }
+
+  for (const fileName of generatedDataFiles) {
+    const backup = path.join(dataBackupDir, fileName);
+    const destination = path.join(rootDir, "data", fileName);
+    if (existsSync(backup)) cpSync(backup, destination);
+    else rmSync(destination, { force: true });
+  }
+}
+
+export function previewImport(payload: ImportCommitPayload) {
+  const csvDir = path.join(process.cwd(), "csv");
+  const { counts, files } = buildImportPlan(payload, csvDir);
+  return { counts, files };
+}
+
+// Preview and commit must use the same plan so the reviewed CSV is the CSV that gets written.
+function buildImportPlan(payload: ImportCommitPayload, csvDir: string) {
+  validateCommitPayload(payload);
   if (!existsSync(csvDir)) throw new Error("csv/ ディレクトリが見つかりません。");
-  if (!payload.rows.length) throw new Error("登録対象の結果が選択されていません。");
 
   const data = Object.fromEntries(
     csvFiles.map((name) => [name, readCsv(path.join(csvDir, `${name}.csv`))])
   ) as Record<(typeof csvFiles)[number], { headers: string[]; rows: CsvRecord[] }>;
+  const before = Object.fromEntries(
+    previewFiles.map(([name]) => [
+      name,
+      data[name].rows.map((row) => ({ ...row }))
+    ])
+  ) as Record<(typeof previewFiles)[number][0], CsvRecord[]>;
 
   const counts = {
     universities: 0,
@@ -46,9 +186,10 @@ export function commitImport(payload: ImportCommitPayload) {
   counts.races = upsertRace(data.races.rows, payload);
 
   for (const row of payload.rows) {
-    counts.universities += ensureUniversity(data.universities.rows, row, payload.metadata.distance);
-    counts.athletes += ensureAthlete(data.athletes.rows, row, payload.metadata.distance);
+    counts.universities += ensureUniversity(data.universities.rows, row, payload);
+    counts.athletes += ensureAthlete(data.athletes.rows, row, payload);
     counts.entries += ensureEntry(data.entries.rows, row, payload);
+    if (payload.importKind === "entry") continue;
     const resultId = `${payload.metadata.raceId}-${row.athleteId}`;
     counts.results += ensureResult(data.results.rows, row, payload, resultId);
     if (row.note === "PB" && row.resultStatus === "finished") {
@@ -56,46 +197,52 @@ export function commitImport(payload: ImportCommitPayload) {
     }
   }
 
-  if (Object.values(counts).every((count) => count === 0)) {
-    return { counts, backupDir: "", changed: false };
+  const files = previewFiles.map(([name, changedText, primaryKey]): ImportFileDiff => {
+    const previousById = new Map(before[name].map((row) => [row[primaryKey], row]));
+    const changedRows = data[name].rows.filter((row) => {
+      const previous = previousById.get(row[primaryKey]);
+      return !previous || !recordsEqual(previous, row);
+    });
+    return {
+      name: `${name}.csv`,
+      count: changedRows.length,
+      text: changedRows.length ? changedText : "変更なし",
+      preview: stringifyCsv(data[name].headers, changedRows).trimEnd()
+    };
+  });
+
+  return { data, counts, files };
+}
+
+export function validateCommitPayload(payload: ImportCommitPayload) {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("取込データが不正です。");
   }
-
-  const tempRoot = mkdtempSync(path.join(tmpdir(), "distance-import-"));
-  const tempCsv = path.join(tempRoot, "csv");
-  const tempData = path.join(tempRoot, "data");
-  mkdirSync(tempCsv, { recursive: true });
-
-  try {
-    for (const name of csvFiles) {
-      writeFileSync(path.join(tempCsv, `${name}.csv`), stringifyCsv(data[name].headers, data[name].rows));
+  if (payload.importKind !== "entry" && payload.importKind !== "result") {
+    throw new Error("取込種別が不正です。");
+  }
+  if (!Array.isArray(payload.rows) || !payload.rows.length) {
+    throw new Error("登録対象の行が選択されていません。");
+  }
+  if (!payload.metadata?.meetId || !payload.metadata.raceId) {
+    throw new Error("大会IDとレースIDを入力してください。");
+  }
+  if (!["1500m", "5000m", "10000m", "ハーフ"].includes(payload.metadata.distance)) {
+    throw new Error("種目が不正です。");
+  }
+  if (payload.metadata.date && !/^\d{4}-\d{2}-\d{2}$/.test(payload.metadata.date)) {
+    throw new Error("開催日は YYYY-MM-DD 形式で入力してください。");
+  }
+  for (const row of payload.rows) {
+    if (!row.athleteId || !row.universityId || !row.athlete) {
+      throw new Error("選手ID・大学ID・選手名が未入力の行があります。");
     }
-
-    execFileSync(
-      process.execPath,
-      ["--no-warnings", "--experimental-strip-types", "scripts/import-csv.ts", "--csv-dir", tempCsv, "--out-dir", tempData],
-      { cwd: rootDir, encoding: "utf8", stdio: "pipe" }
-    );
-
-    const backupDir = path.join(rootDir, ".import-backups", new Date().toISOString().replace(/[:.]/g, "-"));
-    mkdirSync(backupDir, { recursive: true });
-    cpSync(csvDir, backupDir, { recursive: true });
-
-    for (const name of csvFiles) {
-      writeFileSync(path.join(csvDir, `${name}.csv`), stringifyCsv(data[name].headers, data[name].rows));
+    if (!["finished", "dns", "dnf", "dq"].includes(row.resultStatus)) {
+      throw new Error(`${row.athlete}の結果ステータスが不正です。`);
     }
-
-    execFileSync(
-      process.execPath,
-      ["--no-warnings", "--experimental-strip-types", "scripts/import-csv.ts"],
-      { cwd: rootDir, encoding: "utf8", stdio: "pipe" }
-    );
-
-    return { counts, backupDir: path.relative(rootDir, backupDir), changed: true };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "CSV更新に失敗しました。";
-    throw new Error(`CSV更新前の検証に失敗しました: ${message}`);
-  } finally {
-    rmSync(tempRoot, { recursive: true, force: true });
+    if (payload.importKind === "entry" && row.entryStatus && !["listed", "unconfirmed"].includes(row.entryStatus)) {
+      throw new Error(`${row.athlete}の掲載状態が不正です。`);
+    }
   }
 }
 
@@ -105,11 +252,14 @@ function upsertMeet(rows: CsvRecord[], payload: ImportCommitPayload) {
     meet_id: payload.metadata.meetId,
     slug: current?.slug || payload.metadata.meetId,
     meet_name: current?.meet_name || payload.metadata.meetName,
-    date: payload.metadata.date || current?.date || "",
+    date: current?.date || payload.metadata.date || "",
     venue: payload.metadata.venue || current?.venue || "",
     category: current?.category || payload.metadata.category,
-    status: "result_published",
-    note: current?.note || "管理画面から結果を取り込み"
+    status:
+      payload.importKind === "result" || current?.status === "result_published"
+        ? "result_published"
+        : "startlist_published",
+    note: current?.note || (payload.importKind === "result" ? "管理画面から結果を取り込み" : "管理画面からエントリーを取り込み")
   };
   if (current) {
     if (recordsEqual(current, next)) return 0;
@@ -129,8 +279,12 @@ function upsertRace(rows: CsvRecord[], payload: ImportCommitPayload) {
     race_name: current?.race_name || payload.metadata.raceName,
     distance: current?.distance || payload.metadata.distance,
     start_time: payload.metadata.startTime || current?.start_time || "",
-    status: "result_published",
-    result_summary_id: current?.result_summary_id || payload.metadata.raceId
+    status:
+      payload.importKind === "result" || current?.status === "result_published"
+        ? "result_published"
+        : "startlist_published",
+    result_summary_id:
+      payload.importKind === "result" ? current?.result_summary_id || payload.metadata.raceId : current?.result_summary_id || ""
   };
   if (current) {
     if (recordsEqual(current, next)) return 0;
@@ -141,11 +295,12 @@ function upsertRace(rows: CsvRecord[], payload: ImportCommitPayload) {
   return 1;
 }
 
-function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, distance: ImportDistance) {
+function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, payload: ImportCommitPayload) {
+  const distance: ImportDistance = payload.metadata.distance;
   const current = rows.find((item) => item.id === row.universityId);
   if (current) {
     const next = {
-      has_result: "TRUE",
+      ...(payload.importKind === "entry" ? { has_upcoming: "TRUE" } : { has_result: "TRUE" }),
       listing_events: addListValue(current.listing_events, distance)
     };
     if (recordsEqual(current, next)) return 0;
@@ -161,18 +316,23 @@ function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, distance: Imp
     accent: "#64748B",
     profile: "",
     listing_events: distance,
-    has_upcoming: "FALSE",
-    has_result: "TRUE"
+    has_upcoming: payload.importKind === "entry" ? "TRUE" : "FALSE",
+    has_result: payload.importKind === "result" ? "TRUE" : "FALSE"
   });
   return 1;
 }
 
-function ensureAthlete(rows: CsvRecord[], row: ImportParsedRow, distance: ImportDistance) {
+function ensureAthlete(
+  rows: CsvRecord[],
+  row: ImportParsedRow,
+  payload: ImportCommitPayload
+) {
   const current = rows.find((item) => item.id === row.athleteId);
   if (current) {
     const next: CsvRecord = {};
-    if (!current.specialty) next.specialty = distance;
+    if (!current.specialty) next.specialty = payload.metadata.distance;
     if ((!current.year || current.year === "学年未登録") && row.year) next.year = row.year;
+    if (payload.importKind === "entry" && !current.next_race) next.next_race = payload.metadata.raceId;
     if (recordsEqual(current, next)) return 0;
     Object.assign(current, next);
     return 1;
@@ -184,9 +344,9 @@ function ensureAthlete(rows: CsvRecord[], row: ImportParsedRow, distance: Import
     university_id: row.universityId,
     year: row.year || "学年未登録",
     hometown: "",
-    specialty: distance,
+    specialty: payload.metadata.distance,
     profile: "",
-    next_race: ""
+    next_race: payload.importKind === "entry" ? payload.metadata.raceId : ""
   });
   return 1;
 }
@@ -203,7 +363,12 @@ function ensureEntry(rows: CsvRecord[], row: ImportParsedRow, payload: ImportCom
     athlete_id: row.athleteId,
     university_id: row.universityId,
     bib_no: row.bib,
-    entry_status: row.resultStatus === "dns" ? "dns" : "started"
+    entry_status:
+      payload.importKind === "entry"
+        ? row.entryStatus || "listed"
+        : row.resultStatus === "dns"
+          ? "dns"
+          : "started"
   };
   if (current) {
     if (recordsEqual(current, next)) return 0;

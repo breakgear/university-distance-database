@@ -1,7 +1,10 @@
 export type ImportSource = "url" | "text" | "pdf";
+export type ImportKind = "result" | "entry";
+export type ImportGroup = "" | `${number}組`;
 export type ImportMatchStatus = "matched" | "new" | "warning";
 export type ImportDistance = "1500m" | "5000m" | "10000m" | "ハーフ";
 export type ImportResultStatus = "finished" | "dns" | "dnf" | "dq";
+export type ImportEntryStatus = "listed" | "unconfirmed";
 
 export type ImportMetadata = {
   meetId: string;
@@ -25,6 +28,7 @@ export type ImportParsedRow = {
   time: string;
   note: string;
   resultStatus: ImportResultStatus;
+  entryStatus?: ImportEntryStatus;
   matchStatus: ImportMatchStatus;
   athleteId: string;
   universityId: string;
@@ -39,14 +43,25 @@ export type ImportSourceResult = {
   warning?: string;
 };
 
+export type ImportDateCandidate = {
+  date: string;
+  context: string;
+  score: number;
+  source: ImportSource;
+};
+
 export type ImportFileDiff = {
   name: string;
   count: number;
   text: string;
+  preview: string;
 };
 
 export type ImportAnalysis = {
+  importKind: ImportKind;
+  targetGroup: ImportGroup;
   metadata: ImportMetadata;
+  dateCandidates: ImportDateCandidate[];
   rows: ImportParsedRow[];
   sources: ImportSourceResult[];
   crossCheck: {
@@ -60,7 +75,7 @@ export type ImportAnalysis = {
 };
 
 export type ImportCommitPayload = {
+  importKind: ImportKind;
   metadata: ImportMetadata;
   rows: ImportParsedRow[];
 };
-

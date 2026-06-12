@@ -1,9 +1,13 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { previewImport } from "./result-import-commit";
 import type {
   ImportAnalysis,
+  ImportDateCandidate,
   ImportDistance,
+  ImportGroup,
+  ImportKind,
   ImportMetadata,
   ImportParsedRow,
   ImportResultStatus,
@@ -20,6 +24,7 @@ type RawRow = {
   time: string;
   note: string;
   resultStatus: ImportResultStatus;
+  entryStatus?: "listed" | "unconfirmed";
 };
 
 type ParsedSource = {
@@ -71,32 +76,60 @@ export async function analyzeImportSources(input: {
   text?: string;
   pdf?: File | null;
   onlyUniversity?: boolean;
+  importKind?: ImportKind;
+  targetDistance?: ImportDistance;
+  targetGroup?: ImportGroup;
 }): Promise<ImportAnalysis> {
   const parsedSources: ParsedSource[] = [];
+  const importKind = input.importKind ?? "result";
+  const targetDistance = input.targetDistance ?? "5000m";
+  const targetGroup = input.targetGroup ?? "";
+  const records = loadReferenceRecords();
 
-  if (input.url?.trim()) parsedSources.push(await parseUrlSource(input.url.trim()));
-  if (input.text?.trim()) parsedSources.push(parseTextSource(input.text.trim(), "text"));
-  if (input.pdf && input.pdf.size > 0) parsedSources.push(await parsePdfSource(input.pdf));
+  if (input.url?.trim()) {
+    parsedSources.push(await parseUrlSource(input.url.trim(), importKind, targetDistance, targetGroup, records));
+  }
+  if (input.text?.trim()) {
+    parsedSources.push(
+      importKind === "entry"
+        ? parseEntrySource(input.text.trim(), "text", targetDistance, targetGroup, records)
+        : parseTextSource(input.text.trim(), "text")
+    );
+  }
+  if (input.pdf && input.pdf.size > 0) {
+    parsedSources.push(await parsePdfSource(input.pdf, importKind, targetDistance, targetGroup, records));
+  }
 
   if (parsedSources.length < 2) {
     throw new Error("URL・コピペ・PDFのうち、内容がある入力を2つ以上指定してください。");
   }
 
-  const primary = [...parsedSources].sort((a, b) => b.rows.length - a.rows.length)[0];
+  const groupPdfSource =
+    importKind === "entry" && targetGroup
+      ? parsedSources.find((source) => source.source === "pdf" && source.rows.length > 0)
+      : undefined;
+  const primary = groupPdfSource ?? [...parsedSources].sort((a, b) => b.rows.length - a.rows.length)[0];
   if (!primary || primary.rows.length === 0) {
-    throw new Error("結果行を解析できませんでした。表の見出しから最終行までを貼り付けてください。");
+    throw new Error(
+      importKind === "entry"
+        ? "エントリー行を解析できませんでした。対象種目を確認し、一覧を含むページ・テキスト・PDFを指定してください。"
+        : "結果行を解析できませんでした。表の見出しから最終行までを貼り付けてください。"
+    );
   }
 
-  const records = loadReferenceRecords();
   const metadata = resolveMetadata(parsedSources, records);
+  const dateCandidates = collectDateCandidates(parsedSources);
   const rows = primary.rows
     .filter((row) => !input.onlyUniversity || looksLikeUniversity(row.university, records.universities))
-    .map((row) => matchRow(row, parsedSources, records));
+    .map((row) => matchRow(row, parsedSources, records, importKind));
   const completeMatches = rows.filter((row) => row.sourceMatches === parsedSources.length).length;
   const warnings = rows.filter((row) => row.sourceMatches < parsedSources.length || row.matchStatus !== "matched").length;
 
   return {
+    importKind,
+    targetGroup,
     metadata,
+    dateCandidates,
     rows,
     sources: parsedSources.map(
       (source): ImportSourceResult => ({
@@ -113,15 +146,34 @@ export async function analyzeImportSources(input: {
       warnings,
       details: parsedSources.map((source) => `${sourceLabel(source.source)}: ${source.rows.length}件`)
     },
-    files: buildFileDiffs(metadata, rows, records),
+    files: previewImport({ importKind, metadata, rows }).files,
     warnings: [
       ...parsedSources.flatMap((source) => (source.warning ? [source.warning] : [])),
+      ...(dateCandidates.length > 1 && dateCandidates[0].date !== dateCandidates[1].date
+        ? ["開催日候補が複数あります。CSV更新前に大会・レース情報で開催日を確認してください。"]
+        : []),
       ...(warnings > 0 ? [`${warnings}件は入力間の差異または未登録IDがあります。`] : [])
     ]
   };
 }
 
-async function parseUrlSource(url: string): Promise<ParsedSource> {
+async function parseUrlSource(
+  url: string,
+  importKind: ImportKind,
+  targetDistance: ImportDistance,
+  targetGroup: ImportGroup,
+  records: ReturnType<typeof loadReferenceRecords>
+): Promise<ParsedSource> {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    throw new Error("URLの形式が正しくありません。");
+  }
+  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+    throw new Error("URLは http または https で指定してください。");
+  }
+
   const response = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; UniversityDistanceDatabase/1.0)" },
     cache: "no-store"
@@ -130,6 +182,9 @@ async function parseUrlSource(url: string): Promise<ParsedSource> {
 
   const bytes = Buffer.from(await response.arrayBuffer());
   const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/pdf") || bytes.subarray(0, 4).toString("ascii") === "%PDF") {
+    return parsePdfBuffer(bytes, "url", importKind, targetDistance, targetGroup, records);
+  }
   const asciiHead = bytes.subarray(0, 2000).toString("latin1");
   const charset =
     contentType.match(/charset=([^;\s]+)/i)?.[1] ??
@@ -142,25 +197,194 @@ async function parseUrlSource(url: string): Promise<ParsedSource> {
     html = new TextDecoder("utf-8").decode(bytes);
   }
 
-  const parsed = parseHtmlResult(html);
-  return { ...parsed, source: "url" };
+  const parsed =
+    importKind === "entry"
+      ? parseEntrySource(htmlToText(html), "url", targetDistance, targetGroup, records)
+      : { ...parseHtmlResult(html), source: "url" as const };
+  return parsed;
 }
 
-async function parsePdfSource(file: File): Promise<ParsedSource> {
+async function parsePdfSource(
+  file: File,
+  importKind: ImportKind,
+  targetDistance: ImportDistance,
+  targetGroup: ImportGroup,
+  records: ReturnType<typeof loadReferenceRecords>
+): Promise<ParsedSource> {
+  return parsePdfBuffer(Buffer.from(await file.arrayBuffer()), "pdf", importKind, targetDistance, targetGroup, records);
+}
+
+async function parsePdfBuffer(
+  buffer: Buffer,
+  source: "url" | "pdf",
+  importKind: ImportKind,
+  targetDistance: ImportDistance,
+  targetGroup: ImportGroup,
+  records: ReturnType<typeof loadReferenceRecords>
+): Promise<ParsedSource> {
   const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
-  const result = await pdfParse(Buffer.from(await file.arrayBuffer()));
-  const parsed = parseTextSource(result.text, "pdf");
+  const result = await pdfParse(buffer);
+  let parsed: ParsedSource;
+  if (importKind === "entry") {
+    const fullDocument = parseEntrySource(result.text, source, targetDistance, "", records);
+    if (targetGroup) {
+      const groupText = await extractPdfGroupText(buffer, targetGroup);
+      if (!groupText) {
+        throw new Error(
+          `PDF内で「${targetGroup}」の範囲を特定できませんでした。組を指定せずに解析するか、対象組だけをコピペしてください。`
+        );
+      }
+      const selectedGroup = parseEntrySource(groupText, source, targetDistance, targetGroup, records);
+      parsed = {
+        ...selectedGroup,
+        metadata: {
+          ...fullDocument.metadata,
+          raceName: selectedGroup.metadata.raceName,
+          distance: targetDistance
+        },
+        preview: result.text
+      };
+    } else {
+      parsed = fullDocument;
+    }
+  } else {
+    parsed = parseTextSource(result.text, source);
+  }
   return {
     ...parsed,
-    warning: parsed.rows.length === 0 ? "PDFから表を抽出できませんでした。画像PDFの場合はコピペ結果も併用してください。" : undefined
+    warning:
+      parsed.rows.length === 0
+        ? "PDFから対象種目を抽出できませんでした。画像PDFの場合はコピペも併用してください。"
+        : parsed.warning
   };
+}
+
+async function extractPdfGroupText(buffer: Buffer, targetGroup: ImportGroup) {
+  const pdfjs = await import("pdf-parse/lib/pdf.js/v1.10.100/build/pdf.js");
+  const document = await pdfjs.getDocument(new Uint8Array(buffer)).promise;
+  const selectedPages: string[] = [];
+
+  for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+    const page = await document.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const items = content.items
+      .map((item) => ({
+        text: normalizeSpaces(item.str),
+        x: item.transform[4] ?? 0,
+        y: item.transform[5] ?? 0,
+        width: (item as { width?: number }).width ?? 0
+      }))
+      .filter((item) => item.text);
+    const selectedItems = selectPdfGroupItems(items, targetGroup);
+    if (!selectedItems.length) continue;
+    const rows = new Map<number, Array<{ text: string; x: number }>>();
+
+    for (const item of selectedItems) {
+      const rowKey = Math.round(item.y * 2) / 2;
+      const row = rows.get(rowKey) ?? [];
+      row.push({ text: item.text, x: item.x });
+      rows.set(rowKey, row);
+    }
+
+    const pageText = Array.from(rows.entries())
+      .sort(([left], [right]) => right - left)
+      .map(([, row]) =>
+        row
+          .sort((left, right) => left.x - right.x)
+          .map((item) => item.text)
+          .join(" ")
+      )
+      .join("\n");
+    if (pageText) selectedPages.push(pageText);
+  }
+
+  return selectedPages.length ? `${targetGroup}\n${selectedPages.join("\n")}` : "";
+}
+
+type PdfTextItem = { text: string; x: number; y: number; width: number };
+
+export function selectPdfGroupItems(items: PdfTextItem[], targetGroup: ImportGroup) {
+  const headings = findPdfGroupHeadings(items);
+  const selected = headings.find((heading) => heading.text === targetGroup);
+  if (!selected) return [];
+
+  // 横方向の境界は同じ段の見出しだけで決め、上下段の同一x座標を混ぜない。
+  const sameRow = headings
+    .filter((heading) => Math.abs(heading.y - selected.y) <= 10)
+    .sort((left, right) => left.x - right.x);
+  const sameRowIndex = sameRow.findIndex(
+    (heading) => heading.text === selected.text && Math.abs(heading.x - selected.x) < 2
+  );
+  const previous = sameRow[sameRowIndex - 1];
+  const next = sameRow[sameRowIndex + 1];
+  const minX = previous ? (previous.x + selected.x) / 2 : Number.NEGATIVE_INFINITY;
+  const maxX = next ? (selected.x + next.x) / 2 : Number.POSITIVE_INFINITY;
+  const nextVerticalHeading = headings
+    .filter(
+      (heading) =>
+        heading.y < selected.y - 10 &&
+        heading.x >= minX &&
+        heading.x < maxX
+    )
+    .sort((left, right) => right.y - left.y)[0];
+  const minY = nextVerticalHeading ? nextVerticalHeading.y + 8 : Number.NEGATIVE_INFINITY;
+
+  return items.filter(
+    (item) =>
+      item.x >= minX &&
+      item.x < maxX &&
+      item.y <= selected.y + 8 &&
+      item.y > minY
+  );
+}
+
+function findPdfGroupHeadings(items: PdfTextItem[]) {
+  const headings = items
+    .map((item) => ({ ...item, text: item.text.replace(/\s/g, "") }))
+    .filter((item) => /^\d+組$/.test(item.text));
+  const rows = new Map<number, typeof items>();
+
+  for (const item of items) {
+    const rowKey = Math.round(item.y);
+    const row = rows.get(rowKey) ?? [];
+    row.push(item);
+    rows.set(rowKey, row);
+  }
+
+  for (const row of Array.from(rows.values())) {
+    const sorted = row.sort((left, right) => left.x - right.x);
+    for (let index = 0; index < sorted.length - 1; index += 1) {
+      const number = sorted[index];
+      const suffix = sorted[index + 1];
+      const gap = suffix.x - (number.x + number.width);
+      if (/^\d+$/.test(number.text) && suffix.text === "組" && gap >= -2 && gap <= 16) {
+        headings.push({
+          text: `${number.text}組`,
+          x: number.x,
+          y: number.y,
+          width: suffix.x + suffix.width - number.x
+        });
+      }
+    }
+  }
+
+  return headings
+    .filter(
+      (heading, index, values) =>
+        values.findIndex(
+          (candidate) =>
+            candidate.text === heading.text &&
+            Math.abs(candidate.x - heading.x) < 2 &&
+            Math.abs(candidate.y - heading.y) < 2
+        ) === index
+    )
+    .sort((left, right) => right.y - left.y || left.x - right.x);
 }
 
 function parseHtmlResult(html: string): Omit<ParsedSource, "source"> {
   const raceName = cleanText(extractTag(html, "h1"));
   const meetName = cleanText(extractTag(html, "h3").split("\n")[0]);
   const plain = htmlToText(html);
-  const dateMatch = plain.match(/(20\d{2})年\s*(\d{1,2})月\s*(\d{1,2})日/);
   const startMatch = plain.match(/(\d{1,2})時\s*(\d{1,2})分/);
   const venueMatch = plain.match(/競技場名[:：]\s*([^\n]+)/);
   const rows = Array.from(html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi))
@@ -173,7 +397,7 @@ function parseHtmlResult(html: string): Omit<ParsedSource, "source"> {
     metadata: {
       meetName,
       raceName,
-      date: dateMatch ? `${dateMatch[1]}-${pad(dateMatch[2])}-${pad(dateMatch[3])}` : "",
+      date: extractEventDate(plain, [meetName, raceName]),
       venue: venueMatch?.[1]?.trim() ?? "",
       distance: detectDistance(raceName),
       startTime: startMatch ? `${pad(startMatch[1])}:${pad(startMatch[2])}` : ""
@@ -202,7 +426,7 @@ function parseHtmlCells(cells: string[]): RawRow | null {
   };
 }
 
-function parseTextSource(text: string, source: "text" | "pdf"): ParsedSource {
+function parseTextSource(text: string, source: ImportSource): ParsedSource {
   if (/<tr\b/i.test(text) && /<td\b/i.test(text)) {
     return { ...parseHtmlResult(text), source };
   }
@@ -213,7 +437,6 @@ function parseTextSource(text: string, source: "text" | "pdf"): ParsedSource {
   const raceName = raceLine ? normalizeSpaces(raceLine) : "";
   const meetName =
     lines.find((line) => /(?:大会|選手権|記録会|インカレ|選考会)/.test(line) && line.trim() !== raceName)?.trim() ?? "";
-  const dateMatch = normalized.match(/(20\d{2})[年\/-]\s*(\d{1,2})[月\/-]\s*(\d{1,2})日?/);
   const venueMatch = normalized.match(/(?:競技場名|会場)[:：]\s*([^\n]+)/);
   const rows = parseTabularText(normalized);
 
@@ -222,13 +445,304 @@ function parseTextSource(text: string, source: "text" | "pdf"): ParsedSource {
     metadata: {
       meetName,
       raceName,
-      date: dateMatch ? `${dateMatch[1]}-${pad(dateMatch[2])}-${pad(dateMatch[3])}` : "",
+      date: extractEventDate(normalized, [meetName, raceName]),
       venue: venueMatch?.[1]?.trim() ?? "",
       distance: detectDistance(raceName || normalized.slice(0, 300))
     },
     rows,
     preview: normalized
   };
+}
+
+function parseEntrySource(
+  text: string,
+  source: ImportSource,
+  targetDistance: ImportDistance,
+  targetGroup: ImportGroup,
+  records: ReturnType<typeof loadReferenceRecords>
+): ParsedSource {
+  const normalized = htmlToText(text).normalize("NFKC").replace(/\r\n?/g, "\n");
+  const allLines = normalized.split("\n").map((line) => normalizeSpaces(line)).filter(Boolean);
+  const lines = selectMenEntrySection(allLines, targetDistance);
+  const raceLine =
+    allLines.find((line) => line.includes(targetDistance) && /(?:男子|エントリー|参加標準)/.test(line)) ?? "";
+  const meetName =
+    allLines.find((line) => /第?\d+回.*(?:大会|選手権)|日本陸上競技選手権大会/.test(line)) ??
+    allLines.find((line) => /(?:大会|選手権|記録会|インカレ|選考会)/.test(line)) ??
+    "";
+  const date = extractEventDate(normalized, [meetName, raceLine]);
+  const venueMatch = normalized.match(/(?:競技場名|会場)[:：]\s*([^\n]+)/);
+  const rows: RawRow[] = [];
+  const groupOrder = extractGroupOrder(lines);
+  const groupSelection = selectTargetGroupLines(lines, targetGroup);
+  const parseLines = groupSelection.lines;
+  let skippedCandidateCount = 0;
+  let skippedAmbiguousGroupCount = 0;
+
+  for (let index = 0; index < parseLines.length; index += 1) {
+    const originalLine = parseLines[index];
+    const segmentSelection = selectParallelEntrySegments(
+      originalLine,
+      targetDistance,
+      targetGroup,
+      groupOrder,
+      groupSelection.scoped
+    );
+    const candidateLines = segmentSelection.lines;
+    if (segmentSelection.ambiguous) skippedAmbiguousGroupCount += 1;
+
+    for (const line of candidateLines) {
+      const time = extractEntryTime(line, targetDistance);
+      const affiliation = findUniversityInEntryLine(line, records.universities);
+      if (!affiliation) continue;
+      if (!time) {
+        if (/^\s*[◎★☆○●]?\s*\d+/.test(line)) skippedCandidateCount += 1;
+        continue;
+      }
+
+      const beforeUniversity = normalizeSpaces(
+        line.slice(0, affiliation.index).replace(/^[◎★☆○●]+/, "")
+      );
+      const prefixMatch = beforeUniversity.match(/^((?:\d+\s+){1,3})(.+)$/);
+      const compactMatch = beforeUniversity.match(/^(\d+)\s*(.+)$/);
+      if (!prefixMatch && !compactMatch) continue;
+      const numericPrefix = prefixMatch?.[1].trim().split(/\s+/) ?? [compactMatch?.[1] ?? ""];
+      const athleteValue = prefixMatch?.[2] ?? compactMatch?.[2] ?? "";
+      const { name: athlete, year } = splitAthleteYear(athleteValue);
+      if (!athlete || /^\d+$/.test(athlete) || extractEntryTime(athlete, targetDistance)) continue;
+
+      const context = parseLines.slice(Math.max(0, index - 2), index).join(" ");
+      const rank =
+        numericPrefix[0] ??
+        Array.from(context.matchAll(/(?:^|\s)(\d+)(?:\s|$)/g)).at(-1)?.[1] ??
+        "";
+      const unconfirmed = /キャンセル|出場不可|欠場/.test(context);
+      rows.push({
+        rank,
+        bib: numericPrefix.at(-1) ?? "",
+        athlete,
+        year,
+        university: affiliation.value,
+        time,
+        note: unconfirmed ? "要確認" : "",
+        resultStatus: "finished",
+        entryStatus: unconfirmed ? "unconfirmed" : "listed"
+      });
+    }
+  }
+
+  return {
+    source,
+    metadata: {
+      meetName: normalizeSpaces(meetName),
+      raceName: targetGroup
+        ? `男子${targetDistance} ${targetGroup}`
+        : `男子${targetDistance} エントリーリスト`,
+      date,
+      venue: venueMatch?.[1]?.trim() ?? "",
+      distance: targetDistance
+    },
+    rows: dedupeEntryRows(rows),
+    preview: normalized,
+    warning:
+      [
+        skippedCandidateCount > 0
+          ? `${skippedCandidateCount}行は大学名を検出しましたが、資格記録を解析できなかったため除外しました。`
+          : "",
+        skippedAmbiguousGroupCount > 0
+          ? `${skippedAmbiguousGroupCount}行は複数組の横並び範囲で対象組を特定できなかったため除外しました。`
+          : ""
+      ].filter(Boolean).join(" ") || undefined
+  };
+}
+
+export function selectMenEntrySection(lines: string[], distance: ImportDistance) {
+  const normalizedDistance = distance.normalize("NFKC");
+  const start = lines.findIndex((line) => {
+    const normalized = line.normalize("NFKC");
+    return normalized.includes(normalizedDistance) && /男子/.test(normalized);
+  });
+  if (start < 0) return lines;
+
+  const end = lines.findIndex((line, index) => {
+    if (index <= start) return false;
+    const normalized = line.normalize("NFKC");
+    if (/^女子/.test(normalized)) return true;
+    return /^男子/.test(normalized) && !normalized.includes(normalizedDistance);
+  });
+  return lines.slice(start, end < 0 ? undefined : end);
+}
+
+function extractGroupOrder(lines: string[]): ImportGroup[] {
+  const groups: ImportGroup[] = [];
+  for (const line of lines) {
+    for (const match of Array.from(line.matchAll(/(\d+)組/g))) {
+      const group = `${match[1]}組` as ImportGroup;
+      if (!groups.includes(group)) groups.push(group);
+    }
+  }
+  return groups;
+}
+
+export function selectTargetGroupLines(lines: string[], targetGroup: ImportGroup) {
+  if (!targetGroup) return { lines, scoped: true };
+
+  const headingRows = lines
+    .map((line, index) => ({
+      index,
+      groups: Array.from(line.matchAll(/(\d+)組/g), (match) => `${match[1]}組` as ImportGroup)
+    }))
+    .filter((row) => row.groups.length > 0);
+  const targetHeading = headingRows.find((row) => row.groups.includes(targetGroup));
+  if (!targetHeading) {
+    throw new Error(
+      `「${targetGroup}」の見出しを特定できませんでした。対象組だけを含むテキストを貼り付けるか、組指定なしで確認してください。`
+    );
+  }
+
+  if (targetHeading.groups.length > 1) {
+    return { lines, scoped: false };
+  }
+
+  const nextHeading = headingRows.find((row) => row.index > targetHeading.index);
+  return {
+    lines: lines.slice(targetHeading.index, nextHeading?.index),
+    scoped: true
+  };
+}
+
+export function extractEventDateCandidates(text: string, anchors: string[]) {
+  const matches = Array.from(
+    text.matchAll(/(20\d{2})[年\/-]\s*(\d{1,2})[月\/-]\s*(\d{1,2})日?/g)
+  );
+  if (!matches.length) return [];
+
+  return matches.map((match) => {
+    const index = match.index ?? 0;
+    const context = text.slice(Math.max(0, index - 60), index + match[0].length + 60);
+    const lineStart = text.lastIndexOf("\n", index) + 1;
+    const nextLineBreak = text.indexOf("\n", index + match[0].length);
+    const labelContext = text.slice(lineStart, nextLineBreak < 0 ? undefined : nextLineBreak);
+    let score = 0;
+    if (/(?:開催日|競技日|大会日|期日|日程)/.test(labelContext)) score += 100;
+    if (/(?:申込|締切|期限|受付)/.test(labelContext)) score -= 150;
+    for (const anchor of anchors.filter(Boolean)) {
+      const anchorIndex = text.indexOf(anchor);
+      if (anchorIndex >= 0) score += Math.max(0, 40 - Math.abs(anchorIndex - index) / 40);
+    }
+    return {
+      date: `${match[1]}-${pad(match[2])}-${pad(match[3])}`,
+      context: normalizeSpaces(context).slice(0, 140),
+      score: Math.round(score)
+    };
+  }).sort((left, right) => right.score - left.score);
+}
+
+function extractEventDate(text: string, anchors: string[]) {
+  const best = extractEventDateCandidates(text, anchors)[0];
+  return best && best.score >= 0 ? best.date : "";
+}
+
+function collectDateCandidates(sources: ParsedSource[]): ImportDateCandidate[] {
+  const candidates = sources.flatMap((source) =>
+    extractEventDateCandidates(source.preview, [
+      String(source.metadata.meetName ?? ""),
+      String(source.metadata.raceName ?? "")
+    ]).map((candidate) => ({ ...candidate, source: source.source }))
+  );
+  const byDate = new Map<string, ImportDateCandidate>();
+  for (const candidate of candidates) {
+    const current = byDate.get(candidate.date);
+    if (!current || candidate.score > current.score) byDate.set(candidate.date, candidate);
+  }
+  return Array.from(byDate.values()).sort((left, right) => right.score - left.score).slice(0, 5);
+}
+
+export function selectParallelEntrySegments(
+  line: string,
+  distance: ImportDistance,
+  targetGroup: ImportGroup,
+  groupOrder: ImportGroup[],
+  scopedToTargetGroup: boolean
+) {
+  const matches = Array.from(line.matchAll(entryTimePattern(distance, true)));
+  if (matches.length <= 1) {
+    return {
+      lines: !targetGroup || scopedToTargetGroup ? [line] : [],
+      ambiguous: Boolean(targetGroup && !scopedToTargetGroup && matches.length === 1)
+    };
+  }
+
+  const segments: string[] = [];
+  let start = 0;
+  for (const match of matches) {
+    const end = (match.index ?? 0) + match[0].length;
+    segments.push(normalizeSpaces(line.slice(start, end)));
+    start = end;
+  }
+
+  if (!targetGroup) return { lines: segments, ambiguous: false };
+  const groupIndex = groupOrder.indexOf(targetGroup);
+  return {
+    lines: segments[groupIndex] ? [segments[groupIndex]] : [],
+    ambiguous: groupIndex < 0 || !segments[groupIndex]
+  };
+}
+
+export function extractEntryTime(line: string, distance: ImportDistance) {
+  const value = line.match(entryTimePattern(distance))?.[1] ?? "";
+  return value ? normalizeTime(value) : "";
+}
+
+function entryTimePattern(distance: ImportDistance, global = false) {
+  const flags = global ? "g" : "";
+  const trackTime = String.raw`(?:\d{1,2}:\d{2}(?:\.\d{1,3})?|\d{1,2}[′'’]\d{2}[″"”]\d{1,3}|\d{1,2}分\d{2}秒\d{1,3})`;
+  const roadTime = String.raw`(?:(?:\d{1,2}:\d{2}:\d{2}|\d{2,3}:\d{2})(?:\.\d{1,3})?|\d{1,3}[′'’]\d{2}[″"”]\d{1,3}|\d{1,3}分\d{2}秒\d{1,3})`;
+  const patterns: Record<ImportDistance, string> = {
+    "1500m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
+    "5000m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
+    "10000m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
+    ハーフ: String.raw`(?:^|[^\d:.])(${roadTime})(?=$|[^\d:.])`
+  };
+  return new RegExp(patterns[distance], flags);
+}
+
+function findUniversityInEntryLine(line: string, universities: CsvRecord[]) {
+  const candidates = new Map<string, string>();
+  for (const university of universities) {
+    const name = university.name?.trim();
+    if (!name) continue;
+    if (name.endsWith("大学")) {
+      candidates.set(name, name);
+      candidates.set(`${name.slice(0, -2)}大`, name);
+    } else {
+      candidates.set(`${name}大`, name);
+    }
+  }
+  for (const [alias, name] of Object.entries(universityAliases)) candidates.set(alias, name);
+
+  return Array.from(candidates.entries())
+    .sort(([left], [right]) => right.length - left.length)
+    .map(([candidate, value]) => ({ candidate, index: line.indexOf(candidate), value }))
+    .filter((match) => match.index > 0)
+    .filter((match) => {
+      const matchedText = line.slice(match.index, match.index + match.candidate.length);
+      const suffix = line.slice(match.index + match.candidate.length);
+      if (match.value === "日本" && line.includes("NTT西日本") && matchedText === "日本大") return false;
+      if (/^(?:札幌高|付属高|附属高|高校|高等学校)/.test(suffix)) return false;
+      return true;
+    })
+    .sort((left, right) => left.index - right.index)[0];
+}
+
+function dedupeEntryRows(rows: RawRow[]) {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = `${normalizeLookup(row.athlete)}|${normalizeLookup(row.university)}|${row.bib}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function parseTabularText(text: string): RawRow[] {
@@ -264,7 +778,7 @@ function parseTabularText(text: string): RawRow[] {
   return records.map(parseTextRecord).filter((row): row is RawRow => Boolean(row));
 }
 
-function parseTextRecord(record: string): RawRow | null {
+export function parseTextRecord(record: string): RawRow | null {
   const compact = record.replace(/[　 ]+/g, " ").trim();
   const statusMatch = compact.match(/\b(DNS|DNF|DQ)\b/i);
   const timeMatch = compact.match(/(\d{1,2}:\d{2}\.\d{2})/);
@@ -330,7 +844,7 @@ function resolveMetadata(
     meetName: matchedMeet?.meet_name || meetName,
     raceId: existingRace?.race_id ?? createId("race", `${meetId}-${raceName}`),
     raceName: existingRace?.race_name || raceName,
-    date,
+    date: matchedMeet?.date || date,
     venue: pick("venue") || "",
     distance: pick("distance") || "5000m",
     startTime: pick("startTime") || "",
@@ -341,7 +855,8 @@ function resolveMetadata(
 function matchRow(
   row: RawRow,
   sources: ParsedSource[],
-  records: ReturnType<typeof loadReferenceRecords>
+  records: ReturnType<typeof loadReferenceRecords>,
+  importKind: ImportKind
 ): ImportParsedRow {
   const normalizedUniversity = normalizeUniversity(row.university);
   const university = records.universities.find(
@@ -354,13 +869,7 @@ function matchRow(
   );
   const sourceKey = `${normalizeLookup(row.athlete)}|${row.bib}`;
   const sourceMatches = sources.filter((source) =>
-    source.rows.some(
-      (candidate) =>
-        normalizeLookup(candidate.athlete) === normalizeLookup(row.athlete) &&
-        (!candidate.bib || !row.bib || candidate.bib === row.bib) &&
-        candidate.time === row.time &&
-        candidate.resultStatus === row.resultStatus
-    )
+    source.rows.some((candidate) => rowsAgree(candidate, row, importKind))
   ).length;
   const universityId = university?.id ?? createId("university", normalizedUniversity);
   const athleteId = athlete?.id ?? createId("athlete", `${row.athlete}-${universityId}`);
@@ -376,101 +885,29 @@ function matchRow(
   };
 }
 
-function buildFileDiffs(
-  metadata: ImportMetadata,
-  rows: ImportParsedRow[],
-  records: ReturnType<typeof loadReferenceRecords>
-) {
-  const changedUniversities = new Set(
-    rows
-      .filter((row) => {
-        const current = records.universities.find((item) => item.id === row.universityId);
-        return (
-          !current ||
-          current.has_result !== "TRUE" ||
-          !current.listing_events
-            .split("/")
-            .map((item) => item.trim())
-            .includes(metadata.distance)
-        );
-      })
-      .map((row) => row.universityId)
-  );
-  const changedAthletes = rows.filter((row) => {
-    const current = records.athletes.find((item) => item.id === row.athleteId);
-    return (
-      !current ||
-      !current.specialty ||
-      ((!current.year || current.year === "学年未登録") && Boolean(row.year))
-    );
-  }).length;
-  const currentMeet = records.meets.find((item) => item.meet_id === metadata.meetId);
-  const changedMeet =
-    !currentMeet ||
-    currentMeet.status !== "result_published" ||
-    (Boolean(metadata.date) && currentMeet.date !== metadata.date) ||
-    (Boolean(metadata.venue) && currentMeet.venue !== metadata.venue)
-      ? 1
-      : 0;
-  const currentRace = records.races.find((item) => item.race_id === metadata.raceId);
-  const changedRace =
-    !currentRace ||
-    currentRace.meet_id !== metadata.meetId ||
-    currentRace.status !== "result_published" ||
-    !currentRace.result_summary_id ||
-    (Boolean(metadata.startTime) && currentRace.start_time !== metadata.startTime)
-      ? 1
-      : 0;
-  const changedEntries = rows.filter((row) => {
-    const current = records.entries.find(
-      (item) => item.race_id === metadata.raceId && item.athlete_id === row.athleteId
-    );
-    return (
-      !current ||
-      current.meet_id !== metadata.meetId ||
-      current.university_id !== row.universityId ||
-      current.bib_no !== row.bib ||
-      current.entry_status !== (row.resultStatus === "dns" ? "dns" : "started")
-    );
-  }).length;
-  const changedResults = rows.filter((row) => {
-    const current = records.results.find(
-      (item) => item.race_id === metadata.raceId && item.athlete_id === row.athleteId
-    );
-    const expectedRank =
-      row.resultStatus === "finished" && /^\d+$/.test(row.rank)
-        ? `${row.rank}位`
-        : row.rank.toUpperCase();
-    return (
-      !current ||
-      current.meet_id !== metadata.meetId ||
-      current.university_id !== row.universityId ||
-      current.distance !== metadata.distance ||
-      current.date !== metadata.date ||
-      current.rank !== expectedRank ||
-      current.time !== row.time ||
-      current.result_status !== row.resultStatus ||
-      current.note !== row.note ||
-      current.is_pb !== (row.note === "PB" ? "TRUE" : "FALSE")
-    );
-  }).length;
-  const changedPbs = rows.filter((row) => {
-    if (row.note !== "PB" || row.resultStatus !== "finished") return false;
-    const current = records.personalBests.find(
-      (item) => item.athlete_id === row.athleteId && item.distance === metadata.distance
-    );
-    return !current || toSeconds(current.time) > toSeconds(row.time);
-  }).length;
+function rowsAgree(candidate: RawRow, row: RawRow, importKind: ImportKind) {
+  const commonMatches =
+    normalizeLookup(candidate.athlete) === normalizeLookup(row.athlete) &&
+    normalizeLookup(normalizeUniversity(candidate.university)) ===
+      normalizeLookup(normalizeUniversity(row.university)) &&
+    candidate.bib === row.bib &&
+    candidate.time === row.time;
 
-  return [
-    { name: "universities.csv", count: changedUniversities.size, text: changedUniversities.size ? "大学情報を追加・更新" : "変更なし" },
-    { name: "athletes.csv", count: changedAthletes, text: changedAthletes ? "選手情報を追加・更新" : "変更なし" },
-    { name: "meets.csv", count: changedMeet, text: changedMeet ? "大会情報を追加・更新" : "変更なし" },
-    { name: "races.csv", count: changedRace, text: changedRace ? "レース情報を追加・更新" : "変更なし" },
-    { name: "entries.csv", count: changedEntries, text: changedEntries ? "掲載状態を追加・更新" : "変更なし" },
-    { name: "results.csv", count: changedResults, text: changedResults ? "結果を追加・更新" : "変更なし" },
-    { name: "personal_bests.csv", count: changedPbs, text: changedPbs ? "PBを追加・更新" : "変更なし" }
-  ];
+  if (!commonMatches) return false;
+
+  if (importKind === "entry") {
+    return (candidate.entryStatus ?? "listed") === (row.entryStatus ?? "listed");
+  }
+
+  return (
+    normalizeRank(candidate.rank) === normalizeRank(row.rank) &&
+    candidate.resultStatus === row.resultStatus &&
+    normalizeNote(candidate.note) === normalizeNote(row.note)
+  );
+}
+
+function normalizeRank(value: string) {
+  return value.normalize("NFKC").replace(/\s/g, "").replace(/位$/, "").toUpperCase();
 }
 
 function loadReferenceRecords() {
@@ -555,9 +992,10 @@ function decodeEntities(value: string) {
 
 function splitAthleteYear(value: string) {
   const match = value.match(/^(.*?)\s*\((\d+)\)\s*$/);
+  const yearToken = match?.[2] ?? "";
   return {
     name: normalizeSpaces(match?.[1] ?? value),
-    year: match ? `${match[2]}年` : "学年未登録"
+    year: /^[1-6]$/.test(yearToken) ? `${yearToken}年` : "学年未登録"
   };
 }
 
@@ -570,7 +1008,12 @@ function detectDistance(value: string): ImportDistance {
 }
 
 function normalizeTime(value: string) {
-  return value.normalize("NFKC").replace(/[′']/g, ":").replace(/[″"]/g, "").trim();
+  const normalized = value.normalize("NFKC").trim();
+  const quoteMatch = normalized.match(/^(\d{1,3})[′'’](\d{2})[″"”](\d{1,3})$/);
+  if (quoteMatch) return `${quoteMatch[1]}:${quoteMatch[2]}.${quoteMatch[3]}`;
+  const japaneseMatch = normalized.match(/^(\d{1,3})分(\d{2})秒(\d{1,3})$/);
+  if (japaneseMatch) return `${japaneseMatch[1]}:${japaneseMatch[2]}.${japaneseMatch[3]}`;
+  return normalized.replace(/[′'’]/g, ":").replace(/[″"”]/g, "").trim();
 }
 
 function toSeconds(value: string) {

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "import:csv": "node --no-warnings --experimental-strip-types scripts/import-csv.ts",
+    "test:import": "node --import tsx --test tests/result-import-parser.test.ts tests/result-import-validation.test.ts tests/season-schedule.test.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -23,6 +24,7 @@
     "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "3.4.17",
+    "tsx": "^4.22.4",
     "typescript": "latest"
   }
 }

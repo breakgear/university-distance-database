@@ -1093,17 +1093,16 @@ function buildResultSummaries(data: ReturnType<typeof normalizeAll>) {
       const meet = data.meets.find((item) => item.meet_id === race.meet_id);
       const notes = Array.from(new Set(raceResults.map((result) => result.note).filter(Boolean))) as ResultNote[];
 
-      // 駅伝は総合1位の大学を優勝として扱う（区間1位の選手ではない）
+      // 駅伝は総合1位の大学を優勝として扱う（区間1位の選手ではない）。総合1位が無ければチーム優勝は付けない
       const overallTeams = raceTeams.filter((team) => team.result_type === "総合");
-      const topTeam =
-        overallTeams.find((team) => /^1位?$/.test(team.rank)) ?? overallTeams[0] ?? raceTeams[0];
+      const topTeam = overallTeams.find((team) => /^1位?$/.test(team.rank));
       const finishedResults = raceResults.filter((result) => result.result_status === "finished");
       const winner = finishedResults.find((result) => result.rank === "1位") ?? finishedResults[0] ?? raceResults[0];
       const winnerAthlete = winner ? data.athletes.find((athlete) => athlete.id === winner.athlete_id) : undefined;
-      const winnerUniversity = data.universities.find(
-        (university) => university.id === (isEkiden && topTeam ? topTeam.university_id : winner?.university_id)
-      );
       const useTeamWinner = isEkiden && Boolean(topTeam);
+      const winnerUniversity = data.universities.find(
+        (university) => university.id === (useTeamWinner ? topTeam!.university_id : winner?.university_id)
+      );
 
       return {
         result_id: race.result_summary_id ?? `${race.meet_id}-${race.race_id}`,

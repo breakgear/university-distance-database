@@ -156,7 +156,8 @@ function backupImportFiles(rootDir: string, csvDir: string, backupDir: string) {
   mkdirSync(dataBackupDir, { recursive: true });
 
   for (const name of csvFiles) {
-    cpSync(path.join(csvDir, `${name}.csv`), path.join(csvBackupDir, `${name}.csv`));
+    const source = path.join(csvDir, `${name}.csv`);
+    if (existsSync(source)) cpSync(source, path.join(csvBackupDir, `${name}.csv`));
   }
 
   for (const fileName of generatedDataFiles) {
@@ -170,7 +171,10 @@ function restoreImportFiles(rootDir: string, csvDir: string, backupDir: string) 
   const dataBackupDir = path.join(backupDir, "data");
 
   for (const name of csvFiles) {
-    cpSync(path.join(csvBackupDir, `${name}.csv`), path.join(csvDir, `${name}.csv`));
+    const backup = path.join(csvBackupDir, `${name}.csv`);
+    const destination = path.join(csvDir, `${name}.csv`);
+    if (existsSync(backup)) cpSync(backup, destination);
+    else rmSync(destination, { force: true });
   }
 
   for (const fileName of generatedDataFiles) {

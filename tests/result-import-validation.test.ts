@@ -70,6 +70,16 @@ test("1500mのPB付き反映ペイロードを受け付ける", () => {
   assert.equal(payload.rows[0].note, "PB");
 });
 
+test("3000mSCの反映ペイロードを受け付ける", () => {
+  const raw = validPayload();
+  raw.metadata.distance = "3000mSC";
+  raw.metadata.raceName = "男子3000mSC 決勝";
+  raw.rows[0].time = "8:30.45";
+  const payload = parseImportCommitPayload(raw);
+  assert.equal(payload.metadata.distance, "3000mSC");
+  assert.equal(payload.rows[0].time, "8:30.45");
+});
+
 test("不正な日付と種目を拒否する", () => {
   const badDate = validPayload();
   badDate.metadata.date = "6/12";

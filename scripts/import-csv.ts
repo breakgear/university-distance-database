@@ -92,7 +92,7 @@ type RaceStatus = "scheduled" | "startlist_published" | "result_published" | "re
 type EntryStatus = "entered" | "listed" | "started" | "dns" | "unconfirmed";
 type ResultStatus = "finished" | "dns" | "dnf" | "dq";
 type MeetCategory = "track" | "road" | "ekiden";
-type Distance = "1500m" | "5000m" | "10000m" | "ハーフ";
+type Distance = "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
 type ResultNote = "PB" | "SB" | "DNS" | "DNF" | "DQ";
 
 const rootDir = process.cwd();
@@ -116,7 +116,7 @@ const fallbackStatuses = new Set([
   "dnf",
   "dq"
 ]);
-const fallbackDistances = new Set(["1500m", "5000m", "10000m", "ハーフ"]);
+const fallbackDistances = new Set(["1500m", "3000mSC", "5000m", "10000m", "ハーフ"]);
 const fallbackCategories = new Set(["track", "road", "ekiden"]);
 
 main();
@@ -445,11 +445,11 @@ export type University = {
   athletes: string[];
   listing: {
     region: string;
-    events: Array<"1500m" | "5000m" | "10000m" | "ハーフ">;
+    events: Array<"1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ">;
     nextAppearance: string;
     latestResult: {
       athlete: string;
-      event: "1500m" | "5000m" | "10000m" | "ハーフ";
+      event: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
       time: string;
     };
     hasUpcoming: boolean;
@@ -459,7 +459,7 @@ export type University = {
 
 export const universities: University[] = ${literal(universityObjects)};
 
-export type UniversityPbEvent = "1500m" | "5000m" | "10000m" | "ハーフ";
+export type UniversityPbEvent = "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
 
 export type UniversityPbRanking = {
   event: UniversityPbEvent;
@@ -471,7 +471,7 @@ export type UniversityPbRanking = {
   }[];
 };
 
-const pbEvents: UniversityPbEvent[] = ["1500m", "5000m", "10000m", "ハーフ"];
+const pbEvents: UniversityPbEvent[] = ["1500m", "3000mSC", "5000m", "10000m", "ハーフ"];
 
 export function buildUniversityPbRankings(universityList: University[], athleteList: Athlete[]): UniversityPbRanking[] {
   const universityById = new Map(universityList.map((university) => [university.id, university]));
@@ -709,7 +709,7 @@ export type RaceRecord = {
   race_name: string;
   start_time: string;
   status: "scheduled" | "startlist_published" | "result_published" | "result_waiting";
-  distance: "1500m" | "5000m" | "10000m" | "ハーフ";
+  distance: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
   result_summary_id?: string;
 };
 
@@ -962,7 +962,7 @@ function generatePersonalBests(data: ReturnType<typeof normalizeAll>) {
   }));
 
   return `${header()}
-export type PbDistance = "1500m" | "5000m" | "10000m" | "ハーフ";
+export type PbDistance = "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
 
 export type PersonalBest = {
   pb_id: string;

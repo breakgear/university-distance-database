@@ -38,7 +38,7 @@ export type RaceRecord = {
   race_name: string;
   start_time: string;
   status: "scheduled" | "startlist_published" | "result_published" | "result_waiting";
-  distance: "1500m" | "5000m" | "10000m" | "ハーフ";
+  distance: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
   result_summary_id?: string;
 };
 

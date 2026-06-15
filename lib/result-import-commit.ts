@@ -258,7 +258,7 @@ export function validateCommitPayload(payload: ImportCommitPayload) {
   if (!payload.metadata?.meetId || !payload.metadata.raceId) {
     throw new Error("大会IDとレースIDを入力してください。");
   }
-  if (!["1500m", "5000m", "10000m", "ハーフ"].includes(payload.metadata.distance)) {
+  if (!["1500m", "3000mSC", "5000m", "10000m", "ハーフ"].includes(payload.metadata.distance)) {
     throw new Error("種目が不正です。");
   }
   if (payload.metadata.date && !/^\d{4}-\d{2}-\d{2}$/.test(payload.metadata.date)) {

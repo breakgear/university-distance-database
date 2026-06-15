@@ -314,6 +314,7 @@ export function ResultImportWorkbench() {
                     className="mt-1 h-9 w-full bg-transparent text-sm font-black text-ink outline-none"
                   >
                     <option value="1500m">1500m</option>
+                    <option value="3000mSC">3000mSC</option>
                     <option value="5000m">5000m</option>
                     <option value="10000m">10000m</option>
                     <option value="ハーフ">ハーフ</option>
@@ -911,6 +912,7 @@ function MeetReview({
             className="mt-1 h-8 w-full bg-transparent text-sm font-black text-ink outline-none"
           >
             <option value="1500m">1500m</option>
+            <option value="3000mSC">3000mSC</option>
             <option value="5000m">5000m</option>
             <option value="10000m">10000m</option>
             <option value="ハーフ">ハーフ</option>

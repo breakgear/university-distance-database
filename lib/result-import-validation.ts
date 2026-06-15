@@ -10,7 +10,7 @@ import type {
   ImportResultStatus
 } from "./result-import-types";
 
-const distances = new Set<ImportDistance>(["1500m", "5000m", "10000m", "ハーフ"]);
+const distances = new Set<ImportDistance>(["1500m", "3000mSC", "5000m", "10000m", "ハーフ"]);
 const resultStatuses = new Set<ImportResultStatus>(["finished", "dns", "dnf", "dq"]);
 const entryStatuses = new Set<ImportEntryStatus>(["listed", "unconfirmed"]);
 const matchStatuses = new Set<ImportMatchStatus>(["matched", "new", "warning"]);

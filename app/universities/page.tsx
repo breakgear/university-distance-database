@@ -6,12 +6,13 @@ import { buildUniversityPbRankings, universities, University } from "@/data/univ
 import { getUpcomingEntriesByUniversityId } from "@/lib/upcoming";
 import { cn } from "@/lib/utils";
 
-type UniversityFilter = "all" | "kanto" | "1500m" | "5000m" | "10000m" | "half" | "upcoming" | "result";
+type UniversityFilter = "all" | "kanto" | "1500m" | "3000mSC" | "5000m" | "10000m" | "half" | "upcoming" | "result";
 
 const filters: Array<{ label: string; value: UniversityFilter }> = [
   { label: "すべて", value: "all" },
   { label: "関東", value: "kanto" },
   { label: "1500m掲載あり", value: "1500m" },
+  { label: "3000mSC掲載あり", value: "3000mSC" },
   { label: "5000m掲載あり", value: "5000m" },
   { label: "10000m掲載あり", value: "10000m" },
   { label: "ハーフ掲載あり", value: "half" },
@@ -155,7 +156,7 @@ export default async function UniversitiesPage({ searchParams }: { searchParams:
 function matchesUniversityFilter(university: University, filter: UniversityFilter) {
   if (filter === "all") return true;
   if (filter === "kanto") return university.listing.region === "関東";
-  if (filter === "1500m" || filter === "5000m" || filter === "10000m") return university.listing.events.includes(filter);
+  if (filter === "1500m" || filter === "3000mSC" || filter === "5000m" || filter === "10000m") return university.listing.events.includes(filter);
   if (filter === "half") return university.listing.events.includes("ハーフ");
   if (filter === "upcoming") return getUpcomingEntriesByUniversityId(university.id).length > 0;
   return university.listing.hasResult;

@@ -79,6 +79,22 @@ test("1500mの結果行を解析しPB注記を保持する", () => {
   assert.equal(row?.resultStatus, "finished");
 });
 
+test("3000mSCの資格記録を3形式とも正規化する", () => {
+  assert.equal(extractEntryTime("選手 順天堂大 8:30.45", "3000mSC"), "8:30.45");
+  assert.equal(extractEntryTime("選手 順天堂大 8'30\"45", "3000mSC"), "8:30.45");
+  assert.equal(extractEntryTime("選手 順天堂大 8分30秒45", "3000mSC"), "8:30.45");
+});
+
+test("3000mSCの結果行を解析する", () => {
+  const row = parseTextRecord("1 12 305 山田 次郎 (2) 順天堂大 8:30.45 PB");
+  assert.equal(row?.rank, "1");
+  assert.equal(row?.bib, "305");
+  assert.equal(row?.athlete, "山田 次郎");
+  assert.equal(row?.time, "8:30.45");
+  assert.equal(row?.note, "PB");
+  assert.equal(row?.resultStatus, "finished");
+});
+
 test("NISHI形式JSONの1500mエントリーを解析する", () => {
   const parsed = parseNishiEntryJson(
     JSON.stringify({

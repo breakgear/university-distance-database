@@ -34,7 +34,7 @@ type AthleteResult = {
   href: string;
 };
 
-const pbDistances = ["1500m", "5000m", "10000m", "ハーフ"];
+const pbDistances = ["1500m", "3000mSC", "5000m", "10000m", "ハーフ"];
 
 export function generateStaticParams() {
   return athletes.map((athlete) => ({ id: athlete.id }));

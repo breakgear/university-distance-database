@@ -2,7 +2,7 @@ export type ImportSource = "url" | "text" | "pdf";
 export type ImportKind = "result" | "entry";
 export type ImportGroup = "" | `${number}組`;
 export type ImportMatchStatus = "matched" | "new" | "warning";
-export type ImportDistance = "1500m" | "5000m" | "10000m" | "ハーフ";
+export type ImportDistance = "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
 export type ImportResultStatus = "finished" | "dns" | "dnf" | "dq";
 export type ImportEntryStatus = "listed" | "unconfirmed";
 

@@ -31,7 +31,7 @@ type UniversityAppearance = {
   href: string;
 };
 
-const pbEvents = ["1500m", "5000m", "10000m", "ハーフ"] as const;
+const pbEvents = ["1500m", "3000mSC", "5000m", "10000m", "ハーフ"] as const;
 
 export function generateStaticParams() {
   return universities.map((university) => ({ id: university.id }));

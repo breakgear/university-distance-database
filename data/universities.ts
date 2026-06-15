@@ -16,11 +16,11 @@ export type University = {
   athletes: string[];
   listing: {
     region: string;
-    events: Array<"1500m" | "5000m" | "10000m" | "ハーフ">;
+    events: Array<"1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ">;
     nextAppearance: string;
     latestResult: {
       athlete: string;
-      event: "1500m" | "5000m" | "10000m" | "ハーフ";
+      event: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
       time: string;
     };
     hasUpcoming: boolean;
@@ -2046,7 +2046,7 @@ export const universities: University[] = [
   }
 ];
 
-export type UniversityPbEvent = "1500m" | "5000m" | "10000m" | "ハーフ";
+export type UniversityPbEvent = "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
 
 export type UniversityPbRanking = {
   event: UniversityPbEvent;
@@ -2058,7 +2058,7 @@ export type UniversityPbRanking = {
   }[];
 };
 
-const pbEvents: UniversityPbEvent[] = ["1500m", "5000m", "10000m", "ハーフ"];
+const pbEvents: UniversityPbEvent[] = ["1500m", "3000mSC", "5000m", "10000m", "ハーフ"];
 
 export function buildUniversityPbRankings(universityList: University[], athleteList: Athlete[]): UniversityPbRanking[] {
   const universityById = new Map(universityList.map((university) => [university.id, university]));

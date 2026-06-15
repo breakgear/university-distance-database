@@ -621,7 +621,7 @@ function parseTextSource(text: string, source: ImportSource): ParsedSource {
 
   const normalized = text.replace(/\r\n?/g, "\n").replace(/\u00a0/g, " ");
   const lines = normalized.split("\n");
-  const raceLine = lines.find((line) => /(?:1500|5000|10000|ハーフ).*(?:決勝|総合|組)/i.test(line.normalize("NFKC")));
+  const raceLine = lines.find((line) => /(?:1500|3000|5000|10000|ハーフ).*(?:決勝|総合|組)/i.test(line.normalize("NFKC")));
   const raceName = raceLine ? normalizeSpaces(raceLine) : "";
   const meetName =
     lines.find((line) => /(?:大会|選手権|記録会|インカレ|選考会)/.test(line) && line.trim() !== raceName)?.trim() ?? "";
@@ -888,6 +888,7 @@ function entryTimePattern(distance: ImportDistance, global = false) {
   const roadTime = String.raw`(?:(?:\d{1,2}:\d{2}:\d{2}|\d{2,3}:\d{2})(?:\.\d{1,3})?|\d{1,3}[′'’]\d{2}[″"”]\d{1,3}|\d{1,3}分\d{2}秒\d{1,3})`;
   const patterns: Record<ImportDistance, string> = {
     "1500m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
+    "3000mSC": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
     "5000m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
     "10000m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
     ハーフ: String.raw`(?:^|[^\d:.])(${roadTime})(?=$|[^\d:.])`
@@ -1209,6 +1210,7 @@ function splitAthleteYear(value: string) {
 
 function detectDistance(value: string): ImportDistance {
   const normalized = value.normalize("NFKC").toLowerCase();
+  if (normalized.includes("3000") && (normalized.includes("sc") || normalized.includes("障"))) return "3000mSC";
   if (normalized.includes("1500")) return "1500m";
   if (normalized.includes("10000")) return "10000m";
   if (normalized.includes("ハーフ") || normalized.includes("half")) return "ハーフ";

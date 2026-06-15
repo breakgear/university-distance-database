@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { athletes, Athlete } from "@/data/athletes";
 import { meetCategoryLabels, meets } from "@/data/meets";
 import { races as raceDetails } from "@/data/races";
+import { getTeamResultsByRaceId } from "@/data/teamResults";
 import { universities, University } from "@/data/universities";
 import { cn, formatDate } from "@/lib/utils";
 
@@ -25,6 +26,8 @@ type RaceResult = {
   rank: string;
   time: string;
   note: ResultNote;
+  section?: string;
+  sectionDistance?: string;
 };
 
 type UniversitySummary = {
@@ -86,8 +89,12 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ rac
     universityId: result.universityId,
     rank: result.note === "DNS" ? "DNS" : `${result.rank}位`,
     time: result.note === "DNS" ? "DNS" : result.time,
-    note: result.note ?? ""
+    note: result.note ?? "",
+    section: result.section,
+    sectionDistance: result.sectionDistance
   }));
+  const isEkiden = race.distance === "駅伝";
+  const teamResults = getTeamResultsByRaceId(race.id);
   const universitySummaries: UniversitySummary[] = Array.from(new Set(raceEntries.map((entry) => entry.universityId))).map((universityId) => {
     const resultText = raceResults
       .filter((result) => result.universityId === universityId)
@@ -188,20 +195,51 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ rac
         )}
       </section>
 
+      {isEkiden && teamResults.length > 0 ? (
+        <section className="mt-8">
+          <SectionTitle title="チーム総合" description="駅伝の総合・往路・復路の順位を表示しています。" />
+          <div className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+            <div className="hidden grid-cols-[96px_72px_1fr_140px] border-b border-line bg-field px-4 py-2 text-xs font-black text-slate-500 md:grid">
+              <span>種別</span>
+              <span>順位</span>
+              <span>大学</span>
+              <span>記録</span>
+            </div>
+            {teamResults.map((team) => (
+              <div
+                key={team.team_result_id}
+                className="grid gap-1 border-b border-line px-4 py-3 text-sm font-bold text-slate-700 last:border-b-0 md:grid-cols-[96px_72px_1fr_140px] md:items-center"
+              >
+                <span className="font-black text-ink">{team.result_type}</span>
+                <span className="font-black text-ink">{team.rank}</span>
+                {universityById.get(team.university_id) ? (
+                  <Link href={`/universities/${team.university_id}`} className="hover:text-sash-red hover:underline">
+                    {universityById.get(team.university_id)?.name}
+                  </Link>
+                ) : (
+                  <span>大学未登録</span>
+                )}
+                <span className="font-black text-sash-red">{team.time || "未登録"}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="mt-8">
-        <SectionTitle title="レース結果" description="結果公開済みの掲載データを表示しています。" />
+        <SectionTitle title={isEkiden ? "区間記録" : "レース結果"} description="結果公開済みの掲載データを表示しています。" />
         {raceResults.length > 0 ? (
           <div className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
-            <div className="hidden grid-cols-[72px_1fr_96px_64px_112px_72px] border-b border-line bg-field px-4 py-2 text-xs font-black text-slate-500 md:grid">
-              <span>順位</span>
+            <div className={cn("hidden border-b border-line bg-field px-4 py-2 text-xs font-black text-slate-500 md:grid", isEkiden ? "grid-cols-[88px_1fr_96px_72px_112px_72px]" : "grid-cols-[72px_1fr_96px_64px_112px_72px]")}>
+              <span>{isEkiden ? "区間" : "順位"}</span>
               <span>選手</span>
               <span>大学</span>
-              <span>学年</span>
+              <span>{isEkiden ? "区間順位" : "学年"}</span>
               <span>記録</span>
               <span>備考</span>
             </div>
             {raceResults.map((result) => (
-              <ResultRow key={`${result.athleteId}-${result.rank}`} result={result} athlete={athleteById.get(result.athleteId)} university={universityById.get(result.universityId)} />
+              <ResultRow key={`${result.athleteId}-${result.section ?? result.rank}`} result={result} athlete={athleteById.get(result.athleteId)} university={universityById.get(result.universityId)} isEkiden={isEkiden} />
             ))}
           </div>
         ) : (
@@ -280,12 +318,15 @@ function EntryRow({ entry, athlete, university }: { entry: RaceEntry; athlete?: 
   );
 }
 
-function ResultRow({ result, athlete, university }: { result: RaceResult; athlete?: Athlete; university?: University }) {
+function ResultRow({ result, athlete, university, isEkiden = false }: { result: RaceResult; athlete?: Athlete; university?: University; isEkiden?: boolean }) {
   const href = result.athleteId === "saeki" ? "/results/kanto-10000m-mens-10000m-3-saeki" : athlete ? `/athletes/${athlete.id}` : "#";
 
   return (
-    <div className="grid gap-1 border-b border-line px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-field/70 last:border-b-0 md:grid-cols-[72px_1fr_96px_64px_112px_72px] md:items-center">
-      <span className="font-black text-ink">{result.rank}</span>
+    <div className={cn("grid gap-1 border-b border-line px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-field/70 last:border-b-0 md:items-center", isEkiden ? "md:grid-cols-[88px_1fr_96px_72px_112px_72px]" : "md:grid-cols-[72px_1fr_96px_64px_112px_72px]")}>
+      <span className="font-black text-ink">
+        {isEkiden ? result.section || "—" : result.rank}
+        {isEkiden && result.sectionDistance ? <span className="ml-1 text-xs font-bold text-slate-500">{result.sectionDistance}</span> : null}
+      </span>
       {athlete ? (
         <Link href={href} className="hover:text-sash-red hover:underline">
           {athlete.name}
@@ -300,7 +341,7 @@ function ResultRow({ result, athlete, university }: { result: RaceResult; athlet
       ) : (
         <span>大学未登録</span>
       )}
-      <span>{athlete?.year ?? "学年未登録"}</span>
+      <span>{isEkiden ? result.rank : athlete?.year ?? "学年未登録"}</span>
       <span className="font-black text-sash-red">{result.time || "未登録"}</span>
       <span>{result.note ? <ResultNoteBadge note={result.note} /> : null}</span>
     </div>

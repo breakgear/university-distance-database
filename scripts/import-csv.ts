@@ -74,6 +74,20 @@ type ResultRow = {
   result_status: ResultStatus;
   note: ResultNote | null;
   is_pb: boolean;
+  section: string | null;
+  section_distance: string | null;
+};
+
+type TeamResultRow = {
+  team_result_id: string;
+  meet_id: string;
+  race_id: string;
+  university_id: string;
+  result_type: TeamResultType;
+  rank: string;
+  time: string;
+  status: ResultStatus;
+  note: string | null;
 };
 
 type PersonalBestRow = {
@@ -92,7 +106,8 @@ type RaceStatus = "scheduled" | "startlist_published" | "result_published" | "re
 type EntryStatus = "entered" | "listed" | "started" | "dns" | "unconfirmed";
 type ResultStatus = "finished" | "dns" | "dnf" | "dq";
 type MeetCategory = "track" | "road" | "ekiden";
-type Distance = "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
+type Distance = "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ" | "駅伝";
+type TeamResultType = "総合" | "往路" | "復路";
 type ResultNote = "PB" | "SB" | "DNS" | "DNF" | "DQ";
 
 const rootDir = process.cwd();
@@ -116,7 +131,7 @@ const fallbackStatuses = new Set([
   "dnf",
   "dq"
 ]);
-const fallbackDistances = new Set(["1500m", "3000mSC", "5000m", "10000m", "ハーフ"]);
+const fallbackDistances = new Set(["1500m", "3000mSC", "5000m", "10000m", "ハーフ", "駅伝"]);
 const fallbackCategories = new Set(["track", "road", "ekiden"]);
 
 main();
@@ -148,6 +163,7 @@ function main() {
   console.log("- data/entries.ts");
   console.log("- data/results.ts");
   console.log("- data/personalBests.ts");
+  console.log("- data/teamResults.ts");
 }
 
 function findCsvDir(explicitDir: string | null) {
@@ -162,7 +178,7 @@ function findCsvDir(explicitDir: string | null) {
 
 function loadCsvFiles(baseDir: string) {
   const required = ["universities", "athletes", "meets", "races", "entries", "results", "personal_bests"];
-  const optional = ["status_master", "event_type_master"];
+  const optional = ["team_results", "status_master", "event_type_master"];
   const missing = required.filter((name) => !existsSync(path.join(baseDir, `${name}.csv`)));
 
   if (missing.length > 0) {
@@ -247,7 +263,21 @@ function normalizeAll(raw: Record<string, CsvRow[]>) {
     time: required(row, "time", index, "results"),
     result_status: required(row, "result_status", index, "results") as ResultStatus,
     note: value(row.note) as ResultNote | null,
-    is_pb: toBoolean(row.is_pb)
+    is_pb: toBoolean(row.is_pb),
+    section: value(row.section),
+    section_distance: value(row.section_distance)
+  }));
+
+  const teamResults = (raw.team_results ?? []).map((row, index): TeamResultRow => ({
+    team_result_id: required(row, "team_result_id", index, "team_results"),
+    meet_id: required(row, "meet_id", index, "team_results"),
+    race_id: required(row, "race_id", index, "team_results"),
+    university_id: required(row, "university_id", index, "team_results"),
+    result_type: required(row, "result_type", index, "team_results") as TeamResultType,
+    rank: value(row.rank) ?? "",
+    time: value(row.time) ?? "",
+    status: (value(row.status) ?? "finished") as ResultStatus,
+    note: value(row.note)
   }));
 
   const personalBests = raw.personal_bests.map((row, index): PersonalBestRow => ({
@@ -261,7 +291,7 @@ function normalizeAll(raw: Record<string, CsvRow[]>) {
     source_result_id: value(row.source_result_id)
   }));
 
-  return { universities, athletes, meets, races, entries, results, personalBests };
+  return { universities, athletes, meets, races, entries, results, personalBests, teamResults };
 }
 
 function buildMasters(raw: Record<string, CsvRow[]>) {
@@ -366,6 +396,15 @@ function validateAll(data: ReturnType<typeof normalizeAll>, masters: ReturnType<
     }
   });
 
+  checkDuplicates(data.teamResults, "team_result_id", "team_results.team_result_id", errors);
+  data.teamResults.forEach((team) => {
+    if (!meetIds.has(team.meet_id)) errors.push(`team_results.meet_id が存在しません: ${team.team_result_id} -> ${team.meet_id}`);
+    if (!raceIds.has(team.race_id)) errors.push(`team_results.race_id が存在しません: ${team.team_result_id} -> ${team.race_id}`);
+    if (!universityIds.has(team.university_id)) errors.push(`team_results.university_id が存在しません: ${team.team_result_id} -> ${team.university_id}`);
+    if (!["総合", "往路", "復路"].includes(team.result_type)) errors.push(`team_results.result_type が許可値外です: ${team.team_result_id} -> ${team.result_type}`);
+    if (!masters.statuses.has(team.status)) errors.push(`team_results.status がmaster値外です: ${team.team_result_id} -> ${team.status}`);
+  });
+
   return errors;
 }
 
@@ -377,6 +416,7 @@ function writeGeneratedFiles(data: ReturnType<typeof normalizeAll>) {
   writeFile("entries.ts", generateEntries(data));
   writeFile("results.ts", generateResults(data));
   writeFile("personalBests.ts", generatePersonalBests(data));
+  writeFile("teamResults.ts", generateTeamResults(data));
 }
 
 function generateUniversities(data: ReturnType<typeof normalizeAll>) {
@@ -700,6 +740,8 @@ export type RaceResultEntry = {
   year: string;
   time: string;
   note?: "PB" | "SB" | "DNS" | "DNF" | "DQ";
+  section?: string;
+  sectionDistance?: string;
 };
 
 export type RaceRecord = {
@@ -709,7 +751,7 @@ export type RaceRecord = {
   race_name: string;
   start_time: string;
   status: "scheduled" | "startlist_published" | "result_published" | "result_waiting";
-  distance: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
+  distance: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ" | "駅伝";
   result_summary_id?: string;
 };
 
@@ -785,7 +827,9 @@ export const races: RaceDetail[] = raceRecords.map((race) => {
         universityId: result.university_id,
         year: athlete?.year ?? "学年未登録",
         time: result.time,
-        note: result.note
+        note: result.note,
+        ...(result.section ? { section: result.section } : {}),
+        ...(result.sectionDistance ? { sectionDistance: result.sectionDistance } : {})
       };
     }),
     relatedRaces,
@@ -864,7 +908,9 @@ function generateResults(data: ReturnType<typeof normalizeAll>) {
     time: result.time,
     ...(result.note ? { note: result.note } : {}),
     status: result.result_status,
-    ...(result.is_pb ? { is_pb: true } : {})
+    ...(result.is_pb ? { is_pb: true } : {}),
+    ...(result.section ? { section: result.section } : {}),
+    ...(result.section_distance ? { sectionDistance: result.section_distance } : {})
   }));
 
   const resultSummaries = buildResultSummaries(data);
@@ -879,6 +925,8 @@ export type ResultCategory = "track" | "road" | "ekiden";
 
 export type ResultNote = "PB" | "SB" | "DNS" | "DNF" | "DQ";
 
+export type ResultDistance = PbDistance | "駅伝";
+
 export type WinnerType = "athlete" | "team";
 
 export type ResultRecord = {
@@ -887,13 +935,15 @@ export type ResultRecord = {
   race_id: string;
   athlete_id: string;
   university_id: string;
-  distance: PbDistance;
+  distance: ResultDistance;
   date: string;
   rank: string;
   time: string;
   note?: ResultNote;
   status: "finished" | "dns" | "dnf" | "dq";
   is_pb?: boolean;
+  section?: string;
+  sectionDistance?: string;
 };
 
 export type ResultSummary = {
@@ -912,7 +962,7 @@ export type ResultSummary = {
   winner_university_id: string;
   winner_university_name: string;
   winner_time: string;
-  distance: PbDistance;
+  distance: ResultDistance;
   pb_count: number;
   dns_count: number;
   result_count: number;
@@ -945,6 +995,55 @@ export function getResultsByAthleteId(athleteId: string) {
 
 export function getResultsByUniversityId(universityId: string) {
   return resultRecords.filter((result) => result.university_id === universityId);
+}
+`;
+}
+
+function generateTeamResults(data: ReturnType<typeof normalizeAll>) {
+  const teamResults = data.teamResults.map((row) => ({
+    team_result_id: row.team_result_id,
+    meet_id: row.meet_id,
+    race_id: row.race_id,
+    university_id: row.university_id,
+    result_type: row.result_type,
+    rank: row.rank,
+    time: row.time,
+    status: row.status,
+    ...(row.note ? { note: row.note } : {})
+  }));
+
+  return `${header()}
+export type TeamResultType = "総合" | "往路" | "復路";
+
+export type TeamResult = {
+  team_result_id: string;
+  meet_id: string;
+  race_id: string;
+  university_id: string;
+  result_type: TeamResultType;
+  rank: string;
+  time: string;
+  status: "finished" | "dns" | "dnf" | "dq";
+  note?: string;
+};
+
+export const teamResults: TeamResult[] = ${literal(teamResults)};
+
+const resultTypeOrder: Record<TeamResultType, number> = { 総合: 0, 往路: 1, 復路: 2 };
+
+export function getTeamResultsByRaceId(raceId: string) {
+  return teamResults
+    .filter((row) => row.race_id === raceId)
+    .sort((a, b) => resultTypeOrder[a.result_type] - resultTypeOrder[b.result_type] || rankValue(a.rank) - rankValue(b.rank));
+}
+
+export function getTeamResultsByUniversityId(universityId: string) {
+  return teamResults.filter((row) => row.university_id === universityId);
+}
+
+function rankValue(rank: string) {
+  const parsed = Number.parseInt(rank, 10);
+  return Number.isNaN(parsed) ? Number.POSITIVE_INFINITY : parsed;
 }
 `;
 }

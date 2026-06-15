@@ -29,6 +29,8 @@ export type RaceResultEntry = {
   year: string;
   time: string;
   note?: "PB" | "SB" | "DNS" | "DNF" | "DQ";
+  section?: string;
+  sectionDistance?: string;
 };
 
 export type RaceRecord = {
@@ -38,7 +40,7 @@ export type RaceRecord = {
   race_name: string;
   start_time: string;
   status: "scheduled" | "startlist_published" | "result_published" | "result_waiting";
-  distance: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ";
+  distance: "1500m" | "3000mSC" | "5000m" | "10000m" | "ハーフ" | "駅伝";
   result_summary_id?: string;
 };
 

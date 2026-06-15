@@ -80,6 +80,47 @@ test("3000mSCの反映ペイロードを受け付ける", () => {
   assert.equal(payload.rows[0].time, "8:30.45");
 });
 
+test("駅伝の区間記録と総合結果のペイロードを受け付ける", () => {
+  const raw = validPayload() as Record<string, unknown>;
+  raw.importKind = "ekiden";
+  (raw.metadata as Record<string, unknown>).distance = "駅伝";
+  (raw.metadata as Record<string, unknown>).category = "ekiden";
+  (raw.metadata as Record<string, unknown>).raceName = "男子 駅伝";
+  const row = (raw.rows as Record<string, unknown>[])[0];
+  row.time = "1:02:15";
+  row.section = "1区";
+  row.sectionDistance = "21.3km";
+  raw.teamRows = [
+    {
+      resultType: "総合",
+      rank: "1",
+      university: "駒澤",
+      time: "10:45:23",
+      status: "finished",
+      note: "",
+      matchStatus: "matched",
+      universityId: "komazawa"
+    }
+  ];
+  const payload = parseImportCommitPayload(raw);
+  assert.equal(payload.importKind, "ekiden");
+  assert.equal(payload.metadata.distance, "駅伝");
+  assert.equal(payload.rows[0].section, "1区");
+  assert.equal(payload.teamRows?.length, 1);
+  assert.equal(payload.teamRows?.[0].resultType, "総合");
+  assert.equal(payload.teamRows?.[0].universityId, "komazawa");
+});
+
+test("駅伝で区間も総合も無ければ拒否する", () => {
+  const raw = validPayload() as Record<string, unknown>;
+  raw.importKind = "ekiden";
+  (raw.metadata as Record<string, unknown>).distance = "駅伝";
+  (raw.metadata as Record<string, unknown>).category = "ekiden";
+  raw.rows = [];
+  raw.teamRows = [];
+  assert.throws(() => parseImportCommitPayload(raw), /区間記録または総合結果/);
+});
+
 test("不正な日付と種目を拒否する", () => {
   const badDate = validPayload();
   badDate.metadata.date = "6/12";

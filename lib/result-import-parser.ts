@@ -14,7 +14,9 @@ import type {
   ImportParsedRow,
   ImportResultStatus,
   ImportSource,
-  ImportSourceResult
+  ImportSourceResult,
+  ImportTeamResultRow,
+  ImportTeamResultType
 } from "./result-import-types";
 
 type RawRow = {
@@ -27,6 +29,17 @@ type RawRow = {
   note: string;
   resultStatus: ImportResultStatus;
   entryStatus?: "listed" | "unconfirmed";
+  section?: string;
+  sectionDistance?: string;
+};
+
+type RawTeamRow = {
+  resultType: ImportTeamResultType;
+  rank: string;
+  university: string;
+  time: string;
+  status: ImportResultStatus;
+  note: string;
 };
 
 type ParsedSource = {
@@ -102,6 +115,14 @@ export async function analyzeImportSources(input: {
   const targetGroup = input.targetGroup ?? "";
   const records = await loadReferenceRecords();
 
+  if (importKind === "ekiden") {
+    const text = input.text?.trim();
+    if (!text) {
+      throw new Error("駅伝は［区間］と［総合］を含むテキストを貼り付けてください。");
+    }
+    return buildEkidenAnalysis(text, records, Boolean(input.onlyUniversity));
+  }
+
   if (input.url?.trim()) {
     parsedSources.push(await parseUrlSource(input.url.trim(), importKind, targetDistance, targetGroup, records));
   }
@@ -147,6 +168,7 @@ export async function analyzeImportSources(input: {
     metadata,
     dateCandidates,
     rows,
+    teamRows: [],
     sources: parsedSources.map(
       (source): ImportSourceResult => ({
         source: source.source,
@@ -170,6 +192,212 @@ export async function analyzeImportSources(input: {
         : []),
       ...(warnings > 0 ? [`${warnings}件は入力間の差異または未登録IDがあります。`] : [])
     ]
+  };
+}
+
+async function buildEkidenAnalysis(
+  text: string,
+  records: ReferenceRecords,
+  onlyUniversity: boolean
+): Promise<ImportAnalysis> {
+  const parsed = parseEkidenSource(text);
+  if (parsed.sectionRows.length === 0 && parsed.teamRows.length === 0) {
+    throw new Error("駅伝の区間記録・総合結果を解析できませんでした。［区間］と［総合］の見出しと、タブ区切りの行を貼り付けてください。");
+  }
+
+  const pseudoSource: ParsedSource = {
+    source: "text",
+    metadata: parsed.metadata,
+    rows: parsed.sectionRows,
+    preview: parsed.preview
+  };
+  const metadata: ImportMetadata = {
+    ...resolveMetadata([pseudoSource], records),
+    distance: "駅伝",
+    category: "ekiden"
+  };
+
+  const rows = parsed.sectionRows
+    .filter((row) => !onlyUniversity || looksLikeUniversity(row.university, records.universities))
+    .map((row) => matchRow(row, [pseudoSource], records, "ekiden"));
+  const teamRows = parsed.teamRows.map((row) => matchTeamRow(row, records));
+
+  const newRows = rows.filter((row) => row.matchStatus === "new").length;
+  const newTeams = teamRows.filter((row) => row.matchStatus === "new").length;
+
+  return {
+    importKind: "ekiden",
+    targetGroup: "",
+    metadata,
+    dateCandidates: collectDateCandidates([pseudoSource]),
+    rows,
+    teamRows,
+    sources: [
+      {
+        source: "text",
+        label: "コピペから取得",
+        preview: parsed.preview.slice(0, 12000),
+        rowCount: parsed.sectionRows.length,
+        warning: undefined
+      }
+    ],
+    crossCheck: {
+      sourceCount: 1,
+      completeMatches: rows.length - newRows,
+      warnings: newRows + newTeams,
+      details: [`区間: ${rows.length}件`, `総合: ${teamRows.length}件`]
+    },
+    files: (await previewImport({ importKind: "ekiden", metadata, rows, teamRows })).files,
+    warnings:
+      newRows + newTeams > 0
+        ? [`${newRows + newTeams}件は未登録の選手・大学です。反映前に確認してください。`]
+        : []
+  };
+}
+
+export function parseEkidenSource(text: string): {
+  metadata: Partial<ImportMetadata>;
+  sectionRows: RawRow[];
+  teamRows: RawTeamRow[];
+  preview: string;
+} {
+  const normalized = htmlToText(text).normalize("NFKC").replace(/\r\n?/g, "\n");
+  const rawLines = normalized.split("\n");
+  const sectionRows: RawRow[] = [];
+  const teamRows: RawTeamRow[] = [];
+  const headerLines: string[] = [];
+  let mode: "header" | "section" | "team" = "header";
+
+  for (const rawLine of rawLines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    if (/^[[［「]?\s*区間/.test(line)) {
+      mode = "section";
+      continue;
+    }
+    if (/^[[［「]?\s*総合(成績|結果)?\s*[\]］」]?$/.test(line) || /^[[［「]\s*総合/.test(line)) {
+      mode = "team";
+      continue;
+    }
+
+    const cells = line.split(/\t|\s{2,}/).map((cell) => cell.trim()).filter(Boolean);
+
+    if (mode === "team" || /^(総合|往路|復路)\b/.test(line)) {
+      const teamRow = parseEkidenTeamCells(cells);
+      if (teamRow) teamRows.push(teamRow);
+      continue;
+    }
+
+    if (mode === "section" || /\d+\s*区/.test(cells[0] ?? "")) {
+      const sectionRow = parseEkidenSectionCells(cells);
+      if (sectionRow) {
+        sectionRows.push(sectionRow);
+        continue;
+      }
+    }
+
+    if (mode === "header") headerLines.push(line);
+  }
+
+  const headerText = headerLines.join("\n");
+  const raceLine = headerLines.find((line) => /駅伝|区間|往路|復路/.test(line));
+  const meetLine = headerLines.find((line) => /(?:大会|選手権|駅伝|記録会)/.test(line));
+  const venueMatch = headerText.match(/(?:競技場名|会場|コース)[:：]\s*([^\n]+)/);
+
+  return {
+    metadata: {
+      meetName: meetLine ?? headerLines[0] ?? "",
+      raceName: raceLine ?? meetLine ?? headerLines[0] ?? "",
+      date: extractEventDate(headerText, [meetLine ?? "", raceLine ?? ""].filter(Boolean)),
+      venue: venueMatch?.[1]?.trim() ?? "",
+      distance: "駅伝"
+    },
+    sectionRows,
+    teamRows,
+    preview: normalized
+  };
+}
+
+function parseEkidenSectionCells(cells: string[]): RawRow | null {
+  if (cells.length < 4) return null;
+  const sectionCell = cells.find((cell) => /\d+\s*区|^アンカー$/.test(cell)) ?? cells[0];
+  const section = (sectionCell.match(/\d+\s*区/)?.[0] ?? sectionCell).replace(/\s+/g, "");
+  const sectionDistance = cells.find((cell) => /\d+(?:\.\d+)?\s*km/i.test(cell))?.replace(/\s+/g, "") ?? "";
+  const timeCell = cells.find((cell) => /\d{1,2}:\d{2}(?::\d{2})?/.test(cell)) ?? "";
+  const statusMatch = cells.find((cell) => /\b(DNS|DNF|DQ|繰)\b|繰り上げ/.test(cell));
+  const resultStatus = detectResultStatus(statusMatch ?? timeCell);
+  const universityCell = [...cells].reverse().find((cell) => /(?:大|大学)$/.test(cell)) ?? "";
+  if (!universityCell) return null;
+  const universityIndex = cells.lastIndexOf(universityCell);
+  // 大学セルの直前を選手名とみなす（順位・区・距離を除いた残り）
+  const athleteCell = universityIndex > 0 ? cells[universityIndex - 1] : "";
+  if (!athleteCell || /\d+\s*区|km/i.test(athleteCell)) return null;
+  const rankCell = cells.find((cell) => /^\d+$/.test(cell)) ?? "";
+
+  return {
+    rank: resultStatus === "finished" ? rankCell : resultStatus.toUpperCase(),
+    bib: "",
+    athlete: normalizeSpaces(athleteCell),
+    year: "学年未登録",
+    university: normalizeSpaces(universityCell),
+    time: resultStatus === "finished" ? normalizeTime(timeCell) : resultStatus.toUpperCase(),
+    note: normalizeNote(cells.join(" ")) || (resultStatus === "finished" ? "" : resultStatus.toUpperCase()),
+    resultStatus,
+    section,
+    sectionDistance
+  };
+}
+
+function parseEkidenTeamCells(cells: string[]): RawTeamRow | null {
+  if (cells.length < 3) return null;
+  const typeCell = cells.find((cell) => /^(総合|往路|復路)$/.test(cell));
+  const resultType = (typeCell ?? "総合") as ImportTeamResultType;
+  const timeCell = cells.find((cell) => /\d{1,2}:\d{2}(?::\d{2})?/.test(cell)) ?? "";
+  const statusCell = cells.find((cell) => /\b(DNS|DNF|DQ)\b/.test(cell));
+  const status = detectResultStatus(statusCell ?? timeCell);
+  const rankCell = cells.find((cell) => /^\d+$/.test(cell)) ?? "";
+  // 大学名セル：種別・順位・記録・状態 以外の文字セル（総合は略称ではなく正式名のことが多い）
+  const universityCell =
+    cells.find(
+      (cell) =>
+        cell !== typeCell &&
+        cell !== timeCell &&
+        cell !== statusCell &&
+        cell !== rankCell &&
+        !/^\d+$/.test(cell) &&
+        !/^(総合|往路|復路)$/.test(cell)
+    ) ?? "";
+  if (!universityCell) return null;
+
+  return {
+    resultType,
+    rank: status === "finished" ? rankCell : status.toUpperCase(),
+    university: normalizeSpaces(universityCell),
+    time: status === "finished" ? normalizeTime(timeCell) : status.toUpperCase(),
+    status,
+    note: normalizeNote(cells.join(" "))
+  };
+}
+
+function matchTeamRow(row: RawTeamRow, records: ReferenceRecords): ImportTeamResultRow {
+  const normalizedUniversity = normalizeUniversity(row.university);
+  const university = records.universities.find(
+    (item) => normalizeLookup(normalizeUniversity(item.name)) === normalizeLookup(normalizedUniversity)
+  );
+  const universityId =
+    university?.id ??
+    universityIdOverrides[normalizedUniversity] ??
+    createId("university", normalizedUniversity);
+
+  return {
+    resultType: row.resultType,
+    rank: row.rank,
+    university: normalizedUniversity || "大学未登録",
+    time: row.time,
+    status: row.status,
+    note: row.note,
+    matchStatus: university ? "matched" : "new",
+    universityId
   };
 }
 
@@ -891,7 +1119,8 @@ function entryTimePattern(distance: ImportDistance, global = false) {
     "3000mSC": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
     "5000m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
     "10000m": String.raw`(?:^|[^\d:.])(${trackTime})(?=$|[^\d:.])`,
-    ハーフ: String.raw`(?:^|[^\d:.])(${roadTime})(?=$|[^\d:.])`
+    ハーフ: String.raw`(?:^|[^\d:.])(${roadTime})(?=$|[^\d:.])`,
+    駅伝: String.raw`(?:^|[^\d:.])(${roadTime})(?=$|[^\d:.])`
   };
   return new RegExp(patterns[distance], flags);
 }

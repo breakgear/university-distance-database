@@ -6,7 +6,8 @@ import type {
   ImportCommitPayload,
   ImportDistance,
   ImportFileDiff,
-  ImportParsedRow
+  ImportParsedRow,
+  ImportTeamResultRow
 } from "./result-import-types";
 
 export type CsvRecord = Record<string, string>;
@@ -20,6 +21,7 @@ export const csvFiles = [
   "entries",
   "results",
   "personal_bests",
+  "team_results",
   "status_master",
   "event_type_master"
 ] as const;
@@ -33,7 +35,8 @@ const previewFiles = [
   ["races", "レース情報を追加・更新", "race_id"],
   ["entries", "掲載状態を追加・更新", "entry_id"],
   ["results", "結果を追加・更新", "result_id"],
-  ["personal_bests", "PBを追加・更新", "pb_id"]
+  ["personal_bests", "PBを追加・更新", "pb_id"],
+  ["team_results", "総合結果を追加・更新", "team_result_id"]
 ] as const;
 
 const generatedDataFiles = [
@@ -43,7 +46,8 @@ const generatedDataFiles = [
   "races.ts",
   "entries.ts",
   "results.ts",
-  "personalBests.ts"
+  "personalBests.ts",
+  "teamResults.ts"
 ] as const;
 
 function useSupabaseImportStorage() {
@@ -210,8 +214,11 @@ export function buildImportPlanFromData(payload: ImportCommitPayload, data: Impo
     races: 0,
     entries: 0,
     results: 0,
-    personal_bests: 0
+    personal_bests: 0,
+    team_results: 0
   };
+
+  const isEkiden = payload.importKind === "ekiden";
 
   counts.meets = upsertMeet(workingData.meets.rows, payload);
   counts.races = upsertRace(workingData.races.rows, payload);
@@ -219,12 +226,20 @@ export function buildImportPlanFromData(payload: ImportCommitPayload, data: Impo
   for (const row of payload.rows) {
     counts.universities += ensureUniversity(workingData.universities.rows, row, payload);
     counts.athletes += ensureAthlete(workingData.athletes.rows, row, payload);
-    counts.entries += ensureEntry(workingData.entries.rows, row, payload);
+    if (!isEkiden) {
+      counts.entries += ensureEntry(workingData.entries.rows, row, payload);
+    }
     if (payload.importKind === "entry") continue;
     const resultId = `${payload.metadata.raceId}-${row.athleteId}`;
     counts.results += ensureResult(workingData.results.rows, row, payload, resultId);
-    if (row.note === "PB" && row.resultStatus === "finished") {
+    if (!isEkiden && row.note === "PB" && row.resultStatus === "finished") {
       counts.personal_bests += upsertPersonalBest(workingData.personal_bests.rows, row, payload, resultId);
+    }
+  }
+
+  if (isEkiden) {
+    for (const teamRow of payload.teamRows ?? []) {
+      counts.team_results += ensureTeamResult(workingData.team_results.rows, teamRow, payload);
     }
   }
 
@@ -249,16 +264,20 @@ export function validateCommitPayload(payload: ImportCommitPayload) {
   if (!payload || typeof payload !== "object") {
     throw new Error("取込データが不正です。");
   }
-  if (payload.importKind !== "entry" && payload.importKind !== "result") {
+  if (!["entry", "result", "ekiden"].includes(payload.importKind)) {
     throw new Error("取込種別が不正です。");
   }
-  if (!Array.isArray(payload.rows) || !payload.rows.length) {
+  const isEkiden = payload.importKind === "ekiden";
+  if (!Array.isArray(payload.rows)) {
+    throw new Error("登録対象の行が不正です。");
+  }
+  if (!payload.rows.length && !(isEkiden && (payload.teamRows?.length ?? 0) > 0)) {
     throw new Error("登録対象の行が選択されていません。");
   }
   if (!payload.metadata?.meetId || !payload.metadata.raceId) {
     throw new Error("大会IDとレースIDを入力してください。");
   }
-  if (!["1500m", "3000mSC", "5000m", "10000m", "ハーフ"].includes(payload.metadata.distance)) {
+  if (!["1500m", "3000mSC", "5000m", "10000m", "ハーフ", "駅伝"].includes(payload.metadata.distance)) {
     throw new Error("種目が不正です。");
   }
   if (payload.metadata.date && !/^\d{4}-\d{2}-\d{2}$/.test(payload.metadata.date)) {
@@ -287,10 +306,10 @@ function upsertMeet(rows: CsvRecord[], payload: ImportCommitPayload) {
     venue: payload.metadata.venue || current?.venue || "",
     category: current?.category || payload.metadata.category,
     status:
-      payload.importKind === "result" || current?.status === "result_published"
+      payload.importKind !== "entry" || current?.status === "result_published"
         ? "result_published"
         : "startlist_published",
-    note: current?.note || (payload.importKind === "result" ? "管理画面から結果を取り込み" : "管理画面からエントリーを取り込み")
+    note: current?.note || (payload.importKind === "entry" ? "管理画面からエントリーを取り込み" : "管理画面から結果を取り込み")
   };
   if (current) {
     if (recordsEqual(current, next)) return 0;
@@ -311,11 +330,11 @@ function upsertRace(rows: CsvRecord[], payload: ImportCommitPayload) {
     distance: current?.distance || payload.metadata.distance,
     start_time: payload.metadata.startTime || current?.start_time || "",
     status:
-      payload.importKind === "result" || current?.status === "result_published"
+      payload.importKind !== "entry" || current?.status === "result_published"
         ? "result_published"
         : "startlist_published",
     result_summary_id:
-      payload.importKind === "result" ? current?.result_summary_id || payload.metadata.raceId : current?.result_summary_id || ""
+      payload.importKind !== "entry" ? current?.result_summary_id || payload.metadata.raceId : current?.result_summary_id || ""
   };
   if (current) {
     if (recordsEqual(current, next)) return 0;
@@ -329,10 +348,12 @@ function upsertRace(rows: CsvRecord[], payload: ImportCommitPayload) {
 function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, payload: ImportCommitPayload) {
   const distance: ImportDistance = payload.metadata.distance;
   const current = rows.find((item) => item.id === row.universityId);
+  // 駅伝(距離=駅伝)は種目別の掲載種目に加えない
+  const listingDistance = distance === "駅伝" ? "" : distance;
   if (current) {
     const next = {
       ...(payload.importKind === "entry" ? { has_upcoming: "TRUE" } : { has_result: "TRUE" }),
-      listing_events: addListValue(current.listing_events, distance)
+      listing_events: listingDistance ? addListValue(current.listing_events, listingDistance) : current.listing_events
     };
     if (recordsEqual(current, next)) return 0;
     Object.assign(current, next);
@@ -346,9 +367,9 @@ function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, payload: Impo
     sash_color: "未登録",
     accent: "#64748B",
     profile: "",
-    listing_events: distance,
+    listing_events: listingDistance,
     has_upcoming: payload.importKind === "entry" ? "TRUE" : "FALSE",
-    has_result: payload.importKind === "result" ? "TRUE" : "FALSE"
+    has_result: payload.importKind === "entry" ? "FALSE" : "TRUE"
   });
   return 1;
 }
@@ -431,7 +452,38 @@ function ensureResult(
     time: row.time,
     result_status: row.resultStatus,
     note: row.note,
-    is_pb: row.note === "PB" ? "TRUE" : "FALSE"
+    is_pb: row.note === "PB" ? "TRUE" : "FALSE",
+    section: row.section ?? "",
+    section_distance: row.sectionDistance ?? ""
+  };
+  if (current) {
+    if (recordsEqual(current, next)) return 0;
+    Object.assign(current, next);
+    return 1;
+  }
+  rows.push(next);
+  return 1;
+}
+
+function ensureTeamResult(rows: CsvRecord[], row: ImportTeamResultRow, payload: ImportCommitPayload) {
+  const teamResultId = `${payload.metadata.raceId}-${row.universityId}-${row.resultType}`;
+  const current = rows.find(
+    (item) =>
+      item.team_result_id === teamResultId ||
+      (item.race_id === payload.metadata.raceId &&
+        item.university_id === row.universityId &&
+        item.result_type === row.resultType)
+  );
+  const next = {
+    team_result_id: current?.team_result_id || teamResultId,
+    meet_id: payload.metadata.meetId,
+    race_id: payload.metadata.raceId,
+    university_id: row.universityId,
+    result_type: row.resultType,
+    rank: row.status === "finished" && /^\d+$/.test(row.rank) ? `${row.rank}位` : row.rank.toUpperCase(),
+    time: row.time,
+    status: row.status,
+    note: row.note
   };
   if (current) {
     if (recordsEqual(current, next)) return 0;

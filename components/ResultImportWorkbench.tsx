@@ -30,7 +30,8 @@ import type {
   ImportKind,
   ImportMetadata,
   ImportParsedRow,
-  ImportSource
+  ImportSource,
+  ImportTeamResultRow
 } from "@/lib/result-import-types";
 
 type ImportStatus = "idle" | "analyzing" | "review" | "ready" | "committing" | "done";
@@ -90,7 +91,8 @@ export function ResultImportWorkbench() {
     selectedSources.has("text") && Boolean(pastedText.trim()),
     selectedSources.has("pdf") && Boolean(pdfFile)
   ].filter(Boolean).length;
-  const canAnalyze = selectedSources.size >= 2 && completedSources >= 2;
+  const canAnalyze =
+    importKind === "ekiden" ? Boolean(pastedText.trim()) : selectedSources.size >= 2 && completedSources >= 2;
 
   async function analyze() {
     if (!canAnalyze) return;
@@ -100,9 +102,13 @@ export function ResultImportWorkbench() {
     setCommitMessage("");
     setConfirmed(false);
     const formData = new FormData();
-    if (selectedSources.has("url")) formData.set("url", url);
-    if (selectedSources.has("text")) formData.set("text", pastedText);
-    if (selectedSources.has("pdf") && pdfFile) formData.set("pdf", pdfFile);
+    if (importKind === "ekiden") {
+      formData.set("text", pastedText);
+    } else {
+      if (selectedSources.has("url")) formData.set("url", url);
+      if (selectedSources.has("text")) formData.set("text", pastedText);
+      if (selectedSources.has("pdf") && pdfFile) formData.set("pdf", pdfFile);
+    }
     formData.set("onlyUniversity", String(onlyUniversity));
     formData.set("importKind", importKind);
     formData.set("targetDistance", targetDistance);
@@ -132,7 +138,9 @@ export function ResultImportWorkbench() {
   }
 
   async function commit() {
-    if (!analysis || !confirmed || selectedRows.size === 0) return;
+    if (!analysis || !confirmed) return;
+    const teamRowCount = analysis.teamRows?.length ?? 0;
+    if (selectedRows.size === 0 && teamRowCount === 0) return;
     setStatus("committing");
     setError("");
     setCommitMessage("");
@@ -143,7 +151,8 @@ export function ResultImportWorkbench() {
         body: JSON.stringify({
           importKind: analysis.importKind,
           metadata: analysis.metadata,
-          rows: analysis.rows.filter((_, index) => selectedRows.has(index))
+          rows: analysis.rows.filter((_, index) => selectedRows.has(index)),
+          teamRows: analysis.teamRows ?? []
         })
       });
       const body = (await response.json()) as {
@@ -171,7 +180,8 @@ export function ResultImportWorkbench() {
   }
 
   async function prepareCsvPreview() {
-    if (!analysis || selectedRows.size === 0) return;
+    if (!analysis) return;
+    if (selectedRows.size === 0 && (analysis.teamRows?.length ?? 0) === 0) return;
     setPreviewing(true);
     setError("");
     setCommitMessage("");
@@ -183,7 +193,8 @@ export function ResultImportWorkbench() {
         body: JSON.stringify({
           importKind: analysis.importKind,
           metadata: analysis.metadata,
-          rows: analysis.rows.filter((_, index) => selectedRows.has(index))
+          rows: analysis.rows.filter((_, index) => selectedRows.has(index)),
+          teamRows: analysis.teamRows ?? []
         })
       });
       const body = (await response.json()) as {
@@ -280,12 +291,14 @@ export function ResultImportWorkbench() {
             <div>
               <h2 className="text-lg font-black text-ink">読み込み方法</h2>
               <p className="mt-1 text-sm font-bold leading-6 text-slate-600">
-                URL・コピペ・PDFから2つ以上を使い、同じ{importKind === "entry" ? "エントリー" : "結果"}を照合して登録候補を作成します。
+                {importKind === "ekiden"
+                  ? "区間記録と総合結果を［区間］／［総合］に分けて貼り付け、登録候補を作成します。"
+                  : `URL・コピペ・PDFから2つ以上を使い、同じ${importKind === "entry" ? "エントリー" : "結果"}を照合して登録候補を作成します。`}
               </p>
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-1 rounded-md bg-field p-1">
+          <div className="mt-4 grid grid-cols-3 gap-1 rounded-md bg-field p-1">
             <InputModeButton
               active={importKind === "result"}
               icon={<TableProperties size={16} />}
@@ -295,8 +308,14 @@ export function ResultImportWorkbench() {
             <InputModeButton
               active={importKind === "entry"}
               icon={<UserCheck size={16} />}
-              label="エントリーリスト"
+              label="エントリー"
               onClick={() => changeImportKind("entry")}
+            />
+            <InputModeButton
+              active={importKind === "ekiden"}
+              icon={<Database size={16} />}
+              label="駅伝"
+              onClick={() => changeImportKind("ekiden")}
             />
           </div>
 
@@ -345,21 +364,35 @@ export function ResultImportWorkbench() {
             </div>
           ) : null}
 
-          <div className="mt-4 grid grid-cols-3 gap-1 rounded-md bg-field p-1">
-            <InputModeButton active={selectedSources.has("url")} icon={<Link2 size={16} />} label="URL" onClick={() => toggleSource("url")} />
-            <InputModeButton active={selectedSources.has("text")} icon={<ClipboardPaste size={16} />} label="コピペ" onClick={() => toggleSource("text")} />
-            <InputModeButton active={selectedSources.has("pdf")} icon={<FileText size={16} />} label="PDF" onClick={() => toggleSource("pdf")} />
-          </div>
+          {importKind !== "ekiden" ? (
+            <>
+              <div className="mt-4 grid grid-cols-3 gap-1 rounded-md bg-field p-1">
+                <InputModeButton active={selectedSources.has("url")} icon={<Link2 size={16} />} label="URL" onClick={() => toggleSource("url")} />
+                <InputModeButton active={selectedSources.has("text")} icon={<ClipboardPaste size={16} />} label="コピペ" onClick={() => toggleSource("text")} />
+                <InputModeButton active={selectedSources.has("pdf")} icon={<FileText size={16} />} label="PDF" onClick={() => toggleSource("pdf")} />
+              </div>
 
-          <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-red-100 bg-red-50/60 px-3 py-2.5">
-            <p className="text-xs font-black text-slate-700">最低2つの入力が必須です</p>
-            <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-xs font-black", completedSources >= 2 ? "bg-emerald-50 text-emerald-700" : "bg-white text-sash-red")}>
-              入力済み {completedSources}/2
-            </span>
-          </div>
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-red-100 bg-red-50/60 px-3 py-2.5">
+                <p className="text-xs font-black text-slate-700">最低2つの入力が必須です</p>
+                <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-xs font-black", completedSources >= 2 ? "bg-emerald-50 text-emerald-700" : "bg-white text-sash-red")}>
+                  入力済み {completedSources}/2
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="mt-4 rounded-md border border-red-100 bg-red-50/60 px-3 py-2.5">
+              <p className="text-xs font-black text-slate-700">貼り付け形式（タブ区切り）</p>
+              <pre className="mt-2 overflow-x-auto whitespace-pre rounded bg-white px-3 py-2 text-[11px] font-bold leading-5 text-slate-600">{`［区間］
+1区  21.3km  3  田中 太郎  早大  1:02:15
+2区  23.1km  1  鈴木 一郎  駒大  1:08:30
+［総合］
+総合  1  駒大  10:45:23
+往路  1  駒大  5:20:10`}</pre>
+            </div>
+          )}
 
           <div className="mt-4 grid gap-4">
-            {selectedSources.has("url") ? (
+            {importKind !== "ekiden" && selectedSources.has("url") ? (
               <div>
                 <InputPanelHeading icon={<Link2 size={17} />} title={importKind === "entry" ? "公式エントリーURL" : "公式結果URL"} required />
                 <label className="relative block min-w-0">
@@ -378,11 +411,15 @@ export function ResultImportWorkbench() {
               </div>
             ) : null}
 
-            {selectedSources.has("text") ? (
+            {importKind === "ekiden" || selectedSources.has("text") ? (
               <label className="block">
-                <InputPanelHeading icon={<ClipboardPaste size={17} />} title="照合用コピペ" required />
+                <InputPanelHeading
+                  icon={<ClipboardPaste size={17} />}
+                  title={importKind === "ekiden" ? "区間・総合の貼り付け" : "照合用コピペ"}
+                  required
+                />
                 <span className="sr-only">
-                  {importKind === "entry" ? "エントリーリストを貼り付け" : "結果表を貼り付け"}
+                  {importKind === "ekiden" ? "区間記録と総合結果を貼り付け" : importKind === "entry" ? "エントリーリストを貼り付け" : "結果表を貼り付け"}
                 </span>
                 <textarea
                   value={pastedText}
@@ -391,12 +428,12 @@ export function ResultImportWorkbench() {
                     invalidateAnalysis();
                   }}
                   className="min-h-48 w-full resize-y rounded-md border border-line bg-field px-3 py-3 font-mono text-sm font-bold leading-6 text-ink outline-none transition placeholder:text-slate-500 focus:border-sash-red focus:ring-2 focus:ring-sash-red/15"
-                  placeholder={importKind === "entry" ? "公式ページやPDFからコピーしたエントリーリストを貼り付け" : "公式ページやPDFからコピーした結果表を貼り付け"}
+                  placeholder={importKind === "ekiden" ? "［区間］と［総合］の見出しを付けて貼り付け" : importKind === "entry" ? "公式ページやPDFからコピーしたエントリーリストを貼り付け" : "公式ページやPDFからコピーした結果表を貼り付け"}
                 />
               </label>
             ) : null}
 
-            {selectedSources.has("pdf") ? (
+            {importKind !== "ekiden" && selectedSources.has("pdf") ? (
               <div className="rounded-md border border-dashed border-red-200 bg-red-50/25 p-4">
                 <InputPanelHeading icon={<FileText size={17} />} title="照合用PDF" required />
                 <input
@@ -501,6 +538,7 @@ export function ResultImportWorkbench() {
             />
             <ResultReview
               rows={analysis.rows}
+              teamRows={analysis.teamRows ?? []}
               selectedRows={selectedRows}
               onToggleRow={toggleRow}
               onlyUniversity={onlyUniversity}
@@ -984,12 +1022,14 @@ function MetadataInput({
 
 function ResultReview({
   rows,
+  teamRows,
   selectedRows,
   onToggleRow,
   onlyUniversity,
   importKind
 }: {
   rows: ParsedResult[];
+  teamRows: ImportTeamResultRow[];
   selectedRows: Set<number>;
   onToggleRow: (index: number) => void;
   onlyUniversity: boolean;
@@ -1014,6 +1054,7 @@ function ResultReview({
           <thead className="bg-field text-xs font-black text-slate-600">
             <tr>
               <th className="w-12 px-3 py-3">登録</th>
+              {importKind === "ekiden" ? <th className="px-3 py-3">区間</th> : null}
               <th className="px-3 py-3">{importKind === "entry" ? "Bib" : "順位"}</th>
               <th className="px-3 py-3">選手</th>
               <th className="px-3 py-3">大学</th>
@@ -1034,13 +1075,19 @@ function ResultReview({
                     aria-label={`${row.athlete}を登録対象にする`}
                   />
                 </td>
+                {importKind === "ekiden" ? (
+                  <td className="px-3 py-3 font-black text-ink">
+                    {row.section || "—"}
+                    {row.sectionDistance ? <span className="ml-1 text-xs font-bold text-slate-500">{row.sectionDistance}</span> : null}
+                  </td>
+                ) : null}
                 <td className="px-3 py-3 font-black text-ink">
                   {importKind === "entry" ? row.bib || "未登録" : row.rank}
                 </td>
                 <td className="px-3 py-3">
                   <p className="font-black text-ink">{row.athlete}</p>
                   <p className="mt-0.5 text-xs text-slate-500">
-                    {importKind === "entry" ? row.year : `${row.year}・Bib ${row.bib || "未登録"}`}
+                    {importKind === "ekiden" ? row.year : importKind === "entry" ? row.year : `${row.year}・Bib ${row.bib || "未登録"}`}
                   </p>
                 </td>
                 <td className="px-3 py-3">{row.university}</td>
@@ -1066,6 +1113,39 @@ function ResultReview({
         {onlyUniversity ? "大学所属選手のみを表示しています。" : `公式${importKind === "entry" ? "エントリー" : "結果"}に含まれるすべての選手を表示しています。`}
         未登録候補は反映前に確認します。
       </p>
+
+      {importKind === "ekiden" && teamRows.length > 0 ? (
+        <div className="mt-5">
+          <h3 className="text-base font-black text-ink">チーム総合</h3>
+          <div className="mt-2 overflow-x-auto rounded-md border border-line">
+            <table className="min-w-[520px] w-full border-collapse text-left text-sm">
+              <thead className="bg-field text-xs font-black text-slate-600">
+                <tr>
+                  <th className="px-3 py-3">種別</th>
+                  <th className="px-3 py-3">順位</th>
+                  <th className="px-3 py-3">大学</th>
+                  <th className="px-3 py-3">記録</th>
+                  <th className="px-3 py-3">ID照合</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamRows.map((team) => (
+                  <tr key={`${team.resultType}-${team.university}`} className="border-t border-line font-bold text-slate-700">
+                    <td className="px-3 py-3 font-black text-ink">{team.resultType}</td>
+                    <td className="px-3 py-3 font-black text-ink">{team.rank}</td>
+                    <td className="px-3 py-3">{team.university}</td>
+                    <td className="px-3 py-3 font-black text-sash-red">{team.time}</td>
+                    <td className="px-3 py-3">
+                      <MatchBadge status={team.matchStatus} athleteId={team.universityId} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs font-bold leading-5 text-slate-500">総合結果は全件が反映対象です（選択不可）。</p>
+        </div>
+      ) : null}
     </section>
   );
 }

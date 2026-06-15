@@ -5,6 +5,7 @@ import {
   extractEntryTime,
   extractEventDateCandidates,
   findUniversityInEntryLine,
+  parseEkidenSource,
   parseNishiEntryJson,
   parseTextRecord,
   selectMenEntrySection,
@@ -93,6 +94,39 @@ test("3000mSCの結果行を解析する", () => {
   assert.equal(row?.time, "8:30.45");
   assert.equal(row?.note, "PB");
   assert.equal(row?.resultStatus, "finished");
+});
+
+test("駅伝の区間記録と総合結果を見出しで振り分けて解析する", () => {
+  const parsed = parseEkidenSource(
+    [
+      "第100回テスト駅伝",
+      "2026年1月2日 コース:東京〜箱根",
+      "［区間］",
+      "1区\t21.3km\t3\t田中 太郎\t早大\t1:02:15",
+      "2区\t23.1km\t1\t鈴木 一郎\t駒大\t1:08:30\t区間賞",
+      "［総合］",
+      "総合\t1\t駒大\t10:45:23",
+      "往路\t1\t駒大\t5:20:10"
+    ].join("\n")
+  );
+
+  assert.equal(parsed.sectionRows.length, 2);
+  assert.equal(parsed.sectionRows[0].section, "1区");
+  assert.equal(parsed.sectionRows[0].sectionDistance, "21.3km");
+  assert.equal(parsed.sectionRows[0].athlete, "田中 太郎");
+  assert.equal(parsed.sectionRows[0].university, "早大");
+  assert.equal(parsed.sectionRows[0].rank, "3");
+  assert.equal(parsed.sectionRows[0].time, "1:02:15");
+  assert.equal(parsed.sectionRows[1].section, "2区");
+  assert.equal(parsed.sectionRows[1].university, "駒大");
+
+  assert.equal(parsed.teamRows.length, 2);
+  assert.equal(parsed.teamRows[0].resultType, "総合");
+  assert.equal(parsed.teamRows[0].rank, "1");
+  assert.equal(parsed.teamRows[0].university, "駒大");
+  assert.equal(parsed.teamRows[0].time, "10:45:23");
+  assert.equal(parsed.teamRows[1].resultType, "往路");
+  assert.equal(parsed.metadata.distance, "駅伝");
 });
 
 test("NISHI形式JSONの1500mエントリーを解析する", () => {

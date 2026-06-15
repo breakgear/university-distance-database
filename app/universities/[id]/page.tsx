@@ -6,6 +6,7 @@ import { athletes, Athlete } from "@/data/athletes";
 import { meets } from "@/data/meets";
 import { raceRecords } from "@/data/races";
 import { getResultsByUniversityId } from "@/data/results";
+import { getTeamResultsByUniversityId } from "@/data/teamResults";
 import { universities, University } from "@/data/universities";
 import { getUpcomingEntriesByUniversityId } from "@/lib/upcoming";
 import { formatDate } from "@/lib/utils";
@@ -53,6 +54,8 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
   const latestResult = formatLatestResult(results[0], listedAthletes);
   const pbRankings = buildPbRankings(listedAthletes);
   const hasPbRows = pbRankings.some((ranking) => ranking.rows.length > 0);
+  const raceNameById = new Map(raceRecords.map((race) => [race.race_id, race.race_name]));
+  const ekidenTeamResults = getTeamResultsByUniversityId(university.id);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
@@ -147,6 +150,33 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
           <EmptyState compact title="掲載PBはまだありません" description="PBデータが登録されると、このセクションに表示されます。" />
         )}
       </section>
+
+      {ekidenTeamResults.length > 0 ? (
+        <section className="mt-8">
+          <SectionTitle title="駅伝チーム成績" description="掲載データ内の駅伝の総合・往路・復路の成績を表示しています。" />
+          <div className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+            <div className="hidden grid-cols-[1fr_88px_72px_120px] border-b border-line bg-field px-4 py-2 text-xs font-black text-slate-500 md:grid">
+              <span>大会・レース</span>
+              <span>種別</span>
+              <span>順位</span>
+              <span>記録</span>
+            </div>
+            {ekidenTeamResults.map((team) => (
+              <div
+                key={team.team_result_id}
+                className="grid gap-1 border-b border-line px-4 py-3 text-sm font-bold text-slate-700 last:border-b-0 md:grid-cols-[1fr_88px_72px_120px] md:items-center"
+              >
+                <Link href={`/races/${team.race_id}`} className="font-black text-ink hover:text-sash-red hover:underline">
+                  {raceNameById.get(team.race_id) ?? team.race_id}
+                </Link>
+                <span>{team.result_type}</span>
+                <span className="font-black text-ink">{team.rank}</span>
+                <span className="font-black text-sash-red">{team.time}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="mt-8">
         <SectionTitle title="直近結果" description="この大学の掲載結果を新しい順に表示しています。" />

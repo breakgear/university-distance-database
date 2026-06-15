@@ -7,13 +7,16 @@ import type {
   ImportMatchStatus,
   ImportMetadata,
   ImportParsedRow,
-  ImportResultStatus
+  ImportResultStatus,
+  ImportTeamResultRow,
+  ImportTeamResultType
 } from "./result-import-types";
 
-const distances = new Set<ImportDistance>(["1500m", "3000mSC", "5000m", "10000m", "ハーフ"]);
+const distances = new Set<ImportDistance>(["1500m", "3000mSC", "5000m", "10000m", "ハーフ", "駅伝"]);
 const resultStatuses = new Set<ImportResultStatus>(["finished", "dns", "dnf", "dq"]);
 const entryStatuses = new Set<ImportEntryStatus>(["listed", "unconfirmed"]);
 const matchStatuses = new Set<ImportMatchStatus>(["matched", "new", "warning"]);
+const teamResultTypes = new Set<ImportTeamResultType>(["総合", "往路", "復路"]);
 const MAX_PDF_BYTES = 15 * 1024 * 1024;
 const MAX_TEXT_LENGTH = 2_000_000;
 const MAX_ROWS = 5_000;
@@ -23,7 +26,7 @@ export function parseAnalyzeFormData(formData: FormData) {
   const text = readFormString(formData, "text").trim();
   const pdfValue = formData.get("pdf");
   const pdf = pdfValue instanceof File && pdfValue.size > 0 ? pdfValue : null;
-  const importKind = readEnum(readFormString(formData, "importKind") || "result", ["entry", "result"], "取込種別") as ImportKind;
+  const importKind = readEnum(readFormString(formData, "importKind") || "result", ["entry", "result", "ekiden"], "取込種別") as ImportKind;
   const targetDistance = readEnum(
     readFormString(formData, "targetDistance") || "5000m",
     Array.from(distances),
@@ -70,19 +73,26 @@ export function parseAnalyzeFormData(formData: FormData) {
 
 export function parseImportCommitPayload(value: unknown): ImportCommitPayload {
   const payload = readObject(value, "取込データ");
-  const importKind = readEnum(payload.importKind, ["entry", "result"], "取込種別") as ImportKind;
+  const importKind = readEnum(payload.importKind, ["entry", "result", "ekiden"], "取込種別") as ImportKind;
   const metadata = parseMetadata(payload.metadata);
-  if (!Array.isArray(payload.rows) || payload.rows.length === 0) {
+  const rows = Array.isArray(payload.rows) ? payload.rows : [];
+  const teamRows = Array.isArray(payload.teamRows) ? payload.teamRows : [];
+  if (importKind === "ekiden") {
+    if (rows.length === 0 && teamRows.length === 0) {
+      throw new Error("登録対象の区間記録または総合結果がありません。");
+    }
+  } else if (rows.length === 0) {
     throw new Error("登録対象の行が選択されていません。");
   }
-  if (payload.rows.length > MAX_ROWS) {
+  if (rows.length > MAX_ROWS || teamRows.length > MAX_ROWS) {
     throw new Error(`一度に登録できる行数は${MAX_ROWS}件までです。`);
   }
 
   return {
     importKind,
     metadata,
-    rows: payload.rows.map((row, index) => parseRow(row, index, importKind))
+    rows: rows.map((row, index) => parseRow(row, index, importKind)),
+    teamRows: teamRows.map((row, index) => parseTeamRow(row, index))
   };
 }
 
@@ -106,7 +116,7 @@ function parseMetadata(value: unknown): ImportMetadata {
     venue: readString(metadata.venue, "会場", true),
     distance: readEnum(metadata.distance, Array.from(distances), "種目") as ImportDistance,
     startTime,
-    category: readEnum(metadata.category, ["track", "road"], "カテゴリ") as ImportMetadata["category"]
+    category: readEnum(metadata.category, ["track", "road", "ekiden"], "カテゴリ") as ImportMetadata["category"]
   };
 }
 
@@ -137,6 +147,8 @@ function parseRow(value: unknown, index: number, importKind: ImportKind): Import
     note: readString(row.note, `${athlete}の備考`, true),
     resultStatus,
     entryStatus,
+    section: readString(row.section, `${athlete}の区間`, true) || undefined,
+    sectionDistance: readString(row.sectionDistance, `${athlete}の区間距離`, true) || undefined,
     matchStatus: readEnum(
       row.matchStatus,
       Array.from(matchStatuses),
@@ -145,6 +157,21 @@ function parseRow(value: unknown, index: number, importKind: ImportKind): Import
     athleteId: readString(row.athleteId, `${athlete}の選手ID`),
     universityId: readString(row.universityId, `${athlete}の大学ID`),
     sourceMatches: readFiniteNumber(row.sourceMatches, `${athlete}の照合入力数`)
+  };
+}
+
+function parseTeamRow(value: unknown, index: number): ImportTeamResultRow {
+  const row = readObject(value, `総合${index + 1}行目`);
+  const university = readString(row.university, `総合${index + 1}行目の大学名`);
+  return {
+    resultType: readEnum(row.resultType, Array.from(teamResultTypes), `${university}の種別`) as ImportTeamResultRow["resultType"],
+    rank: readString(row.rank, `${university}の順位`, true),
+    university,
+    time: readString(row.time, `${university}の記録`, true),
+    status: readEnum(row.status, Array.from(resultStatuses), `${university}の状態`) as ImportResultStatus,
+    note: readString(row.note, `${university}の備考`, true),
+    matchStatus: readEnum(row.matchStatus, Array.from(matchStatuses), `${university}の照合状態`) as ImportMatchStatus,
+    universityId: readString(row.universityId, `${university}の大学ID`)
   };
 }
 

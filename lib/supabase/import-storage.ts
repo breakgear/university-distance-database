@@ -13,8 +13,9 @@ const headers = {
   meets: ["meet_id", "slug", "meet_name", "date", "venue", "category", "status", "note"],
   races: ["race_id", "slug", "meet_id", "race_name", "distance", "start_time", "status", "result_summary_id"],
   entries: ["entry_id", "meet_id", "race_id", "athlete_id", "university_id", "bib_no", "entry_status"],
-  results: ["result_id", "meet_id", "race_id", "athlete_id", "university_id", "distance", "date", "rank", "time", "result_status", "note", "is_pb"],
+  results: ["result_id", "meet_id", "race_id", "athlete_id", "university_id", "distance", "date", "rank", "time", "result_status", "note", "is_pb", "section", "section_distance"],
   personal_bests: ["pb_id", "athlete_id", "university_id", "distance", "time", "date", "source_type", "source_result_id", "note"],
+  team_results: ["team_result_id", "meet_id", "race_id", "university_id", "result_type", "rank", "time", "status", "note"],
   status_master: ["status_key", "label", "use_for"],
   event_type_master: ["event_type", "group", "label"]
 } satisfies Record<keyof ImportCsvData, string[]>;
@@ -26,7 +27,8 @@ const tableOrder = [
   "athletes",
   "entries",
   "results",
-  "personal_bests"
+  "personal_bests",
+  "team_results"
 ] as const;
 
 type DataTable = (typeof tableOrder)[number];
@@ -38,7 +40,8 @@ const primaryKeys: Record<DataTable, string> = {
   races: "race_id",
   entries: "entry_id",
   results: "result_id",
-  personal_bests: "pb_id"
+  personal_bests: "pb_id",
+  team_results: "team_result_id"
 };
 
 export async function loadSupabaseReferenceRecords() {

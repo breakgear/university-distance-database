@@ -61,6 +61,8 @@ export default async function AthletePage({ params }: { params: Promise<{ id: st
   const listedEvents = athlete.pb.map((pb) => pb.distance).join(" / ");
   const eventRecords = buildEventRecords(results).filter((group) => group.results.length > 0);
   const primaryEvent = latestResult?.distance ?? athlete.pb[0]?.distance ?? athlete.specialty;
+  const raceNameById = new Map(raceRecords.map((race) => [race.race_id, race.race_name]));
+  const ekidenResults = getResultsByAthleteId(athlete.id).filter((result) => Boolean(result.section));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
@@ -164,6 +166,36 @@ export default async function AthletePage({ params }: { params: Promise<{ id: st
           <EmptyState compact title="掲載PBはまだありません" description="PBデータが登録されると、このセクションに表示されます。" />
         )}
       </section>
+
+      {ekidenResults.length > 0 ? (
+        <section className="mt-8">
+          <SectionTitle title="駅伝成績" description="掲載データ内の駅伝の区間記録を表示しています。" />
+          <div className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+            <div className="hidden grid-cols-[1fr_88px_72px_112px] border-b border-line bg-field px-4 py-2 text-xs font-black text-slate-500 md:grid">
+              <span>大会・レース</span>
+              <span>区間</span>
+              <span>区間順位</span>
+              <span>記録</span>
+            </div>
+            {ekidenResults.map((result) => (
+              <div
+                key={result.result_id}
+                className="grid gap-1 border-b border-line px-4 py-3 text-sm font-bold text-slate-700 last:border-b-0 md:grid-cols-[1fr_88px_72px_112px] md:items-center"
+              >
+                <Link href={`/races/${result.race_id}`} className="font-black text-ink hover:text-sash-red hover:underline">
+                  {raceNameById.get(result.race_id) ?? result.race_id}
+                </Link>
+                <span>
+                  {result.section ?? "—"}
+                  {result.sectionDistance ? <span className="ml-1 text-xs text-slate-500">{result.sectionDistance}</span> : null}
+                </span>
+                <span className="font-black text-ink">{result.rank}</span>
+                <span className="font-black text-sash-red">{result.time}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="mt-8">
         <SectionTitle title="出場予定" description="この選手が掲載されている出場予定・関連レースです。" />

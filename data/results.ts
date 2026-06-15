@@ -8,6 +8,8 @@ export type ResultCategory = "track" | "road" | "ekiden";
 
 export type ResultNote = "PB" | "SB" | "DNS" | "DNF" | "DQ";
 
+export type ResultDistance = PbDistance | "駅伝";
+
 export type WinnerType = "athlete" | "team";
 
 export type ResultRecord = {
@@ -16,13 +18,15 @@ export type ResultRecord = {
   race_id: string;
   athlete_id: string;
   university_id: string;
-  distance: PbDistance;
+  distance: ResultDistance;
   date: string;
   rank: string;
   time: string;
   note?: ResultNote;
   status: "finished" | "dns" | "dnf" | "dq";
   is_pb?: boolean;
+  section?: string;
+  sectionDistance?: string;
 };
 
 export type ResultSummary = {
@@ -41,7 +45,7 @@ export type ResultSummary = {
   winner_university_id: string;
   winner_university_name: string;
   winner_time: string;
-  distance: PbDistance;
+  distance: ResultDistance;
   pb_count: number;
   dns_count: number;
   result_count: number;

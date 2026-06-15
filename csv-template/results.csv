@@ -1,4 +1,4 @@
-result_id,meet_id,race_id,athlete_id,university_id,distance,date,rank,time,result_status,note,is_pb
-kanto-10000m-mens-10000m-3-saeki,kanto-10000m,mens-10000m-3,saeki,aoba,10000m,2026-05-24,1位,28:28.90,finished,PB,TRUE
-kanto-1500m-mens-1500m-final-saeki,kanto-1500m,mens-1500m-final,saeki,aoba,1500m,2026-06-02,1位,3:48.20,finished,PB,TRUE
-hakone-qualifier-trial-half-final-morino,hakone-qualifier-trial,half-final,morino,josai,ハーフ,2026-05-18,1位,1:02:48,finished,PB,TRUE
+result_id,meet_id,race_id,athlete_id,university_id,distance,date,rank,time,result_status,note,is_pb,section,section_distance
+kanto-10000m-mens-10000m-3-saeki,kanto-10000m,mens-10000m-3,saeki,aoba,10000m,2026-05-24,1位,28:28.90,finished,PB,TRUE,,
+kanto-1500m-mens-1500m-final-saeki,kanto-1500m,mens-1500m-final,saeki,aoba,1500m,2026-06-02,1位,3:48.20,finished,PB,TRUE,,
+hakone-qualifier-trial-half-final-morino,hakone-qualifier-trial,half-final,morino,josai,ハーフ,2026-05-18,1位,1:02:48,finished,PB,TRUE,,

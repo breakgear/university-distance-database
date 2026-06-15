@@ -78,11 +78,22 @@ export function parseImportCommitPayload(value: unknown): ImportCommitPayload {
   const rows = Array.isArray(payload.rows) ? payload.rows : [];
   const teamRows = Array.isArray(payload.teamRows) ? payload.teamRows : [];
   if (importKind === "ekiden") {
+    if (metadata.distance !== "駅伝" || metadata.category !== "ekiden") {
+      throw new Error("駅伝の取込では種目を「駅伝」、カテゴリを「ekiden」にしてください。");
+    }
     if (rows.length === 0 && teamRows.length === 0) {
       throw new Error("登録対象の区間記録または総合結果がありません。");
     }
-  } else if (rows.length === 0) {
-    throw new Error("登録対象の行が選択されていません。");
+  } else {
+    if (metadata.distance === "駅伝" || metadata.category === "ekiden") {
+      throw new Error("駅伝の結果は駅伝取込で登録してください。");
+    }
+    if (teamRows.length > 0) {
+      throw new Error("総合結果は駅伝取込でのみ登録できます。");
+    }
+    if (rows.length === 0) {
+      throw new Error("登録対象の行が選択されていません。");
+    }
   }
   if (rows.length > MAX_ROWS || teamRows.length > MAX_ROWS) {
     throw new Error(`一度に登録できる行数は${MAX_ROWS}件までです。`);

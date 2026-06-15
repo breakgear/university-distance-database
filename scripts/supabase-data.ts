@@ -8,7 +8,8 @@ export const tableNames = [
   "races",
   "entries",
   "results",
-  "personal_bests"
+  "personal_bests",
+  "team_results"
 ] as const;
 
 export type TableName = (typeof tableNames)[number];
@@ -34,11 +35,16 @@ export const tableHeaders: Record<TableName, string[]> = {
   ],
   results: [
     "result_id", "meet_id", "race_id", "athlete_id", "university_id",
-    "distance", "date", "rank", "time", "result_status", "note", "is_pb"
+    "distance", "date", "rank", "time", "result_status", "note", "is_pb",
+    "section", "section_distance"
   ],
   personal_bests: [
     "pb_id", "athlete_id", "university_id", "distance", "time",
     "date", "source_type", "source_result_id", "note"
+  ],
+  team_results: [
+    "team_result_id", "meet_id", "race_id", "university_id",
+    "result_type", "rank", "time", "status", "note"
   ]
 };
 
@@ -49,7 +55,8 @@ export const primaryKeys: Record<TableName, string> = {
   races: "race_id",
   entries: "entry_id",
   results: "result_id",
-  personal_bests: "pb_id"
+  personal_bests: "pb_id",
+  team_results: "team_result_id"
 };
 
 export function readCsvTable(csvDir: string, tableName: TableName) {

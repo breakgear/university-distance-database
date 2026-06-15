@@ -322,17 +322,30 @@ function parseEkidenSectionCells(cells: string[]): RawRow | null {
   if (cells.length < 4) return null;
   const sectionCell = cells.find((cell) => /\d+\s*区|^アンカー$/.test(cell)) ?? cells[0];
   const section = (sectionCell.match(/\d+\s*区/)?.[0] ?? sectionCell).replace(/\s+/g, "");
-  const sectionDistance = cells.find((cell) => /\d+(?:\.\d+)?\s*km/i.test(cell))?.replace(/\s+/g, "") ?? "";
+  const distanceCell = cells.find((cell) => /\d+(?:\.\d+)?\s*km/i.test(cell)) ?? "";
+  const sectionDistance = distanceCell.replace(/\s+/g, "");
   const timeCell = cells.find((cell) => /\d{1,2}:\d{2}(?::\d{2})?/.test(cell)) ?? "";
-  const statusMatch = cells.find((cell) => /\b(DNS|DNF|DQ|繰)\b|繰り上げ/.test(cell));
-  const resultStatus = detectResultStatus(statusMatch ?? timeCell);
-  const universityCell = [...cells].reverse().find((cell) => /(?:大|大学)$/.test(cell)) ?? "";
-  if (!universityCell) return null;
-  const universityIndex = cells.lastIndexOf(universityCell);
-  // 大学セルの直前を選手名とみなす（順位・区・距離を除いた残り）
-  const athleteCell = universityIndex > 0 ? cells[universityIndex - 1] : "";
-  if (!athleteCell || /\d+\s*区|km/i.test(athleteCell)) return null;
+  const statusCell = cells.find((cell) => /\b(DNS|DNF|DQ|繰)\b|繰り上げ/.test(cell));
+  const resultStatus = detectResultStatus(statusCell ?? timeCell);
   const rankCell = cells.find((cell) => /^\d+$/.test(cell)) ?? "";
+
+  // 標準レイアウトは [区, 距離, 順位, 選手, 大学, 記録, (備考)]。
+  // 記録（無ければ状態）の直前を大学、その前を選手とみなす。
+  // これで大学が「早大」等の略称でも「早稲田」等の正式名でも取りこぼさず、末尾の備考列にも引っ張られない。
+  const anchorCell = timeCell || statusCell || "";
+  const anchorIndex = anchorCell ? cells.indexOf(anchorCell) : cells.length;
+  let universityCell = anchorIndex >= 1 ? cells[anchorIndex - 1] : "";
+  let athleteCell = anchorIndex >= 2 ? cells[anchorIndex - 2] : "";
+  // アンカーが取れない（記録・状態が末尾でない）場合は、区・距離・順位を除いた残りで補完
+  if (!universityCell || !athleteCell) {
+    const used = new Set([sectionCell, distanceCell, timeCell, statusCell, rankCell].filter(Boolean) as string[]);
+    const others = cells.filter((cell) => !used.has(cell));
+    if (others.length >= 2) {
+      athleteCell = others[0];
+      universityCell = others[1];
+    }
+  }
+  if (!athleteCell || !universityCell) return null;
 
   return {
     rank: resultStatus === "finished" ? rankCell : resultStatus.toUpperCase(),

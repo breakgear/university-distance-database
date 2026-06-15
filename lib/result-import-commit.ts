@@ -28,6 +28,20 @@ export const csvFiles = [
 
 export type ImportCsvData = Record<(typeof csvFiles)[number], ImportCsvTable>;
 
+// 既存csv/に未生成のテーブルがあっても空テーブルとして扱うためのヘッダー定義
+const emptyTableHeaders: Record<(typeof csvFiles)[number], string[]> = {
+  universities: ["id", "slug", "name", "area", "sash_color", "accent", "profile", "listing_events", "has_upcoming", "has_result"],
+  athletes: ["id", "slug", "name", "university_id", "year", "hometown", "specialty", "profile", "next_race"],
+  meets: ["meet_id", "slug", "meet_name", "date", "venue", "category", "status", "note"],
+  races: ["race_id", "slug", "meet_id", "race_name", "distance", "start_time", "status", "result_summary_id"],
+  entries: ["entry_id", "meet_id", "race_id", "athlete_id", "university_id", "bib_no", "entry_status"],
+  results: ["result_id", "meet_id", "race_id", "athlete_id", "university_id", "distance", "date", "rank", "time", "result_status", "note", "is_pb", "section", "section_distance"],
+  personal_bests: ["pb_id", "athlete_id", "university_id", "distance", "time", "date", "source_type", "source_result_id", "note"],
+  team_results: ["team_result_id", "meet_id", "race_id", "university_id", "result_type", "rank", "time", "status", "note"],
+  status_master: ["status_key", "label", "use_for"],
+  event_type_master: ["event_type", "group", "label"]
+};
+
 const previewFiles = [
   ["universities", "大学情報を追加・更新", "id"],
   ["athletes", "選手情報を追加・更新", "id"],
@@ -184,7 +198,16 @@ function buildImportPlan(payload: ImportCommitPayload, csvDir: string) {
   if (!existsSync(csvDir)) throw new Error("csv/ ディレクトリが見つかりません。");
 
   const data = Object.fromEntries(
-    csvFiles.map((name) => [name, readCsv(path.join(csvDir, `${name}.csv`))])
+    csvFiles.map((name) => {
+      const filePath = path.join(csvDir, `${name}.csv`);
+      const known = emptyTableHeaders[name];
+      // 新規追加テーブルのCSVが未生成でも通常取込を止めない
+      if (!existsSync(filePath)) return [name, { headers: [...known], rows: [] }];
+      const table = readCsv(filePath);
+      // 既存CSVに新規カラム(section等)が無くても書き出し対象に含める
+      const headers = [...table.headers, ...known.filter((header) => !table.headers.includes(header))];
+      return [name, { headers, rows: table.rows }];
+    })
   ) as ImportCsvData;
   return buildImportPlanFromData(payload, data);
 }
@@ -239,6 +262,12 @@ export function buildImportPlanFromData(payload: ImportCommitPayload, data: Impo
 
   if (isEkiden) {
     for (const teamRow of payload.teamRows ?? []) {
+      // 総合のみに登場する大学のFK切れを防ぐため大学も登録する
+      counts.universities += ensureUniversityById(
+        workingData.universities.rows,
+        teamRow.universityId,
+        teamRow.university
+      );
       counts.team_results += ensureTeamResult(workingData.team_results.rows, teamRow, payload);
     }
   }
@@ -370,6 +399,23 @@ function ensureUniversity(rows: CsvRecord[], row: ImportParsedRow, payload: Impo
     listing_events: listingDistance,
     has_upcoming: payload.importKind === "entry" ? "TRUE" : "FALSE",
     has_result: payload.importKind === "entry" ? "FALSE" : "TRUE"
+  });
+  return 1;
+}
+
+function ensureUniversityById(rows: CsvRecord[], universityId: string, universityName: string) {
+  if (rows.some((item) => item.id === universityId)) return 0;
+  rows.push({
+    id: universityId,
+    slug: universityId,
+    name: universityName || "大学未登録",
+    area: "未登録",
+    sash_color: "未登録",
+    accent: "#64748B",
+    profile: "",
+    listing_events: "",
+    has_upcoming: "FALSE",
+    has_result: "TRUE"
   });
   return 1;
 }

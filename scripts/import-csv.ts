@@ -1086,14 +1086,24 @@ function buildResultSummaries(data: ReturnType<typeof normalizeAll>) {
   return data.races
     .map((race) => {
       const raceResults = data.results.filter((result) => result.race_id === race.race_id);
-      if (raceResults.length === 0) return null;
+      const isEkiden = race.distance === "駅伝";
+      const raceTeams = isEkiden ? data.teamResults.filter((team) => team.race_id === race.race_id) : [];
+      if (raceResults.length === 0 && raceTeams.length === 0) return null;
 
       const meet = data.meets.find((item) => item.meet_id === race.meet_id);
+      const notes = Array.from(new Set(raceResults.map((result) => result.note).filter(Boolean))) as ResultNote[];
+
+      // 駅伝は総合1位の大学を優勝として扱う（区間1位の選手ではない）
+      const overallTeams = raceTeams.filter((team) => team.result_type === "総合");
+      const topTeam =
+        overallTeams.find((team) => /^1位?$/.test(team.rank)) ?? overallTeams[0] ?? raceTeams[0];
       const finishedResults = raceResults.filter((result) => result.result_status === "finished");
       const winner = finishedResults.find((result) => result.rank === "1位") ?? finishedResults[0] ?? raceResults[0];
-      const winnerAthlete = data.athletes.find((athlete) => athlete.id === winner.athlete_id);
-      const winnerUniversity = data.universities.find((university) => university.id === winner.university_id);
-      const notes = Array.from(new Set(raceResults.map((result) => result.note).filter(Boolean))) as ResultNote[];
+      const winnerAthlete = winner ? data.athletes.find((athlete) => athlete.id === winner.athlete_id) : undefined;
+      const winnerUniversity = data.universities.find(
+        (university) => university.id === (isEkiden && topTeam ? topTeam.university_id : winner?.university_id)
+      );
+      const useTeamWinner = isEkiden && Boolean(topTeam);
 
       return {
         result_id: race.result_summary_id ?? `${race.meet_id}-${race.race_id}`,
@@ -1105,12 +1115,12 @@ function buildResultSummaries(data: ReturnType<typeof normalizeAll>) {
         venue: meet?.venue ?? "会場未定",
         category: meet?.category ?? "track",
         status: "result_published",
-        winner_type: "athlete",
-        winner_athlete_id: winner.athlete_id,
-        winner_name: winnerAthlete?.name ?? "未登録",
-        winner_university_id: winner.university_id,
+        winner_type: useTeamWinner ? "team" : "athlete",
+        winner_athlete_id: useTeamWinner ? "" : winner?.athlete_id ?? "",
+        winner_name: useTeamWinner ? winnerUniversity?.name ?? "大学未登録" : winnerAthlete?.name ?? "未登録",
+        winner_university_id: useTeamWinner ? topTeam!.university_id : winner?.university_id ?? "",
         winner_university_name: winnerUniversity?.name ?? "大学未登録",
-        winner_time: winner.time,
+        winner_time: useTeamWinner ? topTeam!.time : winner?.time ?? "",
         distance: race.distance,
         pb_count: raceResults.filter((result) => result.is_pb || result.note === "PB").length,
         dns_count: raceResults.filter((result) => result.result_status === "dns" || result.note === "DNS").length,

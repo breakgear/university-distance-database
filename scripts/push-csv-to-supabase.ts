@@ -81,7 +81,8 @@ function validateReferences(data: Record<TableName, CsvRecord[]>) {
     races: collectUnique(data.races, "race_id", errors),
     entries: collectUnique(data.entries, "entry_id", errors),
     results: collectUnique(data.results, "result_id", errors),
-    personal_bests: collectUnique(data.personal_bests, "pb_id", errors)
+    personal_bests: collectUnique(data.personal_bests, "pb_id", errors),
+    team_results: collectUnique(data.team_results, "team_result_id", errors)
   };
 
   for (const athlete of data.athletes) {
@@ -102,6 +103,11 @@ function validateReferences(data: Record<TableName, CsvRecord[]>) {
     requireReference("results.race_id", result.result_id, result.race_id, ids.races, errors);
     requireReference("results.athlete_id", result.result_id, result.athlete_id, ids.athletes, errors);
     requireReference("results.university_id", result.result_id, result.university_id, ids.universities, errors);
+  }
+  for (const team of data.team_results) {
+    requireReference("team_results.meet_id", team.team_result_id, team.meet_id, ids.meets, errors);
+    requireReference("team_results.race_id", team.team_result_id, team.race_id, ids.races, errors);
+    requireReference("team_results.university_id", team.team_result_id, team.university_id, ids.universities, errors);
   }
   for (const pb of data.personal_bests) {
     requireReference("personal_bests.athlete_id", pb.pb_id, pb.athlete_id, ids.athletes, errors);
